@@ -23,7 +23,6 @@ public class Document {
 	
 	public Mention node2mention(Sentence s, Tree node) {
 		String key = nodeKey(s,node);
-		System.out.println(key);
 		return node2mention.get(key);
 	}
 	public String nodeKey(Sentence s, Tree node) {
