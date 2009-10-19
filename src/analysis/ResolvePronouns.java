@@ -25,7 +25,8 @@ public class ResolvePronouns {
 				Tree NP = matcher.getNode("np");
 				Tree PRP= matcher.getNode("pronoun");
 				String pronoun = pronoun(PRP);
-				Mention mention = d.node2mention.get(NP);
+//				Mention mention = d.node2mention.get(NP);
+				Mention mention = d.node2mention(s,NP);
 				System.out.println("\nResolving phrase "+mention);
 				System.out.println("head? pronoun: "+pronoun);
 				resolve(mention, pronoun, d);

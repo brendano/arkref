@@ -23,7 +23,8 @@ public class FindMentions {
 				Mention mention = new Mention(++id, s, match);
 				System.out.println("MENTION "+mention);
 				d.mentions.add(mention);
-				d.node2mention.put(match, mention);
+				d.set_node2mention(s, match, mention);
+//				d.node2mention.put(match, mention);
 			}
 		}
 	}

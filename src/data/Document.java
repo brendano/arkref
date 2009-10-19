@@ -5,19 +5,33 @@ import java.io.*;
 import parsestuff.AnalysisUtilities;
 
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.Pair;
 
 public class Document {
 	public ArrayList<Sentence> sentences;
 	public ArrayList<Mention> mentions;
-	public HashMap<Tree,Mention> node2mention;  // BUG: same-looking node multiple trees
+	public HashMap<String, Mention> node2mention;
 	public RefGraph refGraph;
 	
 	public Document() {
 		sentences = new ArrayList<Sentence>();
 		mentions = new ArrayList<Mention>();
-		node2mention = new HashMap<Tree,Mention>();
+		node2mention = new HashMap();
 		refGraph = new RefGraph();
+	}
+	
+	public Mention node2mention(Sentence s, Tree node) {
+		String key = nodeKey(s,node);
+		System.out.println(key);
+		return node2mention.get(key);
+	}
+	public String nodeKey(Sentence s, Tree node) {
+		return String.format("sent_%s_node_%s_%s", s.id, s.root.leftCharEdge(node), node.hashCode());
+	}
+	public void set_node2mention(Sentence s, Tree node, Mention m) {
+		String key = nodeKey(s,node);
+		node2mention.put(key, m);
 	}
 	
 	public static Document loadFiles(String baseFilename) throws IOException {
