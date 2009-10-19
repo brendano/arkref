@@ -10,7 +10,7 @@ import edu.stanford.nlp.util.Pair;
 public class Document {
 	public ArrayList<Sentence> sentences;
 	public ArrayList<Mention> mentions;
-	public HashMap<Tree,Mention> node2mention;
+	public HashMap<Tree,Mention> node2mention;  // BUG: same-looking node multiple trees
 	public RefGraph refGraph;
 	
 	public Document() {
