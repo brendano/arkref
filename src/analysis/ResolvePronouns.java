@@ -38,45 +38,43 @@ public class ResolvePronouns {
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		
-		for (Mention prev : d.prevMentions(mention)) {
+		for (Mention cand : d.prevMentions(mention)) {
 			boolean match;
-			String t = prev.neType();
-			if (pronoun.equals("it")) { //&& !t.equals("PERSON") &&) {
-				if (!isPronominal(prev)) {
-					match = !prev.neType().equals("PERSON");
+			if (personhood(pronoun).equals("NONPER")) {    // e.g. "it"
+				if (!isPronominal(cand)) {
+					match = !cand.neType().equals("PERSON");
 				} else {
-					String g2 = gender(prev);
-					System.out.println("gender "+g2+"  "+prev);
+					String g2 = gender(cand);
+					System.out.println("gender "+g2+"  for  "+cand);
 					if (g2.equals("M") || g2.equals("F")) {
 						match = false;
-					} else if (number(prev).equals("SG")) {
+					} else if (number(cand).equals("SG")) {
 						match = true;
 					} else { 
 						match = true;  // ??  "it" -> "the store" i suppose.
 					}					
 				}
 			} else if (personhood(pronoun).equals("PER")) {
-				System.out.println(mention + "  |  " + prev);
-				if (isPronominal(prev)) {
-					match = gender(prev).equals(gender(mention));
+				if (isPronominal(cand)) {
+					match = gender(cand).equals(gender(mention));
 				} else {
 					// should use namelist here
-					match = prev.neType().equals("PERSON");
+					match = cand.neType().equals("PERSON");
 				}
 			} else {
 				match = false;
 			}
 			
 			if (match) {
-				System.out.println("yay    typematch: " + prev);
-				candidates.add(prev);
+				System.out.println("yay    typematch: " + cand);
+				candidates.add(cand);
 			} else {
-				System.out.println("reject mismatch:  " + prev);
+				System.out.println("reject mismatch:  " + cand);
 			}
 		}
 		if (candidates.size() == 0) {
 			System.out.println("No legal candidates");
-			d.refGraph.setNullRef(mention);			
+			d.refGraph.setNullRef(mention);
 		} else if (candidates.size() == 1) {
 			System.out.println("Single legal resolution");
 			d.refGraph.setRef(mention, candidates.get(0));
@@ -93,14 +91,14 @@ public class ResolvePronouns {
 	}
 	
 	public static boolean isPronominal(Mention m) {
-		TregexMatcher matcher=TregexPatternFactory.getPattern("NP <<# PRP").matcher(m.node);
+		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# PRP").matcher(m.node);
 		return matcher.find();
 	}
 	public static String pronoun(Mention m) {
 		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# PRP=pronoun");
 		TregexMatcher matcher = pat.matcher(m.node);
 		if (matcher.find()) {
-			Tree PRP= matcher.getNode("pronoun");
+			Tree PRP = matcher.getNode("pronoun");
 			return pronoun(PRP);
 		} else {
 			return null;
@@ -126,24 +124,24 @@ public class ResolvePronouns {
 			} else {
 				return null;   // no decision
 			}
-		} else {
-			// name lists
-			return null;
 		}
+		// else name lists, i guess
+		return null;
 	}
 	public static String personhood(Mention m) {
 		if (isPronominal(m)) {
 			String p = pronoun(m);
 			return personhood(p);
-		} else { return null; }
+		}
+		return null;
 	}
 	public static String personhood(String pronoun) {
 		if (pronoun.matches("^(he|him|his|she|her)$")) {
 			return "PER";
-		} else {
-			return null;
+		} else if (pronoun.matches("^(it|its)$")) {
+			return "NONPER";
 		}
-		
+		return null;
 	}
 	public static String number(Mention m) {
 		if (isPronominal(m)) {
