@@ -49,6 +49,11 @@ public class Document {
 			sent.setStuff(tree, ner);
 			d.sentences.add(sent);
 		}
+		System.out.printf("***  Input %s  ***\n\n", baseFilename);
+		for (Sentence s : d.sentences) {
+			System.out.printf("S%-2d\t%s\n", s.id, s.text());
+		}
+
 		return d;
 	}
 	

@@ -1,8 +1,6 @@
 package analysis;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
@@ -117,7 +115,7 @@ public class ResolvePronouns {
 			String p = pronoun(m);
 			if (p.matches("^(he|him|his)$")) {
 				return "M";
-			} else if (p.matches("^(she|her)$")) {
+			} else if (p.matches("^(she|her|hers)$")) {
 				return "F";
 			} else if (p.matches("^(it|its)$")) {
 				return "N";  // neuter
