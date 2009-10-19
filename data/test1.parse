@@ -1,0 +1,3 @@
+(ROOT (S=H (NP (NNP=H Bob)) (VP=H (VBD=H went) (PP (TO=H to) (NP (DT the) (NN=H store)))) (. .)))
+(ROOT (S=H (NP (PRP=H It)) (VP=H (VBD=H was) (NP (DT a) (NN grocery) (NN=H store))) (. .)))
+(ROOT (S=H (NP (PRP=H He)) (VP=H (VBD=H bought) (NP (DT an) (NN=H item))) (. .)))

@@ -1,0 +1,3 @@
+sentbreaking and precleaning: ascii-normalization of curly quotes 
+  (and whatever else to make the stanford tokenizer happy)
+
