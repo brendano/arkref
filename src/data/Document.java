@@ -1,12 +1,11 @@
 package data;
+
 import java.util.*;
 import java.io.*;
 
 import parsestuff.AnalysisUtilities;
 
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.util.IntPair;
-import edu.stanford.nlp.util.Pair;
 
 public class Document {
 	public ArrayList<Sentence> sentences;

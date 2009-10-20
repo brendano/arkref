@@ -2,10 +2,7 @@ package data;
 
 import java.util.List;
 
-import parsestuff.TregexPatternFactory;
-
 import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.tregex.TregexMatcher;
 
 public class Mention {
 	public Tree node;

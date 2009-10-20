@@ -6,7 +6,6 @@ import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import data.Document;
 import data.Mention;
-import data.Sentence;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -15,19 +14,9 @@ public class ResolvePronouns {
 	public static void go(Document d) {
 		System.out.println("\n***  Resolve Pronouns  ***\n");
 
-		// todo (PRP$ Its)
-		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# PRP=pronoun");
-		for (Sentence s : d.sentences) {
-			TregexMatcher matcher = pat.matcher(s.root);
-			while (matcher.find()) {
-				Tree NP = matcher.getNode("np");
-				Tree PRP= matcher.getNode("pronoun");
-				String pronoun = pronoun(PRP);
-//				Mention mention = d.node2mention.get(NP);
-				Mention mention = d.node2mention(s,NP);
-				System.out.println("\nResolving phrase "+mention);
-				System.out.println("head? pronoun: "+pronoun);
-				resolve(mention, pronoun, d);
+		for (Mention m : d.mentions) {
+			if (isPronominal(m)) {
+				resolve(m, pronoun(m), d);
 			}
 		}
 	}
@@ -61,8 +50,7 @@ public class ResolvePronouns {
 				}
 			} else {
 				match = false;
-			}
-			
+			}			
 			if (match) {
 				System.out.println("yay    typematch: " + cand);
 				candidates.add(cand);
@@ -87,7 +75,9 @@ public class ResolvePronouns {
 				 AnalysisUtilities.abbrevTree(ref.node));
 //		System.out.printf("RESOLVE M%-3d %s  ->  M%-3d %s\n", mention.id, d.refGraph.finalResolutions.get(mention));
 	}
-	
+
+	// TODO (PRP$ Its)
+
 	public static boolean isPronominal(Mention m) {
 		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# PRP").matcher(m.node);
 		return matcher.find();
@@ -134,7 +124,7 @@ public class ResolvePronouns {
 		return null;
 	}
 	public static String personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her)$")) {
+		if (pronoun.matches("^(he|him|his|she|her|hers)$")) {
 			return "PER";
 		} else if (pronoun.matches("^(it|its)$")) {
 			return "NONPER";

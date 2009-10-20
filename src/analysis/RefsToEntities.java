@@ -3,7 +3,6 @@ package analysis;
 import data.Document;
 import data.EntityGraph;
 import data.Mention;
-import data.Sentence;
 
 /** Do the transitive closure to make reference-referent pairs into entity partitions **/
 public class RefsToEntities {
