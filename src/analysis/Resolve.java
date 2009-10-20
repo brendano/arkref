@@ -9,6 +9,7 @@ import parsestuff.TregexPatternFactory;
 import data.Document;
 import data.Mention;
 import data.Sentence;
+import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -25,15 +26,59 @@ public class Resolve{
 				resolvePronoun(m, pronoun(m), d);
 			}else if(inAppositiveConstruction(m)){
 				resolveAppositive(m, d);
+			}else if((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null){
+				d.getRefGraph().setRef(m, antecedent);		
 			}else if((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null){
 				d.getRefGraph().setRef(m, antecedent);		
 			}else{
+				//TODO just return antecedents with matching heads
+				//make sure to check I-within-I constraints
+				
 				//semantics!
 			}
 		}
 	}
 	
 	
+
+
+	private static Mention findAntecedentInRoleAppositiveConstruction(Mention m, Document d) {
+		Tree root = m.getSentence().getRootNode();
+		Tree node = m.getNode();
+		Tree parent = node.parent(root);
+		
+		//System.err.println("mention:"+node.yield().toString()+"\thead:"+node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).yield().toString());
+		if(!parent.label().value().equals("NP")){
+			return null;
+		}
+		
+		int index = parent.indexOf(node);
+		if(index-1 < 0){
+			return null;
+		}
+		
+		Tree nextSibling = parent.getChild(index-1);
+		//return the next sibling if it is a person, an NP, and dominates the head
+		HeadFinder headFinder = AnalysisUtilities.getInstance().getHeadFinder();
+		if(nextSibling.label().value().equals("NP")
+			&& parent.headTerminal(headFinder) == nextSibling.headTerminal(headFinder)
+			&& m.neType().matches("^PER.*$"))
+		{
+			//find maximal projection of the head of the parent
+			Tree maxProj = SyntacticPaths.getMaximalProjection(parent, root);			
+			
+			//find the mention for that projection
+			for(Mention m2: d.getMentions()){
+				if(maxProj == m2.getNode()){
+					return m2;
+				}
+			}
+		}
+		
+		return null;
+	}
+
+
 
 
 	/**
@@ -163,9 +208,11 @@ public class Resolve{
 			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
 		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
-		System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
+		if(ref != null){
+			System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
 				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
 				 AnalysisUtilities.abbrevTree(ref.getNode()));
+		}
 //		System.out.printf("RESOLVE M%-3d %s  ->  M%-3d %s\n", mention.id, d.refGraph.finalResolutions.get(mention));
 	}
 
@@ -221,7 +268,7 @@ public class Resolve{
 	}
 	
 	public static String personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her|hers)$")) {
+		if (pronoun.matches("^(he|him|his|she|her|hers|our|ours|my|mine|you|yours|i|we)$")) {
 			return "PER";
 		} else if (pronoun.matches("^(it|its)$")) {
 			return "NONPER";
@@ -232,7 +279,7 @@ public class Resolve{
 	public static String number(Mention m) {
 		if (isPronominal(m)) {
 			String p = pronoun(m);
-			if (p.matches("^(they|them|these|those|we|us)$")) {
+			if (p.matches("^(they|them|these|those|we|us|their|ours|our|theirs)$")) {
 				return "PL";
 			} else {  //if (p.matches("^(it|its|that|this|he|him|his|she|her)$")) {
 				return "SG";

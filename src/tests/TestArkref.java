@@ -28,6 +28,41 @@ public class TestArkref extends TestCase {
 	protected void tearDown() { 
 	} 
 	
+	
+
+	
+	
+	public void testRoleAppositives() throws IOException{
+		
+		//The author John Smith wrote the book.
+		//I learned about the painter John Smith, the subject of the exposition.
+		
+		Document d = Document.loadFiles("data/roleAppositivesTest");
+		_Pipeline.go(d);
+		
+		assertTrue(d.getMentions().toString(), d.getMentions().size()==8);
+
+		Mention m1 = d.getMentions().get(0); //the author John Smith
+		Mention m2 = d.getMentions().get(1); //John Smith
+		
+		Mention m5 = d.getMentions().get(4); //the painter Pablo Picasso, the subject of the exposition
+		Mention m6 = d.getMentions().get(5); //Pablo Picasso
+		Mention m7 = d.getMentions().get(6); //the subject of the exposition 
+		
+		System.err.println(d.getMentions().toString());
+		
+		assertTrue(m1.getNode().yield().toString(), m1.getNode().yield().toString().equalsIgnoreCase("the author John Smith"));
+		assertTrue(m2.getNode().yield().toString(), m2.getNode().yield().toString().equalsIgnoreCase("John Smith"));
+		assertTrue(m5.getNode().yield().toString(), m5.getNode().yield().toString().equalsIgnoreCase("the famous painter John Smith , the subject of the exposition"));
+		assertTrue(m6.getNode().yield().toString(), m6.getNode().yield().toString().equalsIgnoreCase("John Smith"));
+		assertTrue(m7.getNode().yield().toString(), m7.getNode().yield().toString().equalsIgnoreCase("the subject of the exposition"));
+		
+		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+		assertTrue(m7.getNode().toString(), d.getEntGraph().getLinkedMentions(m7).contains(m5));
+		assertTrue(m6.getNode().toString(), d.getEntGraph().getLinkedMentions(m6).contains(m5));
+	}
+	
+	
 	public void testAppositives() throws IOException{
 		//example from H&K 2009
 		//Walmart says Gitano, its top-selling brand, is underselling.
@@ -47,6 +82,10 @@ public class TestArkref extends TestCase {
 		
 		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
 	}
+	
+	
+
+	
 	
 	public void testPathLength() throws IOException{
 		//John knew that Bob was weird, but he still invited him to the party.
@@ -167,8 +206,25 @@ public class TestArkref extends TestCase {
 		m1 = d.getMentions().get(6); //Lincoln
 		m2 = d.getMentions().get(7); //president
 		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
-
-
 	}
+	
+	
+	
+	public void testConjunctions() throws IOException{
+		//He and Fred went to the store.
+		
+		Document d = Document.loadFiles("data/conjunctionsTest");
+		_Pipeline.go(d);
+
+		Mention m1 = d.getMentions().get(0); //He and Fred
+		Mention m2 = d.getMentions().get(1); //the store
+		
+		assertTrue(d.getMentions().toString(), d.getMentions().size() == 2);
+		assertTrue(d.getMentions().toString(), m1.getNode().yield().toString().equals("He and Fred"));
+		assertTrue(d.getMentions().toString(), m2.getNode().yield().toString().equals("the store"));
+		assertFalse(d.getMentions().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+		
+	}
+	
 	
 }

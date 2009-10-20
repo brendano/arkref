@@ -54,6 +54,7 @@ public class Document {
 			parse = parse.replace("=H ", " ");
 			Tree tree = AnalysisUtilities.getInstance().readTreeFromString(parse);
 			Document.addNPsAbovePossessivePronouns(tree);
+			Document.addInternalNPStructureForRoleAppositives(tree);
 			ner = nerR.readLine();
 			Sentence sent = new Sentence(++curSentId);
 			sent.setStuff(tree, ner);
@@ -84,8 +85,83 @@ public class Document {
 			parentNP.addChild(index, newNP);
 			
 		}
-		
 	}
+	
+	
+	private static void addInternalNPStructureForRoleAppositives(Tree tree) {
+		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
+		String patS = "NP=parentnp < NNP|NNPS < NNS|NN";
+		TregexPattern pat = TregexPatternFactory.getPattern(patS);
+		TregexMatcher matcher = pat.matcher(tree);
+		
+		String prevLabelS = "";
+		String curLabelS;
+		Tree tmp;
+		int start;
+		Tree newNode;
+		
+		while (matcher.find()) {
+			Tree parentNP = matcher.getNode("parentnp");
+			start = -1;
+			boolean endOfSubseq;
+			
+			for(int i=0; i<parentNP.numChildren(); i++){
+				endOfSubseq = false;
+				tmp = parentNP.getChild(i);
+				curLabelS = tmp.label().value();
+				
+				if(start == -1){
+					if(curLabelS.matches("^NNP|NNPS|NN|NNS|JJ|DT$")){
+						start = i;
+					}
+				}else{
+					if(prevLabelS.matches("^NNP|NNPS$")){
+						endOfSubseq = !curLabelS.matches("^NNP|NNPS$");
+					}else if(prevLabelS.matches("^NN|NNS|JJ|DT$")){
+						endOfSubseq = !curLabelS.matches("^NN|NNS|JJ|DT$");
+					}
+						
+				}
+					
+					
+				if(endOfSubseq){
+					//System.err.println("start="+start+" i="+i);
+					newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
+					for(int j=0; j<i-start; j++){
+						newNode.addChild(parentNP.getChild(start));
+						parentNP.removeChild(start);
+					}
+					parentNP.addChild(start, newNode);
+					
+					//adjust the index since we changed the list of children 
+					//(probably not the cleanest way to do this...)
+					i=start+1;
+					
+					if(curLabelS.matches("^NNP|NNPS|NN|NNS|JJ|DT$")){
+						start = i;
+					}else{
+						start = -1;
+					}
+				}
+				
+				prevLabelS = curLabelS;
+			}
+
+			//if the last subsequence ended the list of children, make sure to add it too
+			if(start != -1){
+				newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
+				for(int j=0; j<parentNP.numChildren()-start+1; j++){
+					//System.err.println(j+" "+parentNP.numChildren());
+					newNode.addChild(parentNP.getChild(start));
+					parentNP.removeChild(start);
+				}
+				parentNP.addChild(start, newNode);
+			}
+			
+		}
+	}
+	
+	
 
 	/** goes backwards through document **/
 	public Iterable<Mention> prevMentions(final Mention start) {

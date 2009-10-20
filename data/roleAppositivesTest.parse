@@ -1,0 +1,2 @@
+(ROOT (S=H (NP (DT The) (NN author) (NNP John) (NNP=H Smith)) (VP=H (VBD=H wrote) (NP (DT the) (NN=H book))) (. .)))
+(ROOT (S=H (NP (PRP=H I)) (VP=H (VBD=H learned) (PP (IN=H about) (NP (NP=H (DT the) (JJ famous) (NN painter) (NNP John) (NNP=H Smith)) (, ,) (NP (NP=H (DT the) (NN=H subject)) (PP (IN=H of) (NP (DT the) (NN=H exposition))))))) (. .)))

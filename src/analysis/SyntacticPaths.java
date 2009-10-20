@@ -4,8 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import parsestuff.AnalysisUtilities;
+
 import data.Document;
 import data.Mention;
+import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
 
 public class SyntacticPaths {
@@ -100,6 +103,25 @@ public class SyntacticPaths {
 		
 
 		return bDominatesA;
+	}
+
+
+	public static Tree getMaximalProjection(Tree parent, Tree root) {
+		Tree res = parent;
+		Tree tmp = parent;
+		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
+		Tree parentHead = parent.headTerminal(hf);
+		
+		while(tmp != null){
+			tmp = res.parent(root);
+			if(tmp.headTerminal(hf) == parentHead){
+				res = tmp;
+			}else{
+				break;
+			}
+		}
+		
+		return res;
 	}
 
 	

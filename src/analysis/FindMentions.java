@@ -14,7 +14,7 @@ public class FindMentions {
 		System.out.println("\n***  Find Mentions  ***\n");
 
 		int id=0;
-		String patS = "NP !>># NP"; //needs to be the maximum projection of a head word
+		String patS = "NP !>># NP"; //needs to be the maximum projection of a head word, or a conjunction
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		for (Sentence s : d.getSentences()) {
 			TregexMatcher matcher = pat.matcher(s.getRootNode());
