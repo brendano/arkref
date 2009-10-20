@@ -41,7 +41,19 @@ public class Resolve{
 	
 	
 
-
+	/**
+	 * 
+	 * Note: This is slightly different than what is described in H&K EMNLP 09.
+	 * I think the head rules they used were slightly different (or possibly their description is a little off).
+	 * The Stanford Parser API says that for sentences like "painter Pablo Picasso", the head is "painter",
+	 * and thus their are mentions for "painter Pablo Picasso" and "Pablo Picasso" but not just "painter".
+	 * Therefore, we connect "painter Pablo Picasso" and "Pablo Picasso" by looking at the NP *PREVIOUS* to
+	 * "Pablo Picasso" to see if it is a person, rather than subsequent to it, as H&K describe.
+	 * 
+	 * @param m
+	 * @param d
+	 * @return
+	 */
 	private static Mention findAntecedentInRoleAppositiveConstruction(Mention m, Document d) {
 		Tree root = m.getSentence().getRootNode();
 		Tree node = m.getNode();
