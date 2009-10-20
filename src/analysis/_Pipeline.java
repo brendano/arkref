@@ -17,7 +17,7 @@ public class _Pipeline {
 	public static void go(Document d){
 		FindMentions.go(d);
 		// new pipeline steps here?
-		ResolvePronouns.go(d);
+		Resolve.go(d);
 		// or here!
 		RefsToEntities.go(d);
 	}

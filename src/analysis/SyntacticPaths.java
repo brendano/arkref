@@ -66,7 +66,8 @@ public class SyntacticPaths {
 	 */
 	public static int computePathLength(Tree node1, Tree node2, Tree commonRoot) {
 		int res = 1000;
-				
+		
+		/*
 		//find the node in the tree that dominates both input nodes
 		int len1 = 0;
 		int len2 = 0;
@@ -83,9 +84,23 @@ public class SyntacticPaths {
 		}
 		
 		//sum the distances from each input node to their common ancestor
-		res = len1+len2;
+		res = len1+len2;*/
+		
+		List<Tree> path = commonRoot.pathNodeToNode(node1, node2);
+		if(path != null){
+			res = path.size()-1;
+		}
 		
 		return res;
 	}
 
+
+	public static boolean aIsDominatedByB(Mention A, Mention B) {
+		boolean bDominatesA = B.getNode().dominates(A.getNode());
+		
+
+		return bDominatesA;
+	}
+
+	
 }

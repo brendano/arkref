@@ -3,11 +3,16 @@ package data;
 import java.util.*;
 import java.io.*;
 
+import analysis.FindMentions;
+
 import parsestuff.AnalysisUtilities;
+import parsestuff.TregexPatternFactory;
 
 import edu.stanford.nlp.trees.LabeledScoredTreeFactory;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeFactory;
+import edu.stanford.nlp.trees.tregex.TregexMatcher;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 public class Document {
 	private List<Sentence> sentences;
@@ -48,6 +53,7 @@ public class Document {
 		while ( (parse = parseR.readLine()) != null) {
 			parse = parse.replace("=H ", " ");
 			Tree tree = AnalysisUtilities.getInstance().readTreeFromString(parse);
+			Document.addNPsAbovePossessivePronouns(tree);
 			ner = nerR.readLine();
 			Sentence sent = new Sentence(++curSentId);
 			sent.setStuff(tree, ner);
@@ -61,6 +67,26 @@ public class Document {
 		return d;
 	}
 	
+	
+	private static void addNPsAbovePossessivePronouns(Tree tree) {
+		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
+		String patS = "NP=parentnp < /^PRP\\$/=pro"; //needs to be the maximum projection of a head word
+		TregexPattern pat = TregexPatternFactory.getPattern(patS);
+		TregexMatcher matcher = pat.matcher(tree);
+		while (matcher.find()) {
+			Tree parentNP = matcher.getNode("parentnp");
+			Tree pro = matcher.getNode("pro");
+			Tree newNP = factory.newTreeNode("NP", new ArrayList<Tree>());
+			int index = parentNP.indexOf(pro);
+			
+			newNP.addChild(pro);
+			parentNP.removeChild(index);
+			parentNP.addChild(index, newNP);
+			
+		}
+		
+	}
+
 	/** goes backwards through document **/
 	public Iterable<Mention> prevMentions(final Mention start) {
 		return new Iterable<Mention>() {
