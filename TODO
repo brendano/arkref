@@ -8,3 +8,17 @@ mention span than annotated in the data... If there is no NP headed by
 a given mention head, we add an NP over just that word." 
 
 
+-path extraction and bootstrapping: "We take a simple bootstrapping technique: given a
+set of mention pairs extracted from appositives
+and predicate-nominative configurations, we extract
+counts over tree fragments between nodes
+which have occurred in this set of head pairs (see
+Figure 5); the tree fragments are formed by annotating
+the internal nodes in the tree path with
+the head word and POS along with the subcategorization.
+We limit the paths extracted in this way
+in several ways: paths are only allowed to go between
+adjacent sentences and have a length of at
+most 10. We then filter the set of paths to those
+which occur more than a hundred times and with
+at least 10 distinct seed head word pairs."
