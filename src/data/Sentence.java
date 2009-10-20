@@ -13,11 +13,11 @@ import edu.stanford.nlp.trees.Tree;
 
 public class Sentence {
 		public ArrayList<Word> words;
-		public HashMap<Tree,Word> node2word;
+		private HashMap<String,Word> node2word;
 		public Tree root;
 		public int id;
 		
-		public Sentence(int id) { this.id=id; words=new ArrayList<Word>(); node2word=new HashMap<Tree,Word>(); }
+		public Sentence(int id) { this.id=id; words=new ArrayList<Word>(); node2word=new HashMap(); }
 		
 		public void setStuff(Tree root, String neTagging) {
 			this.root = root;
@@ -32,14 +32,26 @@ public class Sentence {
 				word.neTag = parts[1];
 //				System.out.println(word);
 				words.add(word);
-				node2word.put(word.node, word);
+				set_node2word(word.node, word);
 			}
 		}
 		
+		public Word node2word(Tree node) {
+			String key = nodeKey(node);
+			return node2word.get(key);
+		}
+		public String nodeKey(Tree node) {
+			return String.format("node_%s_%s", root.leftCharEdge(node), node.hashCode());
+		}
+		public void set_node2word(Tree node, Word w) {
+			String key = nodeKey(node);
+			node2word.put(key, w);
+		}
+
+		
 		public String neType(Tree leaf) {
 			assert leaf.isLeaf();
-			assert node2word.containsKey(leaf);
-			Word w = node2word.get(leaf);
+			Word w = node2word(leaf);
 //			if (w == null) return null;
 			return w.neTag;
 		}
