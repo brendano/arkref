@@ -1,0 +1,2 @@
+(ROOT (S=H (NP (DT The) (ADJP (JJ=H nice) (, ,) (JJ smart)) (NN=H boy)) (VP=H (VBD=H liked) (S (VP=H (TO=H to) (VP (VB=H play) (PP (IN=H in) (NP (DT the) (NN=H park))))))) (. .)))
+(ROOT (S=H (NP (DT This) (NN=H boy)) (ADVP (RB=H also)) (VP=H (VBD=H liked) (S (VP=H (TO=H to) (VP (VB=H play) (NP (NN=H soccer)))))) (. .)))

@@ -29,7 +29,25 @@ public class TestArkref extends TestCase {
 	} 
 	
 	
+	public void testSameHead() throws IOException{
+		//The nice, smart boy liked to play in the park.
+		//This boy also liked to play soccer.
+		
+		Document d = Document.loadFiles("data/sameHeadWordTest");
+		_Pipeline.go(d);
 
+		Mention m1 = d.getMentions().get(0); //The nice, smart boy
+		Mention m2 = d.getMentions().get(1); //the park
+		Mention m3 = d.getMentions().get(2); //This boy
+		
+		assertTrue(m1.getNode().toString(), m1.getNode().yield().toString().equals("The nice , smart boy"));
+		assertTrue(m2.getNode().toString(), m2.getNode().yield().toString().equals("the park"));
+		assertTrue(m3.getNode().toString(), m3.getNode().yield().toString().equals("This boy"));
+
+		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m1));
+		assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
+		
+	}
 	
 	
 	public void testRoleAppositives() throws IOException{
@@ -85,6 +103,7 @@ public class TestArkref extends TestCase {
 	
 	
 
+	
 	
 	
 	public void testPathLength() throws IOException{

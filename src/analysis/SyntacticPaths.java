@@ -124,5 +124,14 @@ public class SyntacticPaths {
 		return res;
 	}
 
+
+	public static boolean haveSameHeadWord(Mention m1, Mention m2) {
+		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
+		String h1 = m1.getNode().headTerminal(hf).yield().toString();
+		String h2 = m2.getNode().headTerminal(hf).yield().toString();
+		
+		return h1.equalsIgnoreCase(h2);
+	}
+
 	
 }
