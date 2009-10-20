@@ -144,7 +144,31 @@ public class TestArkref extends TestCase {
 	}
 	
 	
+	public void testPredicateNominatives() throws IOException{
+		
+		//Lincoln was president.
+		//Lincoln had been president.
+		//Lincoln will be president.
+		
+		Document d = Document.loadFiles("data/predNomTest");
+		_Pipeline.go(d);
 
-	
+		Mention m1;
+		Mention m2;
+		
+		m1 = d.getMentions().get(0); //Lincoln
+		m2 = d.getMentions().get(1); //president
+		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+
+		m1 = d.getMentions().get(2); //Lincoln
+		m2 = d.getMentions().get(3); //president
+		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+
+		m1 = d.getMentions().get(6); //Lincoln
+		m2 = d.getMentions().get(7); //president
+		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+
+
+	}
 	
 }
