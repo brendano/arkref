@@ -1,6 +1,8 @@
 package analysis;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
@@ -14,7 +16,7 @@ public class ResolvePronouns {
 	public static void go(Document d) {
 		System.out.println("\n***  Resolve Pronouns  ***\n");
 
-		for (Mention m : d.mentions) {
+		for (Mention m : d.getMentions()) {
 			if (isPronominal(m)) {
 				resolve(m, pronoun(m), d);
 			}
@@ -60,31 +62,32 @@ public class ResolvePronouns {
 		}
 		if (candidates.size() == 0) {
 			System.out.println("No legal candidates");
-			d.refGraph.setNullRef(mention);
+			d.getRefGraph().setNullRef(mention);
 		} else if (candidates.size() == 1) {
 			System.out.println("Single legal resolution");
-			d.refGraph.setRef(mention, candidates.get(0));
+			d.getRefGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
-			// want shortest path length and stuff
 			System.out.println("Doing stupid surfaceish-closest resolution");
-			d.refGraph.setRef(mention, candidates.get(0)); 
+			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
-		Mention ref = d.refGraph.finalResolutions.get(mention);
+		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
 		System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
-				mention.id, ref.id, AnalysisUtilities.abbrevTree(mention.node),
-				 AnalysisUtilities.abbrevTree(ref.node));
+				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
+				 AnalysisUtilities.abbrevTree(ref.getNode()));
 //		System.out.printf("RESOLVE M%-3d %s  ->  M%-3d %s\n", mention.id, d.refGraph.finalResolutions.get(mention));
 	}
 
-	// TODO (PRP$ Its)
 
+	
+	// TODO (PRP$ Its)
 	public static boolean isPronominal(Mention m) {
-		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# PRP").matcher(m.node);
+		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# PRP").matcher(m.getNode());
 		return matcher.find();
 	}
+	
 	public static String pronoun(Mention m) {
 		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# PRP=pronoun");
-		TregexMatcher matcher = pat.matcher(m.node);
+		TregexMatcher matcher = pat.matcher(m.getNode());
 		if (matcher.find()) {
 			Tree PRP = matcher.getNode("pronoun");
 			return pronoun(PRP);

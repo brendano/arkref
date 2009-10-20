@@ -5,9 +5,13 @@ import java.util.List;
 import edu.stanford.nlp.trees.Tree;
 
 public class Mention {
-	public Tree node;
-	public Sentence sentence;
-	public int id;
+	private Tree node;
+
+	private Sentence sentence;
+
+
+	private int id;
+	
 	public Mention(int id, Sentence sentence, Tree node) { this.id=id; this.sentence=sentence; this.node=node; }
 	public String neType() {
 		// using head word strongly outperforms using right-most
@@ -17,7 +21,18 @@ public class Mention {
 		return sentence.neType(rightmost);
 	}
 	public String toString() { 
-		return String.format("M%-3d : S%-2d : %-12s : %s", id, sentence.id, neType(), node); 
+		return String.format("M%-3d : S%-2d : %-12s : %s", id, sentence.getID(), neType(), node); 
+	}
+	
+	public int getID() {
+		return id;
+	}
+	public Tree getNode() {
+		return node;
+	}
+	
+	public Sentence getSentence() {
+		return sentence;
 	}
 	
 }

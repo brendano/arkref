@@ -1,0 +1,1 @@
+(ROOT (S=H (S=H (NP (NNP=H John)) (VP=H (VBD=H knew) (SBAR (IN=H that) (S (NP (NNP=H Bob)) (VP=H (VBD=H was) (ADJP (JJ=H weird))))))) (, ,) (CC but) (S (NP (PRP=H he)) (ADVP (RB=H still)) (VP=H (VBD=H invited) (NP (PRP=H him)) (PP (TO=H to) (NP (DT the) (NN=H party))))) (. .)))

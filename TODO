@@ -1,3 +1,10 @@
-sentbreaking and precleaning: ascii-normalization of curly quotes 
+-sentbreaking and precleaning: ascii-normalization of curly quotes 
   (and whatever else to make the stanford tokenizer happy)
+  
+-implement for testing purposes: "then for each evaluation mention, 
+we find the largest-span NP which has the previously determined mention
+head as its head.5 Often, this results in a different, typically larger,
+mention span than annotated in the data... If there is no NP headed by 
+a given mention head, we add an NP over just that word." 
+
 

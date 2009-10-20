@@ -11,6 +11,10 @@ public class _Pipeline {
 		else f = "/d/arkref/data/test1";
 	
 		Document d = Document.loadFiles(f);		
+		_Pipeline.go(d);
+	}
+	
+	public static void go(Document d){
 		FindMentions.go(d);
 		// new pipeline steps here?
 		ResolvePronouns.go(d);

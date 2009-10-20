@@ -4,20 +4,24 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
 public class EntityGraph {
-	public HashMap<Mention, HashSet<Mention>> mention2corefs;
+	public Map<Mention, HashSet<Mention>> mention2corefs;
 	
 	public EntityGraph(Document d) {
-		mention2corefs = new HashMap();
-		for (Mention m : d.mentions) { 
-			mention2corefs.put(m, new HashSet());
+		mention2corefs = new HashMap<Mention, HashSet<Mention>>();
+		for (Mention m : d.getMentions()) { 
+			mention2corefs.put(m, new HashSet<Mention>());
 			mention2corefs.get(m).add(m);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
 	public void addPair(Mention m1, Mention m2) {
 		// Strategy: always keep mention2corefs a complete record of all coreferents for that mention
 		// So all we do is merge
@@ -30,16 +34,24 @@ public class EntityGraph {
 			}
 		}
 	}
+	
+	public Set<Mention> getLinkedMentions(Mention m){
+		return mention2corefs.get(m);
+	}
+	
+	
 	public boolean isSingleton(Mention m) {
 		return mention2corefs.get(m).size()==1;
 	}
+	
 	public String entName(Mention m) {
 		return entName(mention2corefs.get(m));
 	}
+	
 	public String entName(Set<Mention> corefs) {
-		ArrayList<Integer> L = new ArrayList();
+		List<Integer> L = new ArrayList<Integer>();
 		for (Mention m : corefs) {
-			L.add(m.id);
+			L.add(m.getID());
 		}
 		Collections.sort(L);
 		return StringUtils.join(L, "_");

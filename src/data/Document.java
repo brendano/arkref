@@ -5,18 +5,23 @@ import java.io.*;
 
 import parsestuff.AnalysisUtilities;
 
+import edu.stanford.nlp.trees.LabeledScoredTreeFactory;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeFactory;
 
 public class Document {
-	public ArrayList<Sentence> sentences;
-	public ArrayList<Mention> mentions;
-	public HashMap<String, Mention> node2mention;
-	public RefGraph refGraph;
-	
+	private List<Sentence> sentences;
+	private List<Mention> mentions;
+	private Map<String, Mention> node2mention;
+	private RefGraph refGraph;
+	private Tree tree = null; //tree that includes all the trees for the sentences, in order, under a dummy node	
+	private EntityGraph entGraph;
+
+
 	public Document() {
 		sentences = new ArrayList<Sentence>();
 		mentions = new ArrayList<Mention>();
-		node2mention = new HashMap();
+		node2mention = new HashMap<String,Mention>();
 		refGraph = new RefGraph();
 	}
 	
@@ -25,7 +30,7 @@ public class Document {
 		return node2mention.get(key);
 	}
 	public String nodeKey(Sentence s, Tree node) {
-		return String.format("sent_%s_node_%s_%s", s.id, s.root.leftCharEdge(node), node.hashCode());
+		return String.format("sent_%s_node_%s_%s", s.getID(), s.getRootNode().leftCharEdge(node), node.hashCode());
 	}
 	public void set_node2mention(Sentence s, Tree node, Mention m) {
 		String key = nodeKey(s,node);
@@ -50,7 +55,7 @@ public class Document {
 		}
 		System.out.printf("***  Input %s  ***\n\n", baseFilename);
 		for (Sentence s : d.sentences) {
-			System.out.printf("S%-2d\t%s\n", s.id, s.text());
+			System.out.printf("S%-2d\t%s\n", s.getID(), s.text());
 		}
 
 		return d;
@@ -75,6 +80,7 @@ public class Document {
 			} 
 			assert mi != -1;
 		}
+		
 		@Override
 		public boolean hasNext() {
 			return mi > 0;
@@ -100,9 +106,43 @@ public class Document {
 //		}
 
 		@Override
-		public void remove() {
+		public void remove() {	
 			System.out.println("bad");			
 		}
 		
 	}
+	
+	
+	public Tree getTree() {
+		if(tree == null){
+			TreeFactory factory = new LabeledScoredTreeFactory();
+			tree = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
+			for(int i=0; i<sentences.size(); i++){
+				tree.addChild(sentences.get(i).getRootNode());
+			}
+			
+		}
+		return tree;
+	}
+	
+	public List<Mention> getMentions() {
+		return mentions;
+	}
+
+	public List<Sentence> getSentences() {
+		return sentences;
+	}
+
+	public RefGraph getRefGraph() {
+		return refGraph;
+	}
+
+	public void setEntGraph(EntityGraph entGraph) {
+		this.entGraph = entGraph;
+	}
+
+	public EntityGraph getEntGraph() {
+		return entGraph;
+	}
+	
 }
