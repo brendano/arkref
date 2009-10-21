@@ -31,24 +31,41 @@ public class TestArkref extends TestCase {
 	} 
 	
 	
+	public void assertLink(Mention m1, Mention m2, Document d) {
+		assertTrue(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+	}
+	public void assertNoLink(Mention m1, Mention m2, Document d) {
+		assertFalse(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+	}
+	public void assertSurface(Mention m, String surface) {
+		// "surface" is space-sep tokens
+		assertEquals(surface, m.getNode().yield().toString());
+	}
+
+	public void assertLink(int m1, int m2, Document d) {
+		assertLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
+	}
+	public void assertNoLink(int m1, int m2, Document d) {
+		assertNoLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
+	}
+	public void assertSurface(Document d, int m, String s) {
+		assertSurface(d.getMentions().get(m-1), s);
+	}
+	
+
 	public void testSameHead() throws IOException{
 		//The nice, smart boy liked to play in the park.
 		//This boy also liked to play soccer.
 		
 		Document d = Document.loadFiles("data/sameHeadWordTest");
 		_Pipeline.go(d);
-
-		Mention m1 = d.getMentions().get(0); //The nice, smart boy
-		Mention m2 = d.getMentions().get(1); //the park
-		Mention m3 = d.getMentions().get(2); //This boy
 		
-		assertTrue(m1.getNode().toString(), m1.getNode().yield().toString().equals("The nice , smart boy"));
-		assertTrue(m2.getNode().toString(), m2.getNode().yield().toString().equals("the park"));
-		assertTrue(m3.getNode().toString(), m3.getNode().yield().toString().equals("This boy"));
+		assertSurface(d,1, "The nice , smart boy");
+		assertSurface(d,2, "the park");
+		assertSurface(d,3, "This boy");
 
-		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m1));
-		assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
-		
+		assertLink(3,1, d);
+		assertNoLink(3,2, d);
 	}
 	
 	
@@ -61,27 +78,21 @@ public class TestArkref extends TestCase {
 		_Pipeline.go(d);
 		
 		assertTrue(d.getMentions().toString(), d.getMentions().size()==8);
-
-		Mention m1 = d.getMentions().get(0); //the author John Smith
-		Mention m2 = d.getMentions().get(1); //the author
-		
-		Mention m5 = d.getMentions().get(4); //the painter Pablo Picasso, the subject of the exposition
-		Mention m6 = d.getMentions().get(5); //the painter
-		Mention m7 = d.getMentions().get(6); //the subject of the exposition 
 		
 		//Tree t = AnalysisUtilities.getInstance().readTreeFromString("(NP (NP (DT The) (NN author)) (NNP John) (NNP Smith))");
 		//System.err.println(t.toString());
 		//System.err.println(t.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).toString());
 		
-		assertTrue(m1.getNode().yield().toString(), m1.getNode().yield().toString().equalsIgnoreCase("the author John Smith"));
-		assertTrue(m2.getNode().yield().toString(), m2.getNode().yield().toString().equalsIgnoreCase("the author"));
-		assertTrue(m5.getNode().yield().toString(), m5.getNode().yield().toString().equalsIgnoreCase("the famous painter John Smith , the subject of the exposition"));
-		assertTrue(m6.getNode().yield().toString(), m6.getNode().yield().toString().equalsIgnoreCase("the famous painter"));
-		assertTrue(m7.getNode().yield().toString(), m7.getNode().yield().toString().equalsIgnoreCase("the subject of the exposition"));
+
+		assertSurface(d, 1, "The author John Smith");
+		assertSurface(d, 2, "The author");
+		assertSurface(d, 5, "the famous painter John Smith , the subject of the exposition");
+		assertSurface(d, 6, "the famous painter");
+		assertSurface(d, 7, "the subject of the exposition");
 		
-		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
-		assertTrue(m7.getNode().toString(), d.getEntGraph().getLinkedMentions(m7).contains(m5));
-		assertTrue(m6.getNode().toString(), d.getEntGraph().getLinkedMentions(m6).contains(m5));
+		assertLink(2,1, d);
+		assertLink(7,5, d);
+		assertLink(6,5, d);
 	}
 	
 	
@@ -91,22 +102,14 @@ public class TestArkref extends TestCase {
 		
 		Document d = Document.loadFiles("data/IWithinI");
 		_Pipeline.go(d);
-
-		Mention m1 = d.getMentions().get(0); //Walmart
-		Mention m2 = d.getMentions().get(1); //Gitano, its top-selling brand,
-		Mention m3 = d.getMentions().get(2); //its top-selling brand
-		Mention m4 = d.getMentions().get(3); //its
 		
-		assertTrue(m1.getNode().toString(), m1.getNode().yield().toString().equals("Walmart"));
-		assertTrue(m2.getNode().toString(), m2.getNode().yield().toString().equals("Gitano , its top-selling brand ,"));
-		assertTrue(m3.getNode().toString(), m3.getNode().yield().toString().equals("its top-selling brand"));
-		assertTrue(m4.getNode().toString(), m4.getNode().yield().toString().equals("its"));
+		assertSurface(d, 1, "Walmart");
+		assertSurface(d, 2, "Gitano , its top-selling brand ,");
+		assertSurface(d, 3, "its top-selling brand");
+		assertSurface(d, 4, "its");
 		
-		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
+		assertLink(3,2, d);
 	}
-	
-	
-
 	
 	
 	
@@ -115,11 +118,12 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/pathLengthTest");
 		_Pipeline.go(d);
 
-		Mention m1 = d.getMentions().get(0); //John
-		Mention m2 = d.getMentions().get(1); //Bob
-		Mention m3 = d.getMentions().get(2); //he
-		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m1));
-		assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
+		assertSurface(d, 1, "John");
+		assertSurface(d, 2, "Bob");
+		assertSurface(d, 3, "he");
+		assertLink(3,1, d);
+		assertNoLink(3,2, d);
+		// BTO: error, "him" != "John" but path length won't solve
 	}
 	
 	
@@ -128,17 +132,12 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/pathLengthTest2");
 		_Pipeline.go(d);
 
-		Mention m1 = d.getMentions().get(0); //Nintendo of America
-		Mention m2 = d.getMentions().get(1); //America
-		Mention m3 = d.getMentions().get(2); //its new console
-		Mention m4 = d.getMentions().get(3); //its
+		assertSurface(d,1,"Nintendo of America");
+		assertSurface(d,2,"America");
+		assertSurface(d,3,"its new console"); 
+		assertSurface(d,4,"its"); 
 		
-		assertTrue(""+d.getMentions(), d.getMentions().size()==4);
-		
-		assertTrue(d.getMentions().toString(), m1.getNode().yield().toString().equals("Nintendo of America"));
-		assertTrue(d.getMentions().toString(), m2.getNode().yield().toString().equals("America"));
-		assertTrue(d.getMentions().toString(), m3.getNode().yield().toString().equals("its new console")); 
-		assertTrue(d.getMentions().toString(), m4.getNode().yield().toString().equals("its")); 
+		assertTrue(""+d.getMentions(), d.getMentions().size()==4);		
 	}
 	
 
@@ -152,16 +151,15 @@ public class TestArkref extends TestCase {
 		Mention m3 = d.getMentions().get(2); //its new console
 		Mention m4 = d.getMentions().get(3); //its
 		
-		assertTrue(m4.getNode().toString(), d.getEntGraph().getLinkedMentions(m4).contains(m1));
-		assertFalse(m4.getNode().toString(), d.getEntGraph().getLinkedMentions(m4).contains(m2));
-		assertFalse(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
-		assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
+		assertLink(m4,m1, d);
+		assertNoLink(m4,m2, d);
+		assertNoLink(m2,m1, d);
+		assertNoLink(m3,m2, d);
 		
 		//TODO the following commented-out test needs semantic information (i.e., Nintendo != console)
-		//assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m1));
-		
+		//BTO: but it works
+		assertNoLink(m3,m1, d);		
 	}
-	
 	
 	public void testEntityTypeMatching() throws IOException{
 		//Bob went to the store.
@@ -176,10 +174,10 @@ public class TestArkref extends TestCase {
 		Mention m3 = d.getMentions().get(2); //it
 		Mention m5 = d.getMentions().get(4); //he
 		
-		assertTrue(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m2));
-		assertFalse(m3.getNode().toString(), d.getEntGraph().getLinkedMentions(m3).contains(m1));
-		assertTrue(m5.getNode().toString(), d.getEntGraph().getLinkedMentions(m5).contains(m1));
-		assertFalse(m5.getNode().toString(), d.getEntGraph().getLinkedMentions(m5).contains(m2));
+		assertLink(m3,m2,d);
+		assertNoLink(m3,m1,d);
+		assertLink(m5,m1,d);
+		assertNoLink(m5,m2,d);
 	}
 	
 	
@@ -190,19 +188,14 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/IWithinI");
 		_Pipeline.go(d);
 
-		Mention m1 = d.getMentions().get(0); //Walmart
-		Mention m2 = d.getMentions().get(1); //Gitano, its top-selling brand,
-		Mention m3 = d.getMentions().get(2); //its top-selling brand
-		Mention m4 = d.getMentions().get(3); //its
+		assertSurface(d,1,"Walmart");
+		assertSurface(d,2,"Gitano , its top-selling brand ,");
+		assertSurface(d,3,"its top-selling brand");
+		assertSurface(d,4,"its");
 		
-		assertTrue(m1.getNode().toString(), m1.getNode().yield().toString().equals("Walmart"));
-		assertTrue(m2.getNode().toString(), m2.getNode().yield().toString().equals("Gitano , its top-selling brand ,"));
-		assertTrue(m3.getNode().toString(), m3.getNode().yield().toString().equals("its top-selling brand"));
-		assertTrue(m4.getNode().toString(), m4.getNode().yield().toString().equals("its"));
-		
-		assertTrue(m4.getNode().toString(), d.getEntGraph().getLinkedMentions(m4).contains(m1));
-		assertFalse(m4.getNode().toString(), d.getEntGraph().getLinkedMentions(m4).contains(m2));
-		assertFalse(m4.getNode().toString(), d.getEntGraph().getLinkedMentions(m4).contains(m3));
+		assertLink(  4,1, d);
+		assertNoLink(4,2, d);
+		assertNoLink(4,3, d);
 	}
 	
 	
@@ -210,6 +203,7 @@ public class TestArkref extends TestCase {
 		
 		//Lincoln was president.
 		//Lincoln had been president.
+		//Lincoln was being president.
 		//Lincoln will be president.
 		
 		Document d = Document.loadFiles("data/predNomTest");
@@ -220,15 +214,15 @@ public class TestArkref extends TestCase {
 		
 		m1 = d.getMentions().get(0); //Lincoln
 		m2 = d.getMentions().get(1); //president
-		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+		assertLink(m1,m2,d);
 
 		m1 = d.getMentions().get(2); //Lincoln
 		m2 = d.getMentions().get(3); //president
-		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+		assertLink(m1,m2,d);
 
 		m1 = d.getMentions().get(6); //Lincoln
 		m2 = d.getMentions().get(7); //president
-		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));
+		assertLink(m1,m2,d);
 	}
 	
 	
@@ -243,10 +237,9 @@ public class TestArkref extends TestCase {
 		Mention m2 = d.getMentions().get(1); //the store
 		
 		assertTrue(d.getMentions().toString(), d.getMentions().size() == 2);
-		assertTrue(d.getMentions().toString(), m1.getNode().yield().toString().equals("He and Fred"));
-		assertTrue(d.getMentions().toString(), m2.getNode().yield().toString().equals("the store"));
-		assertFalse(d.getMentions().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
-		
+		assertSurface(m1, "He and Fred");
+		assertSurface(m2, "the store");
+		assertNoLink(m1,m2, d);
 	}
 	
 	
