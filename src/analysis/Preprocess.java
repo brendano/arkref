@@ -41,8 +41,8 @@ public class Preprocess {
 
 	public static void go(String path) throws IOException {
 		String shortpath = path;
-		shortpath.replace(".txt", "");
-		shortpath.replace(".sent", "");
+		shortpath = shortpath.replace(".txt", "");
+		shortpath = shortpath.replace(".sent", "");
 		
 		PrintWriter pwParse = new PrintWriter(new FileOutputStream(new File(shortpath+".parse")));
 		PrintWriter pwNER = new PrintWriter(new FileOutputStream(new File(shortpath+".ner")));

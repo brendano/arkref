@@ -42,10 +42,15 @@ public class Document {
 		node2mention.put(key, m);
 	}
 	
-	public static Document loadFiles(String baseFilename) throws IOException {
+	public static Document loadFiles(String path) throws IOException {
 		Document d = new Document();
-		String parseFilename = baseFilename + ".parse";
-		String neFilename = baseFilename = baseFilename + ".ner";
+		
+		String shortpath = path;
+		shortpath = shortpath.replace(".txt", "");
+		shortpath = shortpath.replace(".sent", "");
+		
+		String parseFilename = shortpath + ".parse";
+		String neFilename = path = shortpath + ".ner";
 		BufferedReader parseR = new BufferedReader(new FileReader(parseFilename));
 		BufferedReader nerR = new BufferedReader(new FileReader(neFilename));
 		String parse; String ner;
@@ -60,7 +65,7 @@ public class Document {
 			sent.setStuff(tree, ner);
 			d.sentences.add(sent);
 		}
-		System.out.printf("***  Input %s  ***\n\n", baseFilename);
+		System.out.printf("***  Input %s  ***\n\n", path);
 		for (Sentence s : d.sentences) {
 			System.out.printf("S%-2d\t%s\n", s.getID(), s.text());
 		}
