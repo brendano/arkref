@@ -4,6 +4,7 @@ import java.util.*;
 import java.io.*;
 
 import analysis.FindMentions;
+import analysis.Preprocess;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
@@ -45,9 +46,7 @@ public class Document {
 	public static Document loadFiles(String path) throws IOException {
 		Document d = new Document();
 		
-		String shortpath = path;
-		shortpath = shortpath.replace(".txt", "");
-		shortpath = shortpath.replace(".sent", "");
+		String shortpath = Preprocess.shortPath(path);
 		
 		String parseFilename = shortpath + ".parse";
 		String neFilename = path = shortpath + ".ner";

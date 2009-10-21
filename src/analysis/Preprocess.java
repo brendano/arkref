@@ -31,18 +31,26 @@ public class Preprocess {
 	}
 
 	public static boolean alreadyPreprocessed(String path) {
-		if (new File(path+".ner").exists() 
-				&& new File(path+".parse").exists())
+		String shortpath = shortPath(path);
+		
+		if (new File(shortpath+".ner").exists() 
+				&& new File(shortpath+".parse").exists())
 		{
 			return true;
 		}
 		return false;
 	}
 
-	public static void go(String path) throws IOException {
+	public static String shortPath(String path) {
 		String shortpath = path;
 		shortpath = shortpath.replace(".txt", "");
 		shortpath = shortpath.replace(".sent", "");
+		return shortpath;
+	}
+	
+
+	public static void go(String path) throws IOException {
+		String shortpath = shortPath(path);
 		
 		PrintWriter pwParse = new PrintWriter(new FileOutputStream(new File(shortpath+".parse")));
 		PrintWriter pwNER = new PrintWriter(new FileOutputStream(new File(shortpath+".ner")));
