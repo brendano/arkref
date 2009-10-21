@@ -26,6 +26,7 @@ public class StanfordParserServer  {
 		String serializedInputFileOrUrl = null;
 		int port = 5556;
 		int maxLength = 40;
+		boolean markHeadNodes = false;
 		
 		Properties properties = new Properties();
 		try{
@@ -63,6 +64,9 @@ public class StanfordParserServer  {
 			} else if (args[argIndex].equalsIgnoreCase("-port")) {
 				port = new Integer(args[argIndex + 1]);
 				argIndex += 2;
+			} else if (args[argIndex].equalsIgnoreCase("-markHeadNodes")) {
+				markHeadNodes = true;
+				argIndex++;
 			} else {
 				argIndex = op.setOptionOrWarn(args, argIndex);
 			}
@@ -87,6 +91,14 @@ public class StanfordParserServer  {
 		}
 		lp.setMaxLength(maxLength);
 		lp.setOptionFlags("-outputFormat", "oneline");
+		
+		TreePrint tp;
+		
+		if(markHeadNodes){
+			tp = new TreePrint("penn","markHeadNodes",new PennTreebankLanguagePack());
+		}else{
+			tp = lp.getTreePrint();
+		}
 		
 		// declare a server socket and a client socket for the server
 		// declare an input and an output stream
@@ -128,8 +140,7 @@ public class StanfordParserServer  {
 					//OUTPUT RESULT
 					Tree bestParse = lp.getBestParse();
 
-//					TreePrint tp = lp.getTreePrint();
-					TreePrint tp = new TreePrint("penn","markHeadNodes",new PennTreebankLanguagePack());
+
 					
 					tp.printTree(bestParse, bufWriter);
 					outputWriter.println(buf.toString().replaceAll("\\s+", " "));
