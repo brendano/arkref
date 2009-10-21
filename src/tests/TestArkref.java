@@ -3,6 +3,8 @@ package tests;
 import java.io.IOException;
 import java.util.List;
 
+import parsestuff.AnalysisUtilities;
+
 import analysis.FindMentions;
 import analysis._Pipeline;
 
@@ -61,18 +63,20 @@ public class TestArkref extends TestCase {
 		assertTrue(d.getMentions().toString(), d.getMentions().size()==8);
 
 		Mention m1 = d.getMentions().get(0); //the author John Smith
-		Mention m2 = d.getMentions().get(1); //John Smith
+		Mention m2 = d.getMentions().get(1); //the author
 		
 		Mention m5 = d.getMentions().get(4); //the painter Pablo Picasso, the subject of the exposition
-		Mention m6 = d.getMentions().get(5); //Pablo Picasso
+		Mention m6 = d.getMentions().get(5); //the painter
 		Mention m7 = d.getMentions().get(6); //the subject of the exposition 
 		
-		System.err.println(d.getMentions().toString());
+		//Tree t = AnalysisUtilities.getInstance().readTreeFromString("(NP (NP (DT The) (NN author)) (NNP John) (NNP Smith))");
+		//System.err.println(t.toString());
+		//System.err.println(t.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).toString());
 		
 		assertTrue(m1.getNode().yield().toString(), m1.getNode().yield().toString().equalsIgnoreCase("the author John Smith"));
-		assertTrue(m2.getNode().yield().toString(), m2.getNode().yield().toString().equalsIgnoreCase("John Smith"));
+		assertTrue(m2.getNode().yield().toString(), m2.getNode().yield().toString().equalsIgnoreCase("the author"));
 		assertTrue(m5.getNode().yield().toString(), m5.getNode().yield().toString().equalsIgnoreCase("the famous painter John Smith , the subject of the exposition"));
-		assertTrue(m6.getNode().yield().toString(), m6.getNode().yield().toString().equalsIgnoreCase("John Smith"));
+		assertTrue(m6.getNode().yield().toString(), m6.getNode().yield().toString().equalsIgnoreCase("the famous painter"));
 		assertTrue(m7.getNode().yield().toString(), m7.getNode().yield().toString().equalsIgnoreCase("the subject of the exposition"));
 		
 		assertTrue(m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m2).contains(m1));

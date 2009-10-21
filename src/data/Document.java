@@ -90,7 +90,7 @@ public class Document {
 	
 	private static void addInternalNPStructureForRoleAppositives(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
-		String patS = "NP=parentnp < NNP|NNPS < NNS|NN";
+		String patS = "NP=parentnp < NNP < NN";
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		TregexMatcher matcher = pat.matcher(tree);
 		
@@ -111,18 +111,19 @@ public class Document {
 				curLabelS = tmp.label().value();
 				
 				if(start == -1){
-					if(curLabelS.matches("^NNP|NNPS|NN|NNS|JJ|DT$")){
+					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
+					if(curLabelS.matches("^NN|JJ|DT$")){
 						start = i;
 					}
 				}else{
-					if(prevLabelS.matches("^NNP|NNPS$")){
-						endOfSubseq = !curLabelS.matches("^NNP|NNPS$");
-					}else if(prevLabelS.matches("^NN|NNS|JJ|DT$")){
-						endOfSubseq = !curLabelS.matches("^NN|NNS|JJ|DT$");
+					//if(prevLabelS.equals("NNP")){
+					//	endOfSubseq = !curLabelS.equals("NNP");
+					//}else
+						if(prevLabelS.matches("^NN|JJ|DT$")){
+						endOfSubseq = !curLabelS.matches("^NN|JJ|DT$");
 					}
 						
 				}
-					
 					
 				if(endOfSubseq){
 					//System.err.println("start="+start+" i="+i);
@@ -137,7 +138,8 @@ public class Document {
 					//(probably not the cleanest way to do this...)
 					i=start+1;
 					
-					if(curLabelS.matches("^NNP|NNPS|NN|NNS|JJ|DT$")){
+					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
+					if(curLabelS.matches("^NN|JJ|DT$")){
 						start = i;
 					}else{
 						start = -1;

@@ -90,10 +90,6 @@ public class Resolve{
 	 * 
 	 * Note: This is slightly different than what is described in H&K EMNLP 09.
 	 * I think the head rules they used were slightly different (or possibly their description is a little off).
-	 * The Stanford Parser API says that for sentences like "painter Pablo Picasso", the head is "painter",
-	 * and thus their are mentions for "painter Pablo Picasso" and "Pablo Picasso" but not just "painter".
-	 * Therefore, we connect "painter Pablo Picasso" and "Pablo Picasso" by looking at the NP *PREVIOUS* to
-	 * "Pablo Picasso" to see if it is a person, rather than subsequent to it, as H&K describe.
 	 * 
 	 * @param m
 	 * @param d
@@ -110,24 +106,28 @@ public class Resolve{
 		}
 		
 		int index = parent.indexOf(node);
-		if(index-1 < 0){
+		if(index+1 >= parent.numChildren()){
 			return null;
 		}
 		
-		Tree nextSibling = parent.getChild(index-1);
-		//return the next sibling if it is a person, an NP, and dominates the head
-		HeadFinder headFinder = AnalysisUtilities.getInstance().getHeadFinder();
-		if(nextSibling.label().value().equals("NP")
-			&& parent.headTerminal(headFinder) == nextSibling.headTerminal(headFinder)
-			&& m.neType().matches("^PER.*$"))
-		{
-			//find maximal projection of the head of the parent
-			Tree maxProj = SyntacticPaths.getMaximalProjection(parent, root);			
-			
-			//find the mention for that projection
-			for(Mention m2: d.getMentions()){
-				if(maxProj == m2.getNode()){
-					return m2;
+		
+		TregexPattern pat = TregexPatternFactory.getPattern("NP=parent !> __ <<# (NNP=head ,, NP=mention)");
+		TregexMatcher matcher = pat.matcher(parent);
+		while (matcher.find()) {
+			if(matcher.getNode("mention") == node){
+				Tree head = matcher.getNode("head");
+
+				//find maximal projection of the head of the parent
+				Tree maxProj = SyntacticPaths.getMaximalProjection(head, root);
+				
+				//find the mention for the parent
+				for(Mention cand:d.getMentions()){
+					if(cand.getNode() == maxProj){
+						if(cand.neType().matches("^PER.*$")){
+							return cand;
+						}
+						break;
+					}
 				}
 			}
 		}
