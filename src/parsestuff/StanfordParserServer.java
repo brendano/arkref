@@ -151,6 +151,7 @@ public class StanfordParserServer  {
 
 				}catch(Exception e){
 					outputWriter.println("(ROOT (. .))");
+					outputWriter.println("-999999999.0");
 					e.printStackTrace();
 				}
 
