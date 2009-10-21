@@ -136,6 +136,18 @@ public class TestArkref extends TestCase {
 		assertSurface(d, 4, "its");
 		
 		assertLink(3,2, d);
+		
+		d = Document.loadFiles("data/nativeAmericans");
+		_Pipeline.go(d);
+		
+
+		assertSurface(d, 7, "the Anishinaabe , the Dakota , and other Native American inhabitants");
+		assertSurface(d, 8, "the Dakota");
+		assertSurface(d, 9, "other Native American inhabitants");
+		
+		assertNoLink(7,8, d);
+		assertNoLink(7,9, d);
+		assertNoLink(8,9, d);
 	}
 	
 	

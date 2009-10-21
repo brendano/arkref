@@ -184,6 +184,13 @@ public class Resolve {
 		}else if(parent.indexOf(node) != 2){
 			return false;
 		}
+	
+		//check to make sure this isn't a conjunction
+		for(Tree sibling: parent.getChildrenAsList()){
+			if(sibling.label().value().equals("CC")){
+				return false;
+			}
+		}
 		
 		return true;
 	}
