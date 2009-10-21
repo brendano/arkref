@@ -27,15 +27,15 @@ public class StanfordParserServer  {
 		int port = 5556;
 		int maxLength = 40;
 		boolean markHeadNodes = false;
-		
+
 		Properties properties = new Properties();
 		try{
-			properties.load(new FileInputStream("config/QuestionTransducer.properties"));
+			properties.load(new FileInputStream("config/arkref.properties"));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		maxLength = new Integer(properties.getProperty("parserMaxLength", "60"));
-		
+
 		// variables needed to process the files to be parse
 		String sentenceDelimiter = null;
 		int argIndex = 0;
@@ -91,15 +91,11 @@ public class StanfordParserServer  {
 		}
 		lp.setMaxLength(maxLength);
 		lp.setOptionFlags("-outputFormat", "oneline");
-		
+
 		TreePrint tp;
-		
-		if(markHeadNodes){
-			tp = new TreePrint("penn","markHeadNodes",new PennTreebankLanguagePack());
-		}else{
-			tp = lp.getTreePrint();
-		}
-		
+
+
+
 		// declare a server socket and a client socket for the server
 		// declare an input and an output stream
 		ServerSocket parseServer = null;
@@ -132,28 +128,32 @@ public class StanfordParserServer  {
 					doc += br.readLine();
 				}while(br.ready());
 				System.err.println("received: " + doc);
-				
+
 				//PARSE
 				try{
 					lp.parse(doc);
-					
+
+
+
 					//OUTPUT RESULT
 					Tree bestParse = lp.getBestParse();
-
-
-					
+					if(markHeadNodes){
+						tp = new TreePrint("penn","markHeadNodes",new PennTreebankLanguagePack());
+					}else{
+						tp = new TreePrint("penn","",new PennTreebankLanguagePack());
+					}
 					tp.printTree(bestParse, bufWriter);
 					outputWriter.println(buf.toString().replaceAll("\\s+", " "));
 					outputWriter.println(lp.getPCFGScore());
 					//String output = bestParse.toString();
 					//outputWriter.println(output);
 					//System.err.println("sent: " + output);
-										
+
 				}catch(Exception e){
 					outputWriter.println("(ROOT (. .))");
 					e.printStackTrace();
 				}
-				
+
 				outputWriter.flush();
 				outputWriter.close();
 

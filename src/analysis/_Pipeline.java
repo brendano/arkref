@@ -2,21 +2,31 @@ package analysis;
 
 import java.io.IOException;
 
+import parsestuff.AnalysisUtilities;
+
 import data.Document;
 
 public class _Pipeline {
 	public static void main(String[] args) throws IOException {
-		String f;
-		if (args.length >= 1)  f = args[0];
-		else f = "/d/arkref/data/test1";
+		String path;
+		if (args.length >= 1)  path = args[0];
+		else path = "/d/arkref/data/test1";
 	
-		Document d = Document.loadFiles(f);		
+		if(!Preprocess.alreadyPreprocessed(path)){
+			Preprocess.go(path);
+		}		
+
+		Document d = Document.loadFiles(path);
+		
 		_Pipeline.go(d);
 	}
 	
-	public static void go(Document d){
+	public static void go(Document d) throws IOException{
+
+	
 		FindMentions.go(d);
 		Resolve.go(d);
 		RefsToEntities.go(d);
+		
 	}
 }

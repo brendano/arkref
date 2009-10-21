@@ -12,8 +12,10 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.parser.lexparser.*;
+import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.*;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -29,10 +31,11 @@ public class AnalysisUtilities {
 	private AnalysisUtilities(){
 		parser = null;
 		ner = null;
+		dp = new DocumentPreprocessor(false);
 		
 		properties = new Properties();
 		try{
-			properties.load(new FileInputStream("config/QuestionTransducer.properties"));
+			properties.load(new FileInputStream("config/arkref.properties"));
 		}catch(Exception e){
 			e.printStackTrace();
 			System.exit(0);
@@ -78,6 +81,39 @@ public class AnalysisUtilities {
 		sentence = sentence.replaceAll("\\(VBP 're\\)", "(VBP are)");
 		
 		return sentence;
+	}
+	
+	
+	public List<String> getSentences(String document) {
+		List<String> res = new ArrayList<String>();
+		String sentence;
+		StringReader reader = new StringReader(document);
+		
+		List<List<? extends HasWord>> docs = new ArrayList<List<? extends HasWord>>();
+		Iterator<List<? extends HasWord>> iter1 ;
+		Iterator<? extends HasWord> iter2;
+		
+		try{
+			docs = dp.getSentencesFromText(reader);
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+		iter1 = docs.iterator();
+		while(iter1.hasNext()){
+			iter2 = iter1.next().iterator();
+			sentence = "";
+			while(iter2.hasNext()){
+				String tmp = iter2.next().word().toString();
+				sentence += tmp;
+				if(iter2.hasNext()){
+					sentence += " ";
+				}
+			}
+			res.add(sentence);
+		}
+		
+		return res;
 	}
 	
 	
@@ -146,6 +182,8 @@ public class AnalysisUtilities {
 			br.close();
 			pw.close();
 			client.close();
+			
+			System.err.println("parser output:"+ result);
 			
 			lastParse = readTreeFromString(result);
 			return lastParse;
@@ -397,5 +435,5 @@ public class AnalysisUtilities {
 	private PennTreebankLanguagePack tlp;
 	private double lastParseScore;
 	private Tree lastParse;
-
+	private DocumentPreprocessor dp;
 }

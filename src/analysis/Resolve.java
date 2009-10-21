@@ -203,9 +203,11 @@ public class Resolve {
 		
 		
 		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
-		System.out.printf("resolved appositive M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
-				 AnalysisUtilities.abbrevTree(ref.getNode()));
+		if(ref != null){
+			System.out.printf("resolved appositive M%-2d -> M%-2d    %20s    ->   %-20s\n", 
+					mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
+					 AnalysisUtilities.abbrevTree(ref.getNode()));
+		}
 	}
 	
 	
