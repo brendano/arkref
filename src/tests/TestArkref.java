@@ -273,7 +273,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d,1,"The earliest known settlers");
 		assertSurface(d,6,"They");
 
-		Mention m1=mention(d,1);
+		Mention m1 = mention(d,1);
 		assertEquals(Types.Number.Plural, Types.number(m1));
 
 		assertLink(d, 1,6);

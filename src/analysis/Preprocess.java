@@ -33,12 +33,9 @@ public class Preprocess {
 	public static boolean alreadyPreprocessed(String path) {
 		String shortpath = shortPath(path);
 		
-		if (new File(shortpath+".ner").exists() 
-				&& new File(shortpath+".parse").exists())
-		{
-			return true;
-		}
-		return false;
+		return 
+			new File(shortpath+".ner").exists() &&
+			new File(shortpath+".parse").exists();
 	}
 
 	public static String shortPath(String path) {

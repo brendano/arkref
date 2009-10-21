@@ -1,7 +1,9 @@
 package analysis;
 
+import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import data.Mention;
+import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
@@ -9,12 +11,11 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 public class Types {
 	
 	public static enum Gender {
-		Male, Female, Neuter;
+		Male, Female;
 		public String toString() {
 			switch(this) {
 			case Male: return "Mal";
 			case Female: return "Fem";
-			case Neuter: return "Neu";
 			}
 			return null;
 		}
@@ -50,6 +51,12 @@ public class Types {
 			}
 		}
 	}
+	
+	public static <T> boolean relaxedEquals(T x, T y) {
+		if (x==null || y==null)
+			return true;
+		return x==y;
+	}
 
 	public static boolean checkPronominalMatch(Mention mention, Mention cand) {
 		assert isPronominal(mention);
@@ -61,32 +68,13 @@ public class Types {
 		if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
 			return false;
 		}
-		if (personhood(pronoun) == Personhood.NotPerson) {    // e.g. "it"
-			if (!isPronominal(cand)) {
-				return !cand.neType().equals("PERSON");
-			} else {
-				// conflation of having-gender and personhood
-				// is legitimate in english but really should be cleaned up
-				Gender g2 = gender(cand);
-				System.out.println("gender "+g2+"  for  "+cand);
-				if (g2==Gender.Male || g2==Gender.Female) {
-					return false;
-				} else if (number(cand) == Number.Singular) {
-					return true;
-				} else { 
-					return true;  // ??  "it" -> "the store" i suppose.
-				}					
-			}
-		} else if (personhood(pronoun) == Personhood.Person) {
-			if (isPronominal(cand)) {
-				return gender(cand) == gender(mention);
-			} else {
-				// should use namelist here
-				return cand.neType().equals("PERSON");
-			}
-		} else {
-			return  false;
-		}
+		// using lax test on personhood because i don't know how to get it for most common nouns
+		// number is easiest to get
+		// gender is gray area
+		return
+			relaxedEquals(personhood(pronoun), personhood(cand)) &&
+			gender(mention) == gender(cand) &&
+			number(mention) == number(cand);
 	}
 	public static boolean isPronominal(Mention m) {
 		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !> NP").matcher(m.getNode());
@@ -119,12 +107,16 @@ public class Types {
 			} else if (p.matches("^(she|her|hers)$")) {
 				return Gender.Female;
 			} else if (p.matches("^(it|its)$")) {
-				return Gender.Neuter;
+				return null;
+//				return Gender.Neuter;
 			} else {
 				return null;   // no decision
 			}
 		}
 		// else name lists, i guess
+		String surface = m.getNode().yield().toString().toLowerCase();
+		if (surface.matches("^(bob|john|fred)$"))
+			return Gender.Male;
 		return null;
 	}
 	
@@ -139,6 +131,15 @@ public class Types {
 		if (t.equals("LOCATION")) return Personhood.NotPerson;
 		return null;
 	}
+	public static Personhood personhood(String pronoun) {
+		if (pronoun.matches("^(he|him|his|she|her|hers|our|ours|my|mine|you|yours|i|we)$")) {
+			return Personhood.Person;
+		} else if (pronoun.matches("^(it|its)$")) {
+			return Personhood.NotPerson;
+		}
+		return null;
+	}
+	
 	/** what the heck is the real name for this? **/
 	public static Perspective perspective(String pronoun) {
 		if (pronoun.matches("^(i|me||my|mine|we|our|ours)$")) {
@@ -150,15 +151,6 @@ public class Types {
 		}
 	}
 	
-	public static Personhood personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her|hers|our|ours|my|mine|you|yours|i|we)$")) {
-			return Personhood.Person;
-		} else if (pronoun.matches("^(it|its)$")) {
-			return Personhood.NotPerson;
-		}
-		return null;
-	}
-	
 	public static Number number(Mention m) {
 		if (isPronominal(m)) {
 			String p = pronoun(m);
@@ -167,6 +159,14 @@ public class Types {
 			} else {  //if (p.matches("^(it|its|that|this|he|him|his|she|her)$")) {
 				return Number.Singular;
 			}
+		} else {
+			HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
+			Tree head = m.getNode().headPreTerminal(hf);
+			String tag = head.label().toString();
+			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
+			if (tag.matches("^NNP?S$")) return Number.Plural;
+			if (tag.matches("^NNP?$"))  return Number.Singular;
+			// TODO mass nouns?
 		}
 		return null;
 	}
