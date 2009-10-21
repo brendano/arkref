@@ -6,6 +6,7 @@ import java.util.List;
 import parsestuff.AnalysisUtilities;
 
 import analysis.FindMentions;
+import analysis.Types;
 import analysis._Pipeline;
 
 import data.Document;
@@ -266,6 +267,21 @@ public class TestArkref extends TestCase {
 		assertNoLink(m1,m2, d);
 	}
 	
+	public void testThey() throws IOException{
+		Document d = Document.loadFiles("data/they1");
+		_Pipeline.go(d);
+		assertSurface(d,1,"The earliest known settlers");
+		assertSurface(d,6,"They");
+
+		Mention m1=mention(d,1);
+		assertEquals(Types.Number.Plural, Types.number(m1));
+
+		assertLink(d, 1,6);
+	}
+	
+	public Mention mention(Document d, int mi) {
+		return d.getMentions().get(mi-1);
+	}
 	
 	public void testFindNodeFromSpan() throws IOException{
 		//He and Fred went to the store.
