@@ -173,76 +173,30 @@ public class Document {
 
 	private static void addInternalNPStructureForRoleAppositives(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
-		String patS = "NP=parentnp < NNP < NN";
+		String patS = "NP=parentnp < (NN|NNS=role . NNP|NNPS)";
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		TregexMatcher matcher = pat.matcher(tree);
-
-		String prevLabelS = "";
-		String curLabelS;
-		Tree tmp;
-		int start;
 		Tree newNode;
 
 		while (matcher.find()) {
 			Tree parentNP = matcher.getNode("parentnp");
-			start = -1;
-			boolean endOfSubseq;
-
-			for(int i=0; i<parentNP.numChildren(); i++){
-				endOfSubseq = false;
-				tmp = parentNP.getChild(i);
-				curLabelS = tmp.label().value();
-
-				if(start == -1){
-					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
-					if(curLabelS.matches("^NN|JJ|DT$")){
-						start = i;
-					}
-				}else{
-					//if(prevLabelS.equals("NNP")){
-					//	endOfSubseq = !curLabelS.equals("NNP");
-					//}else
-					if(prevLabelS.matches("^NN|JJ|DT$")){
-						endOfSubseq = !curLabelS.matches("^NN|JJ|DT$");
-					}
-
+			Tree roleNP = matcher.getNode("role");
+			Tree tmpTree;
+			
+			newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
+			int i = parentNP.indexOf(roleNP);
+			while(i>=0){
+				tmpTree = parentNP.getChild(i);
+				if(!tmpTree.label().value().matches("^NN|NNS|DT|JJ|ADVP$")){
+					break;
 				}
-
-				if(endOfSubseq){
-					//System.err.println("start="+start+" i="+i);
-					newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
-					for(int j=0; j<i-start; j++){
-						newNode.addChild(parentNP.getChild(start));
-						parentNP.removeChild(start);
-					}
-					parentNP.addChild(start, newNode);
-
-					//adjust the index since we changed the list of children 
-					//(probably not the cleanest way to do this...)
-					i=start+1;
-
-					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
-					if(curLabelS.matches("^NN|JJ|DT$")){
-						start = i;
-					}else{
-						start = -1;
-					}
-				}
-
-				prevLabelS = curLabelS;
+				newNode.addChild(0, tmpTree);
+				parentNP.removeChild(i);
+				i--;
 			}
-
-			//if the last subsequence ended the list of children, make sure to add it too
-			if(start != -1){
-				newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
-				for(int j=0; j<parentNP.numChildren()-start+1; j++){
-					//System.err.println(j+" "+parentNP.numChildren());
-					newNode.addChild(parentNP.getChild(start));
-					parentNP.removeChild(start);
-				}
-				parentNP.addChild(start, newNode);
-			}
-
+			
+			parentNP.addChild(i+1, newNode);
+			
 		}
 	}
 

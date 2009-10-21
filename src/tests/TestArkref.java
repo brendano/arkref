@@ -80,11 +80,12 @@ public class TestArkref extends TestCase {
 		
 		//The author John Smith wrote the book.
 		//I learned about the painter John Smith, the subject of the exposition.
+		//The shared Lunar Precursor Robotic Program was new.
 		
 		Document d = Document.loadFiles("data/roleAppositivesTest");
 		_Pipeline.go(d);
 		
-		assertTrue(d.getMentions().toString(), d.getMentions().size()==8);
+		assertTrue(d.getMentions().toString(), d.getMentions().size()==9);
 		
 		//Tree t = AnalysisUtilities.getInstance().readTreeFromString("(NP (NP (DT The) (NN author)) (NNP John) (NNP Smith))");
 		//System.err.println(t.toString());
@@ -96,6 +97,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d, 5, "the famous painter John Smith , the subject of the exposition");
 		assertSurface(d, 6, "the famous painter");
 		assertSurface(d, 7, "the subject of the exposition");
+		assertSurface(d, 9, "The shared Lunar Precursor Robotic Program");
 		
 		assertLink(2,1, d);
 		assertLink(7,5, d);
