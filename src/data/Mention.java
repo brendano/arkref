@@ -24,7 +24,7 @@ public class Mention {
 	}
 	
 	public String toString() { 
-		return String.format("M%-3d : S%-2d : %-12s : %s", id, sentence.getID(), neType(), node); 
+		return String.format("M%-2d | S%-2d | %-12s | %s", id, sentence.getID(), neType(), node); 
 	}
 	
 	public int getID() {

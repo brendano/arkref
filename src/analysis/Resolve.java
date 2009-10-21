@@ -20,7 +20,7 @@ public class Resolve{
 		Mention antecedent;
 		
 		for (Mention m : d.getMentions()) {
-			System.out.println("trying to resolve:\t" + m);
+			System.out.println("= Resolving\t" + m);
 			
 			if (isPronominal(m)) {
 				resolvePronoun(m, pronoun(m), d);
@@ -39,8 +39,6 @@ public class Resolve{
 	
 
 	public static void resolveOthers(Mention mention, Document d) {
-		System.out.println("trying to resolve as a pronoun:\t" + mention);
-		
 		//TODO SEMANTICS!
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
@@ -56,10 +54,10 @@ public class Resolve{
 				match = false;
 			}			
 			if (match) {
-				System.out.println("yay    typematch: " + cand);
+				System.out.println("yay   typematch:\t" + cand);
 				candidates.add(cand);
 			} else {
-				System.out.println("reject mismatch:  " + cand);
+				System.out.println("reject mismatch:\t" + cand);
 			}
 		}
 		
@@ -76,7 +74,7 @@ public class Resolve{
 		
 		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
 		if(ref != null){
-			System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
+			System.out.printf("resolved after filtering M%-2d -> M%-2d    %20s    ->   %-20s\n", 
 				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
 				 AnalysisUtilities.abbrevTree(ref.getNode()));
 		}
@@ -205,16 +203,15 @@ public class Resolve{
 		
 		
 		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
-		System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
+		System.out.printf("resolved appositive M%-2d -> M%-2d    %20s    ->   %-20s\n", 
 				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
 				 AnalysisUtilities.abbrevTree(ref.getNode()));
-//		System.out.printf("RESOLVE M%-3d %s  ->  M%-3d %s\n", mention.id, d.refGraph.finalResolutions.get(mention));
 	}
 	
 	
 	
 	public static void resolvePronoun(Mention mention, String pronoun, Document d) {
-		System.out.println("trying to resolve as a pronoun:\t" + mention);
+		System.out.println("trying to resolve as a pronoun");
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		
@@ -266,11 +263,10 @@ public class Resolve{
 		}
 		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
 		if(ref != null){
-			System.out.printf("RESOLVE M%-3d -> M%-3d    %20s    ->   %-20s\n", 
+			System.out.printf("resolved pronoun M%-2d -> M%-2d    %20s    ->   %-20s\n", 
 				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
 				 AnalysisUtilities.abbrevTree(ref.getNode()));
 		}
-//		System.out.printf("RESOLVE M%-3d %s  ->  M%-3d %s\n", mention.id, d.refGraph.finalResolutions.get(mention));
 	}
 
 

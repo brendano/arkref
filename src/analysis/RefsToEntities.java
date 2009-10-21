@@ -17,12 +17,18 @@ public class RefsToEntities {
 		d.setEntGraph(eg);
 		
 		System.out.println("\n*** Entity Report ***\n");
+		int s=-1;
 		for (Mention m : d.getMentions()){
+			if (m.getSentence().getID() != s) {
+				s = m.getSentence().getID();
+				System.out.printf("S%-2s  %s\n",s, m.getSentence().text());
+			}
 			if (eg.isSingleton(m)) {
-				System.out.printf("%-20s %s\n", "singleton", m);
+				System.out.printf("\t%-20s  %s\n", "singleton", m);
 			} else {
-				System.out.printf("%-20s %s\n", "entity_"+eg.entName(m), m);
+				System.out.printf("\t%-20s  %s\n", "entity_"+eg.entName(m), m);
 			}
 		}
+//		System.out.println("");
 	}
 }
