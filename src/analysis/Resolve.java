@@ -14,7 +14,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 
-public class Resolve{
+public class Resolve {
 	public static void go(Document d) {
 		System.out.println("\n***  Resolve ***\n");
 		Mention antecedent;
@@ -22,15 +22,15 @@ public class Resolve{
 		for (Mention m : d.getMentions()) {
 			System.out.println("= Resolving\t" + m);
 			
-			if (isPronominal(m)) {
-				resolvePronoun(m, pronoun(m), d);
-			}else if(inAppositiveConstruction(m)){
+			if (Types.isPronominal(m)) {
+				resolvePronoun(m, d);
+			} else if (inAppositiveConstruction(m)) {
 				resolveAppositive(m, d);
-			}else if((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null){
+			} else if ((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null) {
 				d.getRefGraph().setRef(m, antecedent);		
-			}else if((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null){
+			} else if ((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null) {
 				d.getRefGraph().setRef(m, antecedent);		
-			}else{
+			} else {
 				resolveOthers(m, d);
 			}
 		}
@@ -45,7 +45,7 @@ public class Resolve{
 		boolean match = false;
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
+			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
 				match = false;
 			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
 				//TODO keep this or not?
@@ -112,7 +112,7 @@ public class Resolve{
 		TregexPattern pat = TregexPatternFactory.getPattern("NP=parent !> __ <<# (NNP=head ,, NP=mention)");
 		TregexMatcher matcher = pat.matcher(parent);
 		while (matcher.find()) {
-			if(matcher.getNode("mention") == node){
+			if (matcher.getNode("mention") == node){
 				Tree head = matcher.getNode("head");
 
 				//find maximal projection of the head of the parent
@@ -210,40 +210,14 @@ public class Resolve{
 	
 	
 	
-	public static void resolvePronoun(Mention mention, String pronoun, Document d) {
+	public static void resolvePronoun(Mention mention, Document d) {
 		System.out.println("trying to resolve as a pronoun");
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			boolean match;
+			boolean match = Types.checkPronominalMatch(mention, cand);
 			
-			if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
-				match = false;
-			}else if (personhood(pronoun).equals("NONPER")) {    // e.g. "it"
-				if (!isPronominal(cand)) {
-					match = !cand.neType().equals("PERSON");
-				} else {
-					String g2 = gender(cand);
-					System.out.println("gender "+g2+"  for  "+cand);
-					if (g2.equals("M") || g2.equals("F")) {
-						match = false;
-					} else if (number(cand).equals("SG")) {
-						match = true;
-					} else { 
-						match = true;  // ??  "it" -> "the store" i suppose.
-					}					
-				}
-			} else if (personhood(pronoun).equals("PER")) {
-				if (isPronominal(cand)) {
-					match = gender(cand).equals(gender(mention));
-				} else {
-					// should use namelist here
-					match = cand.neType().equals("PERSON");
-				}
-			} else {
-				match = false;
-			}			
 			if (match) {
 				System.out.println("yay    typematch: " + cand);
 				candidates.add(cand);
@@ -271,73 +245,4 @@ public class Resolve{
 
 
 	
-	// TODO (PRP$ Its)
-	public static boolean isPronominal(Mention m) {
-		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !> NP").matcher(m.getNode());
-		return matcher.find();
-	}
-	
-	public static String pronoun(Mention m) {
-		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# /^PRP/=pronoun !> NP");
-		TregexMatcher matcher = pat.matcher(m.getNode());
-		if (matcher.find()) {
-			Tree PRP = matcher.getNode("pronoun");
-			return pronoun(PRP);
-		} else {
-			return null;
-		}
-	}
-	
-	public static String pronoun(Tree PRP) {
-		Tree c = PRP.getChild(0);
-		assert c.isLeaf();
-		String p = c.label().toString().toLowerCase();
-		return p;
-	}
-	
-	public static String gender(Mention m) {
-		if (isPronominal(m)) {
-			String p = pronoun(m);
-			if (p.matches("^(he|him|his)$")) {
-				return "M";
-			} else if (p.matches("^(she|her|hers)$")) {
-				return "F";
-			} else if (p.matches("^(it|its)$")) {
-				return "N";  // neuter
-			} else {
-				return null;   // no decision
-			}
-		}
-		// else name lists, i guess
-		return null;
-	}
-	
-	public static String personhood(Mention m) {
-		if (isPronominal(m)) {
-			String p = pronoun(m);
-			return personhood(p);
-		}
-		return null;
-	}
-	
-	public static String personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her|hers|our|ours|my|mine|you|yours|i|we)$")) {
-			return "PER";
-		} else if (pronoun.matches("^(it|its)$")) {
-			return "NONPER";
-		}
-		return null;
-	}
-	
-	public static String number(Mention m) {
-		if (isPronominal(m)) {
-			String p = pronoun(m);
-			if (p.matches("^(they|them|these|those|we|us|their|ours|our|theirs)$")) {
-				return "PL";
-			} else {  //if (p.matches("^(it|its|that|this|he|him|his|she|her)$")) {
-				return "SG";
-			}
-		}
-		return null;
-	}
 }

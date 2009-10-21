@@ -16,9 +16,7 @@ public class _Pipeline {
 	
 	public static void go(Document d){
 		FindMentions.go(d);
-		// new pipeline steps here?
 		Resolve.go(d);
-		// or here!
 		RefsToEntities.go(d);
 	}
 }

@@ -1,15 +1,13 @@
 package data;
 
+import analysis.Types;
 import parsestuff.AnalysisUtilities;
 
 import edu.stanford.nlp.trees.Tree;
 
 public class Mention {
 	private Tree node;
-
 	private Sentence sentence;
-
-
 	private int id;
 	
 	public Mention(int id, Sentence sentence, Tree node) { this.id=id; this.sentence=sentence; this.node=node; }
@@ -23,8 +21,18 @@ public class Mention {
 		return sentence.neType(head);
 	}
 	
+	public boolean isName() { return !neType().equals("O"); }
+	
 	public String toString() { 
-		return String.format("M%-2d | S%-2d | %-12s | %s", id, sentence.getID(), neType(), node); 
+		String g = safeToString(Types.gender(this));
+		String n = safeToString(Types.number(this));
+		String p = safeToString(Types.personhood(this));
+		return String.format("M%-2d | S%-2d | %3s %2s %4s | %-12s | %s", id, sentence.getID(), 
+				g, n, p, neType(), node); 
+	}
+	public String safeToString(Object o) {
+		if (o==null) return "";
+		return o.toString();
 	}
 	
 	public int getID() {
