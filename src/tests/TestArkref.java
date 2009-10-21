@@ -34,25 +34,31 @@ public class TestArkref extends TestCase {
 	public void assertLink(Mention m1, Mention m2, Document d) {
 		assertTrue(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
 	}
+	public void assertLink(Document d, Mention m1, Mention m2){ assertLink(m1,m2,d); }
 	public void assertNoLink(Mention m1, Mention m2, Document d) {
 		assertFalse(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
 	}
+	public void assertNoLink(Document d, Mention m1, Mention m2){ assertNoLink(m1,m2,d); }
 	public void assertSurface(Mention m, String surface) {
 		// "surface" is space-sep tokens
 		assertEquals(surface, m.getNode().yield().toString());
+	}
+	public void assertSingleton(Document d, int mi) {
+		Mention m = d.getMentions().get(mi-1);
+		assertEquals(1, d.getEntGraph().getLinkedMentions(m).size());
 	}
 
 	public void assertLink(int m1, int m2, Document d) {
 		assertLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
 	}
+	public void assertLink(Document d, int m1, int m2) { assertLink(m1,m2,d); }
+	public void assertNoLink(Document d, int m1, int m2) { assertNoLink(m1,m2,d); }
 	public void assertNoLink(int m1, int m2, Document d) {
 		assertNoLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
 	}
 	public void assertSurface(Document d, int m, String s) {
 		assertSurface(d.getMentions().get(m-1), s);
 	}
-	
-
 	public void testSameHead() throws IOException{
 		//The nice, smart boy liked to play in the park.
 		//This boy also liked to play soccer.
@@ -93,6 +99,24 @@ public class TestArkref extends TestCase {
 		assertLink(2,1, d);
 		assertLink(7,5, d);
 		assertLink(6,5, d);
+	}
+	
+	public void testFirstPerson() throws IOException{
+		Document d = Document.loadFiles("data/roleAppositivesTest");
+		_Pipeline.go(d);
+		assertSurface(d, 4, "I");
+		assertSingleton(d, 4);
+		
+		d = Document.loadFiles("data/firstPerson1");
+		_Pipeline.go(d);
+		assertSurface(d,1,"I");
+		assertSurface(d,4,"I");
+		assertSurface(d,6,"my");
+		assertSurface(d,7,"it");
+		assertLink(d,1,4);
+		assertLink(d,4,6);
+		assertNoLink(d,6,7);
+		// BTO: should do appositive & pred-noms? low prio
 	}
 	
 	

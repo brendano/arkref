@@ -39,16 +39,34 @@ public class Types {
 			return null;
 		}
 	}
+	public static enum Perspective {
+		First, Second, Third;
+		public String toString() {
+			switch(this) {
+			case First: return "1";
+			case Second: return "2";
+			case Third: return "3";
+			default: return null;
+			}
+		}
+	}
 
 	public static boolean checkPronominalMatch(Mention mention, Mention cand) {
 		assert isPronominal(mention);
 		String pronoun = pronoun(mention);
+		if (!isPronominal(cand) && perspective(pronoun) == Perspective.First) {
+			// testFirstPerson
+			return false;
+		}
 		if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
 			return false;
-		}else if (personhood(pronoun) == Personhood.NotPerson) {    // e.g. "it"
+		}
+		if (personhood(pronoun) == Personhood.NotPerson) {    // e.g. "it"
 			if (!isPronominal(cand)) {
 				return !cand.neType().equals("PERSON");
 			} else {
+				// conflation of having-gender and personhood
+				// is legitimate in english but really should be cleaned up
 				Gender g2 = gender(cand);
 				System.out.println("gender "+g2+"  for  "+cand);
 				if (g2==Gender.Male || g2==Gender.Female) {
@@ -61,7 +79,7 @@ public class Types {
 			}
 		} else if (personhood(pronoun) == Personhood.Person) {
 			if (isPronominal(cand)) {
-				return gender(cand).equals(gender(mention));
+				return gender(cand) == gender(mention);
 			} else {
 				// should use namelist here
 				return cand.neType().equals("PERSON");
@@ -120,6 +138,16 @@ public class Types {
 		if (t.equals("ORGANIZATION")) return Personhood.NotPerson;
 		if (t.equals("LOCATION")) return Personhood.NotPerson;
 		return null;
+	}
+	/** what the heck is the real name for this? **/
+	public static Perspective perspective(String pronoun) {
+		if (pronoun.matches("^(i|me||my|mine|we|our|ours)$")) {
+			return Perspective.First;
+		} else if (pronoun.matches("^(you|yours|y'all|y'alls)$")) {
+			return Perspective.Second;
+		} else {
+			return Perspective.Third;
+		}
 	}
 	
 	public static Personhood personhood(String pronoun) {

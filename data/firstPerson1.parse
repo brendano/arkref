@@ -1,0 +1,2 @@
+(ROOT (S=H (NP (PRP=H I)) (VP=H (VBP=H am) (NP (NP=H (DT the) (NN=H prince)) (PP (IN=H of) (NP (NNS=H thieves))))) (. .)))
+(ROOT (S=H (NP (PRP=H I)) (VP=H (VP=H (VBP=H have) (NP (PRP$ my) (NN=H cake))) (CC and) (VP (VBP=H am) (VP (VBG=H eating) (NP (PRP=H it)) (ADVP (RB=H too))))) (. .)))
