@@ -267,4 +267,54 @@ public class TestArkref extends TestCase {
 	}
 	
 	
+	public void testFindNodeFromSpan() throws IOException{
+		//He and Fred went to the store.
+		
+		Document d = Document.loadFiles("data/conjunctionsTest");
+		_Pipeline.go(d);
+
+		Tree t;
+		
+		t = d.findNodeThatCoversSpan(0, 0, 0);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("He"));
+		
+		t = d.findNodeThatCoversSpan(0, 0, 2);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("He and Fred"));
+		
+		t = d.findNodeThatCoversSpan(0, 0, 3);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("He and Fred went to the store ."));
+
+		t = d.findNodeThatCoversSpan(0, 3, 5);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("went to the store"));
+	}
+	
+	
+	public void testFindMentionDominatingNode() throws IOException{
+		//example from H&K 2009
+		//Walmart says Gitano, its top-selling brand, is underselling.
+		
+		Document d = Document.loadFiles("data/IWithinI");
+		_Pipeline.go(d);
+		
+		Tree t; 
+		Mention m;
+		
+		t = d.findNodeThatCoversSpan(0, 0, 0);
+		m = d.findMentionDominatingNode(0, t);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("Walmart"));
+		assertTrue(m.toString(), m.getNode().yield().toString().equals("Walmart"));
+		
+		t = d.findNodeThatCoversSpan(0, 6, 6);
+		m = d.findMentionDominatingNode(0, t);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("brand"));
+		assertTrue(m.toString(), m.getNode().yield().toString().equals("its top-selling brand"));
+		
+		t = d.findNodeThatCoversSpan(0, 2, 2);
+		m = d.findMentionDominatingNode(0, t);
+		assertTrue(t.yield().toString(), t.yield().toString().equals("Gitano"));
+		assertTrue(m.toString(), m.getNode().yield().toString().equals("Gitano , its top-selling brand ,"));
+		
+	}
+	
+	
 }

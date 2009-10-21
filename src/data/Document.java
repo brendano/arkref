@@ -14,6 +14,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeFactory;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.util.IntPair;
 
 public class Document {
 	private List<Sentence> sentences;
@@ -30,24 +31,102 @@ public class Document {
 		node2mention = new HashMap<String,Mention>();
 		refGraph = new RefGraph();
 	}
+
 	
+	/**
+	 * if there is no mention for the given node, this will walk up the tree 
+	 * to try to find one, as in H&K EMNLP 09.   Such a method is necessary
+	 * because the test data coref labels may not match up with constituents exactly
+	 * 
+	 * @param s
+	 * @param node
+	 * @return
+	 */
+	public Mention findMentionDominatingNode(int sentenceIndex, Tree node) {
+		String key; 
+		Mention res = null;
+		Tree tmpNode = node;
+		
+		if(sentenceIndex >= sentences.size()){
+			return null;
+		}
+		
+		Sentence s = sentences.get(sentenceIndex);
+		
+		do{
+			key = nodeKey(s, tmpNode);
+			res = node2mention.get(key);
+			tmpNode = tmpNode.parent(s.getRootNode());
+		}while(res == null && tmpNode != null);
+			
+		return res;
+	}
+	
+	
+	/**
+	 * Given a span defined by indexes for the sentence, start token, and end token,
+	 * this method returns the smallest mention that includes that span. 
+	 * 
+	 * @param sentenceIndex
+	 * @param spanStart inclusive
+	 * @param spanEnd inclusive
+	 * @return
+	 */
+	public Tree findNodeThatCoversSpan(int sentenceIndex, int spanStart, int spanEnd){
+		Tree res = null;
+
+		if(sentenceIndex >= sentences.size()){
+			return null;
+		}
+		Sentence sent = sentences.get(sentenceIndex);
+
+		int smallestSpan = 999999;
+		int nodeSpanLength;
+
+		List<Tree> leaves = sent.getRootNode().getLeaves();
+		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()){
+			return null;
+		}
+		
+		Tree startLeaf = leaves.get(spanStart);
+		Tree endLeaf = leaves.get(spanEnd);
+		
+		for(Tree t: sent.getRootNode().subTrees()){
+				if(!(t.dominates(startLeaf) && t.dominates(endLeaf))){
+					continue;
+				}
+				
+				nodeSpanLength = t.getLeaves().size();
+				if(smallestSpan > nodeSpanLength){
+					smallestSpan = nodeSpanLength;
+					res = t;
+				}
+			
+		}
+
+		return res;
+	}
+
+
 	public Mention node2mention(Sentence s, Tree node) {
 		String key = nodeKey(s,node);
 		return node2mention.get(key);
 	}
+
 	public String nodeKey(Sentence s, Tree node) {
 		return String.format("sent_%s_node_%s_%s", s.getID(), s.getRootNode().leftCharEdge(node), node.hashCode());
 	}
+
 	public void set_node2mention(Sentence s, Tree node, Mention m) {
 		String key = nodeKey(s,node);
 		node2mention.put(key, m);
 	}
-	
+
 	public static Document loadFiles(String path) throws IOException {
 		Document d = new Document();
-		
+
 		String shortpath = Preprocess.shortPath(path);
-		
+
 		String parseFilename = shortpath + ".parse";
 		String neFilename = path = shortpath + ".ner";
 		BufferedReader parseR = new BufferedReader(new FileReader(parseFilename));
@@ -71,8 +150,8 @@ public class Document {
 
 		return d;
 	}
-	
-	
+
+
 	private static void addNPsAbovePossessivePronouns(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
 		String patS = "NP=parentnp < /^PRP\\$/=pro"; //needs to be the maximum projection of a head word
@@ -83,37 +162,37 @@ public class Document {
 			Tree pro = matcher.getNode("pro");
 			Tree newNP = factory.newTreeNode("NP", new ArrayList<Tree>());
 			int index = parentNP.indexOf(pro);
-			
+
 			newNP.addChild(pro);
 			parentNP.removeChild(index);
 			parentNP.addChild(index, newNP);
-			
+
 		}
 	}
-	
-	
+
+
 	private static void addInternalNPStructureForRoleAppositives(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
 		String patS = "NP=parentnp < NNP < NN";
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		TregexMatcher matcher = pat.matcher(tree);
-		
+
 		String prevLabelS = "";
 		String curLabelS;
 		Tree tmp;
 		int start;
 		Tree newNode;
-		
+
 		while (matcher.find()) {
 			Tree parentNP = matcher.getNode("parentnp");
 			start = -1;
 			boolean endOfSubseq;
-			
+
 			for(int i=0; i<parentNP.numChildren(); i++){
 				endOfSubseq = false;
 				tmp = parentNP.getChild(i);
 				curLabelS = tmp.label().value();
-				
+
 				if(start == -1){
 					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
 					if(curLabelS.matches("^NN|JJ|DT$")){
@@ -123,12 +202,12 @@ public class Document {
 					//if(prevLabelS.equals("NNP")){
 					//	endOfSubseq = !curLabelS.equals("NNP");
 					//}else
-						if(prevLabelS.matches("^NN|JJ|DT$")){
+					if(prevLabelS.matches("^NN|JJ|DT$")){
 						endOfSubseq = !curLabelS.matches("^NN|JJ|DT$");
 					}
-						
+
 				}
-					
+
 				if(endOfSubseq){
 					//System.err.println("start="+start+" i="+i);
 					newNode = factory.newTreeNode("NP", new ArrayList<Tree>());
@@ -137,11 +216,11 @@ public class Document {
 						parentNP.removeChild(start);
 					}
 					parentNP.addChild(start, newNode);
-					
+
 					//adjust the index since we changed the list of children 
 					//(probably not the cleanest way to do this...)
 					i=start+1;
-					
+
 					//if(curLabelS.matches("^NNP|NN|JJ|DT$")){
 					if(curLabelS.matches("^NN|JJ|DT$")){
 						start = i;
@@ -149,7 +228,7 @@ public class Document {
 						start = -1;
 					}
 				}
-				
+
 				prevLabelS = curLabelS;
 			}
 
@@ -163,11 +242,11 @@ public class Document {
 				}
 				parentNP.addChild(start, newNode);
 			}
-			
+
 		}
 	}
-	
-	
+
+
 
 	/** goes backwards through document **/
 	public Iterable<Mention> prevMentions(final Mention start) {
@@ -188,7 +267,7 @@ public class Document {
 			} 
 			assert mi != -1;
 		}
-		
+
 		@Override
 		public boolean hasNext() {
 			return mi > 0;
@@ -200,27 +279,27 @@ public class Document {
 			mi--;
 			if (mi==-1) return null;
 			return mentions.get(mi);
-			
+
 		}
 
 		// why-t-f did i write this?
-//		if (!filterToRemaining) {
-//			mi--;				
-//		} else {
-//			do {
-//				mi--;
-//				if (refGraph.needsReso(mentions.get(mi))) break;
-//			} while (mi != -1);
-//		}
+		//		if (!filterToRemaining) {
+		//			mi--;				
+		//		} else {
+		//			do {
+		//				mi--;
+		//				if (refGraph.needsReso(mentions.get(mi))) break;
+		//			} while (mi != -1);
+		//		}
 
 		@Override
 		public void remove() {	
 			System.out.println("bad");			
 		}
-		
+
 	}
-	
-	
+
+
 	public Tree getTree() {
 		if(tree == null){
 			TreeFactory factory = new LabeledScoredTreeFactory();
@@ -228,11 +307,11 @@ public class Document {
 			for(int i=0; i<sentences.size(); i++){
 				tree.addChild(sentences.get(i).getRootNode());
 			}
-			
+
 		}
 		return tree;
 	}
-	
+
 	public List<Mention> getMentions() {
 		return mentions;
 	}
@@ -252,5 +331,5 @@ public class Document {
 	public EntityGraph getEntGraph() {
 		return entGraph;
 	}
-	
+
 }
