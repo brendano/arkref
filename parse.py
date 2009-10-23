@@ -4,6 +4,7 @@ from subprocess import *
 file = sys.argv[1]
 parse_out = open(file.replace(".sent","") + ".parse",'w')
 ner_out = open(file.replace(".sent","") + ".ner",'w')
+file = file.replace(".sent","") + ".sent"
 for sent in open(file):
   sent = sent.strip()
 

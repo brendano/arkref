@@ -37,53 +37,6 @@ public class Resolve {
 	}
 	
 	
-
-	public static void resolveOthers(Mention mention, Document d) {
-		//TODO SEMANTICS!
-		
-		ArrayList<Mention> candidates = new ArrayList<Mention>();
-		boolean match = false;
-		
-		for (Mention cand : d.prevMentions(mention)) {
-			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
-				match = false;
-			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
-				//TODO keep this or not?
-				match = true;
-			} else {
-				match = false;
-			}			
-			if (match) {
-				System.out.println("yay   typematch:\t" + cand);
-				candidates.add(cand);
-			} else {
-				System.out.println("reject mismatch:\t" + cand);
-			}
-		}
-		
-		if (candidates.size() == 0) {
-			System.out.println("No legal candidates");
-			d.getRefGraph().setNullRef(mention);
-		} else if (candidates.size() == 1) {
-			System.out.println("Single legal resolution");
-			d.getRefGraph().setRef(mention, candidates.get(0));
-		} else if (candidates.size() > 1) {
-			System.out.println("Finding pronoun antecedent by shortest syntactic path");
-			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
-		}
-		
-		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
-		if(ref != null){
-			System.out.printf("resolved after filtering M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
-				 AnalysisUtilities.abbrevTree(ref.getNode()));
-		}
-		
-		//semantics!
-	}
-
-
-
 	/**
 	 * 
 	 * Note: This is slightly different than what is described in H&K EMNLP 09.
@@ -132,9 +85,6 @@ public class Resolve {
 		
 		return null;
 	}
-
-
-
 
 	/**
 	 * returns the antecedent NP or null
@@ -251,6 +201,53 @@ public class Resolve {
 				 AnalysisUtilities.abbrevTree(ref.getNode()));
 		}
 	}
+
+
+
+	public static void resolveOthers(Mention mention, Document d) {
+		//TODO SEMANTICS!
+		
+		ArrayList<Mention> candidates = new ArrayList<Mention>();
+		boolean match = false;
+		
+		for (Mention cand : d.prevMentions(mention)) {
+			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
+				match = false;
+			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
+				//TODO keep this or not?
+				match = true;
+			} else {
+				match = false;
+			}			
+			if (match) {
+				System.out.println("yay   typematch:\t" + cand);
+				candidates.add(cand);
+			} else {
+				System.out.println("reject mismatch:\t" + cand);
+			}
+		}
+		
+		if (candidates.size() == 0) {
+			System.out.println("No legal candidates");
+			d.getRefGraph().setNullRef(mention);
+		} else if (candidates.size() == 1) {
+			System.out.println("Single legal resolution");
+			d.getRefGraph().setRef(mention, candidates.get(0));
+		} else if (candidates.size() > 1) {
+			System.out.println("Finding pronoun antecedent by shortest syntactic path");
+			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
+		}
+		
+		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
+		if(ref != null){
+			System.out.printf("resolved after filtering M%-2d -> M%-2d    %20s    ->   %-20s\n", 
+				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
+				 AnalysisUtilities.abbrevTree(ref.getNode()));
+		}
+		
+		//semantics!
+	}
+
 
 
 	

@@ -22,3 +22,8 @@ adjacent sentences and have a length of at
 most 10. We then filter the set of paths to those
 which occur more than a hundred times and with
 at least 10 distinct seed head word pairs."
+
+-need not-totally-maximal head projections for gathing role-appos pairs
+(pairing child and parent is wrong, want to pair siblings)
+
+- u.s. census names http://www.hilarymason.com/blog/data-first-and-last-names-from-the-us-census/
