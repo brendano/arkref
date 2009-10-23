@@ -6,8 +6,10 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * For identifying the genders of given names.
@@ -102,7 +104,40 @@ public class FirstNames {
 		return instance;
 	}
 
+
+	public Set<String> getMaleNames(){
+		Set<String> res = new HashSet<String>();
+		
+		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
+			if(entry.getValue() == FirstNames.GENDER_MALE){
+				res.add(entry.getKey());
+			}
+		}
+		
+		return res;
+	}
 	
+	public Set<String> getFemaleNames(){
+		Set<String> res = new HashSet<String>();
+		
+		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
+			if(entry.getValue() == FirstNames.GENDER_FEMALE){
+				res.add(entry.getKey());
+			}
+		}
+		
+		return res;
+	}
+	
+	public Set<String> getAllFirstNames(){
+		Set<String> res = new HashSet<String>();
+		
+		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
+			res.add(entry.getKey());
+		}
+		
+		return res;
+	}
 
 
 	public int getGender(String name) {
