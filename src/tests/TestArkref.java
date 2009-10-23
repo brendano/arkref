@@ -122,6 +122,36 @@ public class TestArkref extends TestCase {
 		// BTO: should do appositive & pred-noms? low prio
 	}
 	
+	public void testDefaultMale() throws IOException{
+		// Some of these cases should flip if we turn on hard gender constraints
+		// Which might make more sense for certain domains.
+		// If we make it an option, should make tests to ensure the flip happens.
+
+		Document d;
+		d = Document.loadFiles("data/defaultMale1"); _Pipeline.go(d);
+		assertSurface(d,1, "Sally");
+			assertEquals(Types.Gender.Female, Types.gender(mention(d,1)));
+		assertSurface(d,2, "the banker");
+			assertEquals(null, Types.gender(mention(d,2)));
+		assertSurface(d,3, "He");
+		assertLink(d, 2,3);
+
+		d = Document.loadFiles("data/defaultMale2"); _Pipeline.go(d);
+		assertSurface(d,1, "Bob");
+			assertEquals(Types.Gender.Male, Types.gender(mention(d,1)));
+		assertSurface(d,2, "the banker");
+			assertEquals(null, Types.gender(mention(d,2)));
+		assertSurface(d,3, "He");
+		assertLink(d, 1,3);
+
+		d = Document.loadFiles("data/defaultMale3"); _Pipeline.go(d);
+		assertSurface(d,1, "The banker");
+			assertEquals(null, Types.gender(mention(d,1)));
+		assertSurface(d,2, "Bob");
+			assertEquals(Types.Gender.Male, Types.gender(mention(d,2)));
+		assertSurface(d,3, "He");
+		assertLink(d, 1,3);
+	}
 	
 	public void testAppositives() throws IOException{
 		//example from H&K 2009

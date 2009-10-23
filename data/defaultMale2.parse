@@ -1,0 +1,2 @@
+(ROOT (S (NP (NNP Bob)) (VP (VBD went) (PP (TO to) (NP (DT the) (NN banker)))) (. .)))
+(ROOT (S (NP (PRP He)) (VP (VBD wanted) (S (VP (TO to) (VP (VB do) (NP (DT a) (NN transaction)))))) (. .)))

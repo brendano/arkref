@@ -1,0 +1,2 @@
+(ROOT (S (NP (DT The) (NN banker)) (VP (VBD met) (NP (NNP Bob))) (. .)))
+(ROOT (S (NP (PRP He)) (VP (VBD was) (PP (IN at) (NP (PRP$ his) (NN booth)))) (. .)))

@@ -57,6 +57,15 @@ public class Types {
 			return true;
 		return x==y;
 	}
+	public static boolean sexistEquals(Gender x, Gender y) {
+		// see testDefaultMale()
+		// unknown gender defaults to male
+		// unknown gender cannot match female
+		if (x==null && y==null) return true;
+		if (x==null && y==Gender.Male) return true;
+		if (y==null && x==Gender.Male) return true;
+		return x==y;
+	}
 
 	public static boolean checkPronominalMatch(Mention mention, Mention cand) {
 		assert isPronominal(mention);
@@ -73,7 +82,8 @@ public class Types {
 		// gender is gray area
 		return
 			relaxedEquals(personhood(pronoun), personhood(cand)) &&
-			gender(mention) == gender(cand) &&
+			sexistEquals(gender(mention), gender(cand)) &&
+			/* DISABLED gender(mention) == gender(cand) && */
 			number(mention) == number(cand);
 	}
 	public static boolean isPronominal(Mention m) {
@@ -117,6 +127,8 @@ public class Types {
 		String surface = m.getNode().yield().toString().toLowerCase();
 		if (surface.matches("^(bob|john|fred)$"))
 			return Gender.Male;
+		if (surface.matches("^(sally)$"))
+			return Gender.Female;
 		return null;
 	}
 	
