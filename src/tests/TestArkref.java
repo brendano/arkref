@@ -335,7 +335,12 @@ public class TestArkref extends TestCase {
 		Mention m1 = mention(d,1);
 		assertEquals(Types.Number.Plural, Types.number(m1));
 
-		assertLink(d, 1,6);
+		//The team practiced very hard, and later on they won the game.
+		
+		 d = Document.loadFiles("data/they2");
+		_Pipeline.go(d);
+		assertLink(d,1,2);
+		
 	}
 	
 	

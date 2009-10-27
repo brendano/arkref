@@ -107,8 +107,12 @@ public class Types {
 			personhoodEquals(personhood(pronoun), personhood(cand)) &&
 			sexistGenderEquals(gender(mention), gender(cand)) &&
 			/* DISABLED gender(mention) == gender(cand) && */
-			number(mention) == number(cand);
+			relaxedEquals(number(cand), number(cand)); // "they" should be able to match singular nouns for groups
+			//number(mention) == number(cand);
 	}
+	
+
+
 	public static boolean isPronominal(Mention m) {
 		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.getNode());
 		return matcher.find();
@@ -217,6 +221,8 @@ public class Types {
 			Tree head = m.getNode().headPreTerminal(hf);
 			String tag = head.label().toString();
 			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
+			if (NounTypes.getInstance().getType(head.getChild(0).label().value()).equals("organization")
+					|| m.neType().equals("ORGANIZATION")) return null;
 			if (tag.matches("^NNP?S$")) return Number.Plural;
 			if (tag.matches("^NNP?$"))  return Number.Singular;
 			// TODO mass nouns?
