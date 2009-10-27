@@ -254,12 +254,27 @@ public class Document {
 	}
 
 
+	/**
+	 * make a right branching tree out of all the sentence trees
+	 * e.g., (DOCROOT T1 (DOCROOT T2 (DOCROOT T3))) 
+	 * This will make sure that ndoes in t3 are further from nodes in t1 
+	 * than they are fromnodes in t2.
+	 * 
+	 * @return
+	 */
 	public Tree getTree() {
 		if(tree == null){
 			TreeFactory factory = new LabeledScoredTreeFactory();
 			tree = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
+			Tree tmpTree1 = tree;
+			Tree tmpTree2;
 			for(int i=0; i<sentences.size(); i++){
-				tree.addChild(sentences.get(i).getRootNode());
+				tmpTree1.addChild(sentences.get(i).getRootNode());
+				if(i<sentences.size()-1){ 
+					tmpTree2 = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
+					tmpTree1.addChild(tmpTree2);
+					tmpTree1 = tmpTree2;
+				}
 			}
 
 		}

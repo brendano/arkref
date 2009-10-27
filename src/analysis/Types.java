@@ -110,12 +110,12 @@ public class Types {
 			number(mention) == number(cand);
 	}
 	public static boolean isPronominal(Mention m) {
-		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !> NP").matcher(m.getNode());
+		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.getNode());
 		return matcher.find();
 	}
 	
 	public static String pronoun(Mention m) {
-		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# /^PRP/=pronoun !> NP");
+		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# /^PRP/=pronoun !>> NP");
 		TregexMatcher matcher = pat.matcher(m.getNode());
 		if (matcher.find()) {
 			Tree PRP = matcher.getNode("pronoun");
@@ -181,6 +181,7 @@ public class Types {
 		if (t.equals("O")) return null;
 		return Personhood.NotPerson;
 	}
+	
 	public static Personhood personhood(String pronoun) {
 		if (pronoun.matches("^(he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours)$")) {
 			return Personhood.Person;
