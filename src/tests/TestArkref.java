@@ -33,11 +33,11 @@ public class TestArkref extends TestCase {
 	
 	
 	public void assertLink(Mention m1, Mention m2, Document d) {
-		assertTrue(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+		assertTrue(m1.getNode().toString()+"\t==>\t"+m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
 	}
 	public void assertLink(Document d, Mention m1, Mention m2){ assertLink(m1,m2,d); }
 	public void assertNoLink(Mention m1, Mention m2, Document d) {
-		assertFalse(m1.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+		assertFalse(m1.getNode().toString()+"\t==>\t"+m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
 	}
 	public void assertNoLink(Document d, Mention m1, Mention m2){ assertNoLink(m1,m2,d); }
 	public void assertSurface(Mention m, String surface) {
@@ -151,6 +151,7 @@ public class TestArkref extends TestCase {
 			assertEquals(Types.Gender.Male, Types.gender(mention(d,2)));
 		assertSurface(d,3, "He");
 		assertLink(d, 1,3);
+				
 	}
 	
 	public void testAppositives() throws IOException{
@@ -231,22 +232,32 @@ public class TestArkref extends TestCase {
 	}
 	
 	public void testEntityTypeMatching() throws IOException{
-		//Bob went to the store.
+		//John went to the store.
+		//Bob also went to the store.
 		//It was a grocery store.
 		//He bought an item.
 
 		Document d = Document.loadFiles("data/test1");
 		_Pipeline.go(d);
-
-		Mention m1 = d.getMentions().get(0); //Bob
-		Mention m2 = d.getMentions().get(1); //store
-		Mention m3 = d.getMentions().get(2); //it
-		Mention m5 = d.getMentions().get(4); //he
+				
+		assertLink(5,4,d); //store and it
+		assertNoLink(3,2,d); //bob and store
+		assertLink(7,3,d); //he and bob
+		assertNoLink(7,6,d); //he and store
+		assertNoLink(1,2,d); //john and store
 		
-		assertLink(m3,m2,d);
-		assertNoLink(m3,m1,d);
-		assertLink(m5,m1,d);
-		assertNoLink(m5,m2,d);
+		d = Document.loadFiles("data/personNounTest");
+		_Pipeline.go(d);
+
+		//The astronaut went to the space with Howard.
+		//The robot did, too.
+		//He had fun.
+				
+		assertLink(1,5,d); //astronaut and he
+		assertNoLink(5,4,d); //he and robot
+		assertNoLink(4,1,d); //robot and astronaut
+		assertNoLink(5,3,d); //he and Howard
+		assertSingleton(d,6); //fun
 	}
 	
 	
@@ -312,6 +323,10 @@ public class TestArkref extends TestCase {
 	}
 	
 	public void testThey() throws IOException{
+		//The earliest known settlers followed herds of large game to the region
+		//during the last glacial period. They preceded the Anishinaabe, the Dakota, 
+		//and other Native American inhabitants.
+		
 		Document d = Document.loadFiles("data/they1");
 		_Pipeline.go(d);
 		assertSurface(d,1,"The earliest known settlers");
@@ -323,9 +338,11 @@ public class TestArkref extends TestCase {
 		assertLink(d, 1,6);
 	}
 	
+	
 	public Mention mention(Document d, int mi) {
 		return d.getMentions().get(mi-1);
 	}
+	
 	
 	public void testFindNodeFromSpan() throws IOException{
 		//He and Fred went to the store.

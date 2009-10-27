@@ -23,16 +23,28 @@ import java.util.Set;
  */
 public class FirstNames {
 
-	private Map<String, Integer> genderMap;
-	public static final int GENDER_UNKNOWN = 0;
-	public static final int GENDER_MALE = 1;
-	public static final int GENDER_FEMALE = 2;
+	private Map<String, NameGender> genderMap;
 	
 	private static FirstNames instance;
 
+	//I did not use the same gender enumeration as in 
+	//the types class to avoid having that extra 
+	//dependency.  I want to be able to take this
+	//class and use it for other stuff if I want. --MJH
+	private static enum NameGender {
+		Male, Female, Unknown;
+		public String toString() {
+			switch(this) {
+			case Male: return "Mal";
+			case Female: return "Fem";
+			case Unknown: return "Unk";
+			}
+			return "Unk";
+		}
+	}
 	
 	private FirstNames(){
-		genderMap = new HashMap<String, Integer>();
+		genderMap = new HashMap<String, NameGender>();
 		
 		
 		Properties properties = new Properties();
@@ -54,7 +66,7 @@ public class FirstNames {
 		
 		//add male names
 		for(Map.Entry<String, Double> entry: maleFrequencies.entrySet()){
-			genderMap.put(entry.getKey(), FirstNames.GENDER_MALE);
+			genderMap.put(entry.getKey(), NameGender.Male);
 		}
 		
 		//add female names, check frequencies for ambiguous names
@@ -65,7 +77,7 @@ public class FirstNames {
 			freq = entry.getValue();
 			
 			if(maleFrequencies.get(name) == null || maleFrequencies.get(name) < freq){
-				genderMap.put(name, FirstNames.GENDER_FEMALE);
+				genderMap.put(name, NameGender.Female);
 			}
 		}
 		
@@ -108,8 +120,8 @@ public class FirstNames {
 	public Set<String> getMaleNames(){
 		Set<String> res = new HashSet<String>();
 		
-		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
-			if(entry.getValue() == FirstNames.GENDER_MALE){
+		for(Map.Entry<String, NameGender> entry: genderMap.entrySet()){
+			if(entry.getValue() == NameGender.Male){
 				res.add(entry.getKey());
 			}
 		}
@@ -120,8 +132,8 @@ public class FirstNames {
 	public Set<String> getFemaleNames(){
 		Set<String> res = new HashSet<String>();
 		
-		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
-			if(entry.getValue() == FirstNames.GENDER_FEMALE){
+		for(Map.Entry<String, NameGender> entry: genderMap.entrySet()){
+			if(entry.getValue() == NameGender.Female){
 				res.add(entry.getKey());
 			}
 		}
@@ -132,7 +144,7 @@ public class FirstNames {
 	public Set<String> getAllFirstNames(){
 		Set<String> res = new HashSet<String>();
 		
-		for(Map.Entry<String, Integer> entry: genderMap.entrySet()){
+		for(Map.Entry<String, NameGender> entry: genderMap.entrySet()){
 			res.add(entry.getKey());
 		}
 		
@@ -140,11 +152,11 @@ public class FirstNames {
 	}
 
 
-	public int getGender(String name) {
-		int res;
-		Integer gender = genderMap.get(name.toLowerCase());
+	public NameGender getGender(String name) {
+		NameGender res;
+		NameGender gender = genderMap.get(name.toLowerCase());
 		if(gender == null){
-			res = GENDER_UNKNOWN;
+			res = NameGender.Unknown;
 		}else{
 			res = gender;
 		}
@@ -168,18 +180,24 @@ public class FirstNames {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		while((buf = br.readLine()) != null){
 			buf = buf.trim();
-			int gender = FirstNames.getInstance().getGender(buf);
-			if(gender == FirstNames.GENDER_MALE){
-				genderS = "male";
-			}else if (gender == FirstNames.GENDER_FEMALE){
-				genderS = "female";
-			}else{
-				genderS = "unknown";
-			}
+			genderS = FirstNames.getInstance().getGenderString(buf);
 			
 			System.out.println(genderS);
 		}
 
+	}
+
+	public String getGenderString(String name) {
+		String genderS;
+		NameGender gender = FirstNames.getInstance().getGender(name);
+		if(gender == NameGender.Male){
+			genderS = "Mal";
+		}else if (gender == NameGender.Female){
+			genderS = "Fem";
+		}else{
+			genderS = "";
+		}
+		return genderS;
 	}
 
 }

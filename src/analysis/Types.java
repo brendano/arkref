@@ -2,6 +2,7 @@ package analysis;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
+import data.FirstNames;
 import data.Mention;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
@@ -11,23 +12,25 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 public class Types {
 	
 	public static enum Gender {
-		Male, Female;
+		Male, Female, Unknown;
 		public String toString() {
 			switch(this) {
 			case Male: return "Mal";
 			case Female: return "Fem";
+			case Unknown: return "";
 			}
-			return null;
+			return "";
 		}
 	}
 	public static enum Personhood {
-		Person, NotPerson;
+		Person, NotPerson, MaybePerson;
 		public String toString() {
 			switch(this) {
 			case Person: return "Per";
 			case NotPerson: return "NPer";
+			case MaybePerson: return "MaybePer";
 			}
-			return null;
+			return "";
 		}
 	}
 	public static enum Number {
@@ -37,7 +40,7 @@ public class Types {
 			case Singular: return "Sg";
 			case Plural: return "Pl";
 			}
-			return null;
+			return "";
 		}
 	}
 	public static enum Perspective {
@@ -47,7 +50,7 @@ public class Types {
 			case First: return "1";
 			case Second: return "2";
 			case Third: return "3";
-			default: return null;
+			default: return "";
 			}
 		}
 	}
@@ -57,7 +60,9 @@ public class Types {
 			return true;
 		return x==y;
 	}
-	public static boolean sexistEquals(Gender x, Gender y) {
+	
+	
+	public static boolean sexistGenderEquals(Gender x, Gender y) {
 		// see testDefaultMale()
 		// unknown gender defaults to male
 		// unknown gender cannot match female
@@ -66,6 +71,23 @@ public class Types {
 		if (y==null && x==Gender.Male) return true;
 		return x==y;
 	}
+	
+	
+	public static boolean personhoodEquals(Personhood x, Personhood y) {
+		// see testEntityTypeMatching(), testThey()
+		if ((x==null || x==Personhood.NotPerson || x==Personhood.MaybePerson) 
+				&& (y==null || y==Personhood.NotPerson || y==Personhood.MaybePerson))
+		{
+			return true;
+		}
+		if ((x==Personhood.Person || x==Personhood.MaybePerson) 
+				&& (y==Personhood.Person || y==Personhood.MaybePerson))
+		{
+			return true;
+		}
+		return x==y;
+	}
+
 
 	public static boolean checkPronominalMatch(Mention mention, Mention cand) {
 		assert isPronominal(mention);
@@ -81,8 +103,9 @@ public class Types {
 		// number is easiest to get
 		// gender is gray area
 		return
-			relaxedEquals(personhood(pronoun), personhood(cand)) &&
-			sexistEquals(gender(mention), gender(cand)) &&
+			//relaxedEquals(personhood(pronoun), personhood(cand)) &&
+			personhoodEquals(personhood(pronoun), personhood(cand)) &&
+			sexistGenderEquals(gender(mention), gender(cand)) &&
 			/* DISABLED gender(mention) == gender(cand) && */
 			number(mention) == number(cand);
 	}
@@ -123,12 +146,28 @@ public class Types {
 				return null;   // no decision
 			}
 		}
-		// else name lists, i guess
-		String surface = m.getNode().yield().toString().toLowerCase();
-		if (surface.matches("^(bob|john|fred)$"))
-			return Gender.Male;
-		if (surface.matches("^(sally)$"))
-			return Gender.Female;
+		
+		//if its something other than PERSON or other (e.g., LOCATION)
+		//then return null because its obviously not male or female.
+		String neType = m.neType();
+		if(!neType.equals("PERSON") && !neType.equals("O")){
+			return null;
+		}
+		
+		//Go through all the NNP tokens in the noun phrase and see if any of them
+		//are person names.  If so, return the gender of that name.
+		//Note: this will fail for ambiguous month/person names like "April"
+		for(Tree leaf : m.getNode().getLeaves()){
+			if(!leaf.parent(m.getNode()).label().value().equals("NNP")){
+				continue;
+			}
+			String genderS = FirstNames.getInstance().getGenderString(leaf.value());
+			if(genderS.equals("Mal")){
+				return Gender.Male;
+			}else if(genderS.equals("Fem")){
+				return Gender.Female;
+			}
+		}
 		return null;
 	}
 	
@@ -138,16 +177,17 @@ public class Types {
 			return personhood(p);
 		}
 		String t = m.neType();
-		if (t.equals("PERSON")) return Personhood.Person;
-		if (t.equals("ORGANIZATION")) return Personhood.NotPerson;
-		if (t.equals("LOCATION")) return Personhood.NotPerson;
-		return null;
+		if (t.equals("PERSON") || NounTypes.getInstance().getType(m.getHeadWord()).equals("person")) return Personhood.Person;
+		if (t.equals("O")) return null;
+		return Personhood.NotPerson;
 	}
 	public static Personhood personhood(String pronoun) {
 		if (pronoun.matches("^(he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours)$")) {
 			return Personhood.Person;
 		} else if (pronoun.matches("^(it|its)$")) {
 			return Personhood.NotPerson;
+		}else if (pronoun.matches("^(they|their|theirs|them|these|those)$")) {
+			return Personhood.MaybePerson;
 		}
 		return null;
 	}
@@ -156,7 +196,7 @@ public class Types {
 	public static Perspective perspective(String pronoun) {
 		if (pronoun.matches("^(i|me||my|mine|we|our|ours)$")) {
 			return Perspective.First;
-		} else if (pronoun.matches("^(you|yours|y'all|y'alls)$")) {
+		} else if (pronoun.matches("^(you|yours|y'all|y'alls|yinz)$")) {
 			return Perspective.Second;
 		} else {
 			return Perspective.Third;

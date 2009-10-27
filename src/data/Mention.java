@@ -43,6 +43,10 @@ public class Mention {
 		return node;
 	}
 	
+	public String getHeadWord(){
+		return node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).yield().toString();
+	}
+	
 	public Sentence getSentence() {
 		return sentence;
 	}
