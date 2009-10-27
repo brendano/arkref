@@ -1,0 +1,2 @@
+(ROOT (S (S (NP (DT The) (NN team)) (VP (VBD practied) (ADJP (RB very) (JJ hard)))) (, ,) (CC and) (S (ADVP (RB later) (RB on)) (NP (PRP they)) (VP (VBD won) (NP (DT the) (NN game)))) (. .)))
+(ROOT (S (S (NP (NP (DT The) (NN herd)) (PP (IN of) (NP (NNS animals)))) (VP (VBD grazed) (PP (IN on) (NP (DT the) (NN land))))) (, ,) (CC and) (S (ADVP (RB then)) (NP (PRP they)) (VP (VBD moved) (PRT (RP on)))) (. .)))

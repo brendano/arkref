@@ -221,7 +221,9 @@ public class Types {
 			Tree head = m.getNode().headPreTerminal(hf);
 			String tag = head.label().toString();
 			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
-			if (NounTypes.getInstance().getType(head.getChild(0).label().value()).equals("organization")
+			String headWord = head.getChild(0).label().value();
+			if (NounTypes.getInstance().getType(headWord).equals("organization")
+					|| NounTypes.getInstance().getType(headWord).equals("group")
 					|| m.neType().equals("ORGANIZATION")) return null;
 			if (tag.matches("^NNP?S$")) return Number.Plural;
 			if (tag.matches("^NNP?$"))  return Number.Singular;

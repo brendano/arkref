@@ -23,8 +23,11 @@ public class NounTypes {
 		String orgListPath= properties.getProperty("organization-hyponyms", "config/social-group-hyponyms.txt");
 		String locListPath= properties.getProperty("location-hyponyms", "config/location-structure-facility-and-geological-formation-hyponyms.txt");
 		String timeListPath = properties.getProperty("time-hyponyms", "config/time-point-unit-and-period-hyponyms.txt");
+		String groupListPath = properties.getProperty("group-hyponyms", "config/single-word-group-hyponyms.txt");
+		
 		
 		loadTypes("person", personListPath);
+		loadTypes("group", groupListPath); //note: all organizations will also be groups
 		loadTypes("organization", orgListPath);
 		loadTypes("location", locListPath);
 		loadTypes("time", timeListPath);
@@ -64,6 +67,8 @@ public class NounTypes {
 		}
 		return instance;
 	}
+	
+
 	
 	public String getType(String noun){
 		String res = wordTypeMap.get(noun);

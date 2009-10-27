@@ -336,11 +336,13 @@ public class TestArkref extends TestCase {
 		assertEquals(Types.Number.Plural, Types.number(m1));
 
 		//The team practiced very hard, and later on they won the game.
+		//The herd of animals grazed on the land, and then they moved on.
 		
 		 d = Document.loadFiles("data/they2");
 		_Pipeline.go(d);
 		assertLink(d,1,2);
-		
+		assertLink(d,4,7);
+		assertNoLink(d,2,4);
 	}
 	
 	
