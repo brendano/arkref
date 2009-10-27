@@ -17,9 +17,9 @@ public class Types {
 			switch(this) {
 			case Male: return "Mal";
 			case Female: return "Fem";
-			case Unknown: return "";
+			case Unknown: return null;
 			}
-			return "";
+			return null;
 		}
 	}
 	public static enum Personhood {
@@ -30,7 +30,7 @@ public class Types {
 			case NotPerson: return "NPer";
 			case MaybePerson: return "MaybePer";
 			}
-			return "";
+			return null;
 		}
 	}
 	public static enum Number {
@@ -40,7 +40,7 @@ public class Types {
 			case Singular: return "Sg";
 			case Plural: return "Pl";
 			}
-			return "";
+			return null;
 		}
 	}
 	public static enum Perspective {
@@ -50,7 +50,7 @@ public class Types {
 			case First: return "1";
 			case Second: return "2";
 			case Third: return "3";
-			default: return "";
+			default: return null;
 			}
 		}
 	}
@@ -107,7 +107,7 @@ public class Types {
 			personhoodEquals(personhood(pronoun), personhood(cand)) &&
 			sexistGenderEquals(gender(mention), gender(cand)) &&
 			/* DISABLED gender(mention) == gender(cand) && */
-			relaxedEquals(number(cand), number(cand)); // "they" should be able to match singular nouns for groups
+			relaxedEquals(number(mention), number(cand)); // "they" should be able to match singular nouns for groups
 			//number(mention) == number(cand);
 	}
 	
