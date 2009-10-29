@@ -70,6 +70,7 @@ public class TestArkref extends TestCase {
 		//The company ruined itself.  (s4)
 		//The corporation ruined its chances.  (s5)
 		//The bank ruined it.	(s6)
+		//James believed he could win. (s7)
 		
 		Document d = Document.loadFiles("data/reflexives");
 		_Pipeline.go(d);
@@ -82,6 +83,7 @@ public class TestArkref extends TestCase {
 		assertLink(12,13,d); //company, itself (s4)
 		assertLink(14,16,d); //corporation, its (s5)
 		assertNoLink(17,18,d); //bank, it (s6)
+		assertLink(19,20,d);  // James, he (s7)
 	}
 	
 	

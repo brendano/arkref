@@ -1,0 +1,7 @@
+(ROOT (S (NP (NNP John)) (VP (VBD bought) (S (NP (PRP himself)) (NP (DT a) (NN book)))) (. .)))
+(ROOT (S (NP (NNP Bob)) (VP (VBD knew) (SBAR (IN that) (S (NP (NNP John)) (VP (VBD bought) (S (NP (PRP himself)) (NP (DT a) (NN book))))))) (. .)))
+(ROOT (S (NP (NNP John)) (VP (VBD knew) (SBAR (IN that) (S (NP (NNP Bob)) (VP (VBD bought) (S (NP (PRP him)) (NP (DT a) (NN book))))))) (. .)))
+(ROOT (S (NP (DT The) (NN company)) (VP (VBN ruined) (NP (PRP itself))) (. .)))
+(ROOT (S (NP (DT The) (NN corporation)) (VP (VBN ruined) (NP (PRP$ its) (NNS chances))) (. .)))
+(ROOT (S (NP (DT The) (NN bank)) (VP (VBN ruined) (NP (PRP it))) (. .)))
+(ROOT (S (NP (NNP James)) (VP (VBD believed) (SBAR (IN that) (S (NP (PRP he)) (VP (MD could) (VP (VB win)))))) (. .)))
