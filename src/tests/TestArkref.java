@@ -61,6 +61,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d.getMentions().get(m-1), s);
 	}
 	
+		
 	
 	public void testReflexives() throws IOException{
 
@@ -431,6 +432,29 @@ public class TestArkref extends TestCase {
 	
 	
 	
+	public void testAdjunctPhrases() throws IOException{
+		//The students were tired of working. (s1)
+		//To meet their friends, they went to the bar. (s2)
+		//To meet new people, they talked to them. (s3)
+		//Since Bill wanted to talk to John, he picked up the phone. (s4)
+		//To Susan, she seemed nice. (s5)
+		
+		Document d = Document.loadFiles("data/adjunctPhrases");
+		_Pipeline.go(d);
+				
+		assertLink(1,3, d); //students, their
+		assertLink(1,4, d); //students, they
+		assertNoLink(2,4, d); //their friends, they
+		assertLink(1,7, d); //students, they (s3)
+		assertNoLink(6,7, d); //they (s3), new people
+		assertLink(8,6, d); //them (s3), new people
+		assertNoLink(1,8, d); //students, them (s3)
+		assertLink(9,11,d); //Bill, he (s4)
+		assertNoLink(10,11,d); //John, he (s4)
+		assertNoLink(13,14,d); //Susan, she (s5)
+	}	
 
 	
 }
+
+

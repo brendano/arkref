@@ -15,8 +15,8 @@ import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 public class SyntacticPaths {
-	
-	
+
+
 	/**
 	 * finds the closest candidate by looking at the syntactic path distance
 	 * 
@@ -28,9 +28,9 @@ public class SyntacticPaths {
 		int minLength = 1000000;
 		int minIndex = 0;
 		Mention res; 
-		
+
 		List<Integer> pathLengths = scoreCandidatesByPathLength(mention, candidates, document);
-		
+
 		//Mention tmpCandidate;
 		int tmp;
 		for(int i=0; i<pathLengths.size(); i++){
@@ -40,27 +40,27 @@ public class SyntacticPaths {
 				minIndex = i;
 			}
 		}
-				
+
 		res = candidates.get(minIndex);
 		return res;
 	}
-	
-	
+
+
 	public static List<Integer> scoreCandidatesByPathLength(Mention mention, List<Mention> candidates, Document doc) {
 		List<Integer> pathLengths = new ArrayList<Integer>();
-		
+
 		Iterator<Mention> iter = candidates.iterator();
 		Mention tmpCandidate;
 		while(iter.hasNext()){
 			tmpCandidate = iter.next();
 			pathLengths.add(computePathLength(mention.getNode(), tmpCandidate.getNode(), doc.getTree()));
-			
+
 		}
-		
+
 		return pathLengths;
 	}
-	
-	
+
+
 
 
 	/**
@@ -72,7 +72,7 @@ public class SyntacticPaths {
 	 */
 	public static int computePathLength(Tree node1, Tree node2, Tree commonRoot) {
 		int res = 1000;
-		
+
 		/*
 		//find the node in the tree that dominates both input nodes
 		int len1 = 0;
@@ -84,14 +84,14 @@ public class SyntacticPaths {
 			if(dominationPath != null){
 				len2 = dominationPath.size()-1;
 			}
-		
+
 			tmpNode = tmpNode.parent(commonRoot);
 			len1++;
 		}
-		
+
 		//sum the distances from each input node to their common ancestor
 		res = len1+len2;*/
-		
+
 		List<Tree> path = commonRoot.pathNodeToNode(node1, node2);
 		if(path != null){
 			res = path.size()-1;
@@ -103,7 +103,7 @@ public class SyntacticPaths {
 
 	public static boolean aIsDominatedByB(Mention A, Mention B) {
 		boolean bDominatesA = B.getNode().dominates(A.getNode());
-		
+
 
 		return bDominatesA;
 	}
@@ -114,7 +114,7 @@ public class SyntacticPaths {
 		Tree tmp = parent;
 		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
 		Tree parentHead = parent.headTerminal(hf);
-		
+
 		while(tmp != null){
 			tmp = res.parent(root);
 			if(tmp.headTerminal(hf) == parentHead){
@@ -123,7 +123,7 @@ public class SyntacticPaths {
 				break;
 			}
 		}
-		
+
 		return res;
 	}
 
@@ -132,25 +132,35 @@ public class SyntacticPaths {
 		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
 		String h1 = m1.getNode().headTerminal(hf).yield().toString();
 		String h2 = m2.getNode().headTerminal(hf).yield().toString();
-		
+
 		return h1.equalsIgnoreCase(h2);
 	}
 
-
+	
+	/**
+	 * Objects (and other verb arguments) can't refer with the subjects of the same clause,
+	 * unless the object is reflexive.
+	 * 
+	 * e.g., in "The man gave him a book.", "him" != "man"
+	 * 
+	 * @param m1
+	 * @param m2
+	 * @return
+	 */
 	public static boolean inSubjectObjectRelationship(Mention m1, Mention m2) {
 		Tree t = m2.getNode();
 		Tree root = m2.getSentence().getRootNode();
-		
+
 		//return false if these mentions are not in the same sentence
 		if(root != m1.getSentence().getRootNode()){
 			return false;
 		}
 		Tree ancestor = t.parent(root);
-		
-		//find the subject of the dominative clause
+
+		//find the subject of the clause that m2 is part of (try to do so even if there is embedding)
 		while(ancestor != null && ancestor != root){
 			if(ancestor.label().value().equals("S")){
-				TregexPattern pat = TregexPatternFactory.getPattern("S < (NP=subject !,, NP) < VP");
+				TregexPattern pat = TregexPatternFactory.getPattern("S < (NP=subject !$,, NP) < VP");
 				TregexMatcher matcher = pat.matcher(ancestor);
 				if (matcher.find()) {
 					Tree subj = matcher.getNode("subject");
@@ -163,9 +173,41 @@ public class SyntacticPaths {
 			}
 			ancestor = ancestor.parent(root);
 		}
+
+		return false;
+	}
+	
+	
+	/**
+	 * Subjects cannot refer to NPs in non-finite subordinate clauses, prepositional phrases, etc.
+	 * modifying the same main clause
+	 * 
+	 * e.g., in "To call John, he picked up the phone" he != John  
+	 * in "To John, he was a stranger." he != John  
+	 * in "Because John likes cars, he bought a Ferrari." he might be John
+	 * 
+	 * @param m2
+	 * @param m1
+	 * @return
+	 */
+	public static boolean isSubjectAndMentionInAdjunctPhrase(Mention m1, Mention m2) {
+		Tree t = m1.getNode();
+		Tree root = m1.getSentence().getRootNode();
+
+		Tree clause = t.parent(root);
+		if(!clause.label().value().equals("S")){
+			return false;
+		}
 		
+		TregexPattern pat = TregexPatternFactory.getPattern("NP=np !>> (S < NP < VP >> S)");
+		TregexMatcher matcher = pat.matcher(clause);
+		while(matcher.find()) {
+			Tree np = matcher.getNode("np");
+			if(np == m2.getNode()) return true;
+		}		
+
 		return false;
 	}
 
-	
+
 }

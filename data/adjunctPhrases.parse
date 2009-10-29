@@ -1,0 +1,5 @@
+(ROOT (S (NP (DT The) (NNS students)) (VP (VBD were) (ADJP (JJ tired) (PP (IN of) (S (VP (VBG working)))))) (. .)))
+(ROOT (S (S (VP (TO To) (VP (VB meet) (NP (PRP$ their) (NNS friends))))) (, ,) (NP (PRP they)) (VP (VBD went) (PP (TO to) (NP (DT the) (NN bar)))) (. .)))
+(ROOT (S (S (VP (TO To) (VP (VB meet) (NP (JJ new) (NNS people))))) (, ,) (NP (PRP they)) (VP (VBD talked) (PP (TO to) (NP (PRP them)))) (. .)))
+(ROOT (S (SBAR (IN Since) (S (NP (NNP Bill)) (VP (VBD wanted) (S (VP (TO to) (VP (VB talk) (PP (TO to) (NP (NNP John))))))))) (, ,) (NP (PRP he)) (VP (VBD picked) (PRT (RP up)) (NP (DT the) (NN phone))) (. .)))
+(ROOT (S (PP (TO To) (NP (NNP Susan))) (, ,) (NP (PRP she)) (VP (VBD seemed) (ADJP (JJ nice))) (. .)))

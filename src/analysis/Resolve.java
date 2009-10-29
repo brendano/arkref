@@ -182,6 +182,8 @@ public class Resolve {
 				match = false;
 			} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
 				match = false;
+			} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+				match = false;
 			}
 			
 			if (match) {
@@ -221,6 +223,8 @@ public class Resolve {
 			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
 				match = false;
 			} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+				match = false;
+			} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
 				match = false;
 			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
 				//TODO keep this or not?
