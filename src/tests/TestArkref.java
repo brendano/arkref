@@ -60,6 +60,33 @@ public class TestArkref extends TestCase {
 	public void assertSurface(Document d, int m, String s) {
 		assertSurface(d.getMentions().get(m-1), s);
 	}
+	
+	
+	public void testReflexives() throws IOException{
+
+		//John bought himself a book.  (s1)
+		//Bob knew that John bought himself a book.  (s2)
+		//John knew that Bob bought him a book.  (s3)
+		//The company ruined itself.  (s4)
+		//The corporation ruined its chances.  (s5)
+		//The bank ruined it.	(s6)
+		
+		Document d = Document.loadFiles("data/reflexives");
+		_Pipeline.go(d);
+				
+		assertLink(1,2, d); //John, himself (s1)
+		assertNoLink(4,6, d); //Bob, himself (s2)
+		assertLink(5,6, d); //John, himself (s2)
+		assertNoLink(9,10, d); //Bob, him (s3)
+		assertLink(8,10, d); //John, him (s3)
+		assertLink(12,13,d); //company, itself (s4)
+		assertLink(14,16,d); //corporation, its (s5)
+		assertNoLink(17,18,d); //bank, it (s6)
+	}
+	
+	
+	
+	
 	public void testSameHead() throws IOException{
 		//The nice, smart boy liked to play in the park.
 		//This boy also liked to play soccer.
@@ -361,7 +388,7 @@ public class TestArkref extends TestCase {
 		
 		t = d.findNodeThatCoversSpan(0, 0, 0);
 		assertTrue(t.yield().toString(), t.yield().toString().equals("He"));
-		
+				
 		t = d.findNodeThatCoversSpan(0, 0, 2);
 		assertTrue(t.yield().toString(), t.yield().toString().equals("He and Fred"));
 		
@@ -400,5 +427,8 @@ public class TestArkref extends TestCase {
 		
 	}
 	
+	
+	
+
 	
 }

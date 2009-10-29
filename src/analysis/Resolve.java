@@ -31,7 +31,7 @@ public class Resolve {
 			} else if ((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null) {
 				d.getRefGraph().setRef(m, antecedent);		
 			} else {
-				resolveOthers(m, d);
+				resolveOther(m, d);
 			}
 		}
 	}
@@ -177,8 +177,15 @@ public class Resolve {
 		for (Mention cand : d.prevMentions(mention)) {
 			boolean match = Types.checkPronominalMatch(mention, cand);
 			
+			
+			if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
+				match = false;
+			} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+				match = false;
+			}
+			
 			if (match) {
-				System.out.println("yay    typematch: " + cand);
+				System.out.println("yay    match: " + cand);
 				candidates.add(cand);
 			} else {
 				System.out.println("reject mismatch:  " + cand);
@@ -204,7 +211,7 @@ public class Resolve {
 
 
 
-	public static void resolveOthers(Mention mention, Document d) {
+	public static void resolveOther(Mention mention, Document d) {
 		//TODO SEMANTICS!
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
@@ -213,6 +220,8 @@ public class Resolve {
 		for (Mention cand : d.prevMentions(mention)) {
 			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
 				match = false;
+			} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+				match = false;
 			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
 				//TODO keep this or not?
 				match = true;
@@ -220,7 +229,7 @@ public class Resolve {
 				match = false;
 			}			
 			if (match) {
-				System.out.println("yay   typematch:\t" + cand);
+				System.out.println("yay   match:\t" + cand);
 				candidates.add(cand);
 			} else {
 				System.out.println("reject mismatch:\t" + cand);

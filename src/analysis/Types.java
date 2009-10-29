@@ -96,9 +96,6 @@ public class Types {
 			// testFirstPerson
 			return false;
 		}
-		if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
-			return false;
-		}
 		// using lax test on personhood because i don't know how to get it for most common nouns
 		// number is easiest to get
 		// gender is gray area
@@ -111,7 +108,9 @@ public class Types {
 			//number(mention) == number(cand);
 	}
 	
-
+	public static boolean isReflexive(Mention m){
+		return m.getHeadWord().matches("^(itself|yourself|myself|himself|herself|themselves|ourselves)$");
+	}
 
 	public static boolean isPronominal(Mention m) {
 		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.getNode());
@@ -139,11 +138,11 @@ public class Types {
 	public static Gender gender(Mention m) {
 		if (isPronominal(m)) {
 			String p = pronoun(m);
-			if (p.matches("^(he|him|his)$")) {
+			if (p.matches("^(he|him|his|himself)$")) {
 				return Gender.Male;
-			} else if (p.matches("^(she|her|hers)$")) {
+			} else if (p.matches("^(she|her|hers|herself)$")) {
 				return Gender.Female;
-			} else if (p.matches("^(it|its)$")) {
+			} else if (p.matches("^(it|its|itself)$")) {
 				return null;
 //				return Gender.Neuter;
 			} else {
@@ -187,11 +186,11 @@ public class Types {
 	}
 	
 	public static Personhood personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours)$")) {
+		if (pronoun.matches("^(he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours|himself|herself|ourselves|myself)$")) {
 			return Personhood.Person;
-		} else if (pronoun.matches("^(it|its)$")) {
+		} else if (pronoun.matches("^(it|its|itself)$")) {
 			return Personhood.NotPerson;
-		}else if (pronoun.matches("^(they|their|theirs|them|these|those)$")) {
+		}else if (pronoun.matches("^(they|their|theirs|them|these|those|themselves)$")) {
 			return Personhood.MaybePerson;
 		}
 		return null;
@@ -199,9 +198,9 @@ public class Types {
 	
 	/** what the heck is the real name for this? **/
 	public static Perspective perspective(String pronoun) {
-		if (pronoun.matches("^(i|me||my|mine|we|our|ours)$")) {
+		if (pronoun.matches("^(i|me||my|mine|we|our|ours|ourselves|myself)$")) {
 			return Perspective.First;
-		} else if (pronoun.matches("^(you|yours|y'all|y'alls|yinz)$")) {
+		} else if (pronoun.matches("^(you|yours|y'all|y'alls|yinz|yourself)$")) {
 			return Perspective.Second;
 		} else {
 			return Perspective.Third;
@@ -211,7 +210,7 @@ public class Types {
 	public static Number number(Mention m) {
 		if (isPronominal(m)) {
 			String p = pronoun(m);
-			if (p.matches("^(they|them|these|those|we|us|their|ours|our|theirs)$")) {
+			if (p.matches("^(they|them|these|those|we|us|their|ours|our|theirs|themselves|ourselves)$")) {
 				return Number.Plural;
 			} else {  //if (p.matches("^(it|its|that|this|he|him|his|she|her)$")) {
 				return Number.Singular;
@@ -230,6 +229,11 @@ public class Types {
 			// TODO mass nouns?
 		}
 		return null;
+	}
+
+
+	public static boolean isPossessive(Mention mention) {
+		return mention.getHeadWord().matches("^(its|his|her|their|our|my)$");
 	}
 
 }

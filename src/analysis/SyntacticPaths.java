@@ -5,11 +5,14 @@ import java.util.Iterator;
 import java.util.List;
 
 import parsestuff.AnalysisUtilities;
+import parsestuff.TregexPatternFactory;
 
 import data.Document;
 import data.Mention;
 import edu.stanford.nlp.trees.HeadFinder;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.tregex.TregexMatcher;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 public class SyntacticPaths {
 	
@@ -93,7 +96,7 @@ public class SyntacticPaths {
 		if(path != null){
 			res = path.size()-1;
 		}
-		
+		//System.err.println(res+"\t"+node2.toString());
 		return res;
 	}
 
@@ -131,6 +134,37 @@ public class SyntacticPaths {
 		String h2 = m2.getNode().headTerminal(hf).yield().toString();
 		
 		return h1.equalsIgnoreCase(h2);
+	}
+
+
+	public static boolean inSubjectObjectRelationship(Mention m1, Mention m2) {
+		Tree t = m2.getNode();
+		Tree root = m2.getSentence().getRootNode();
+		
+		//return false if these mentions are not in the same sentence
+		if(root != m1.getSentence().getRootNode()){
+			return false;
+		}
+		Tree ancestor = t.parent(root);
+		
+		//find the subject of the dominative clause
+		while(ancestor != null && ancestor != root){
+			if(ancestor.label().value().equals("S")){
+				TregexPattern pat = TregexPatternFactory.getPattern("S < (NP=subject !,, NP) < VP");
+				TregexMatcher matcher = pat.matcher(ancestor);
+				if (matcher.find()) {
+					Tree subj = matcher.getNode("subject");
+					return m1.getNode() == subj;
+				}				
+			}else if(ancestor.label().value().equals("NP")){ 
+				//return false if m2 is not a maximally projected node.
+				//This accounts for cases like Nintendo introduced its new console
+				return false;
+			}
+			ancestor = ancestor.parent(root);
+		}
+		
+		return false;
 	}
 
 	
