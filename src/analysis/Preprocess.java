@@ -47,10 +47,27 @@ public class Preprocess {
 	
 
 	public static void go(String path) throws IOException {
+		go(path, false);
+	}
+	
+	
+	public static void go(String path, boolean useTempFiles) throws IOException {
 		String shortpath = shortPath(path);
 		
-		PrintWriter pwParse = new PrintWriter(new FileOutputStream(new File(shortpath+".parse")));
-		PrintWriter pwNER = new PrintWriter(new FileOutputStream(new File(shortpath+".ner")));
+		File nerOutputFile;
+		File parseOutputFile;
+		
+
+		parseOutputFile = new File(shortpath+".parse");
+		nerOutputFile = new File(shortpath+".ner");
+		
+		if(useTempFiles && !parseOutputFile.exists() && !nerOutputFile.exists()){
+			parseOutputFile.deleteOnExit();
+			nerOutputFile.deleteOnExit();
+		}
+		
+		PrintWriter pwParse = new PrintWriter(new FileOutputStream(parseOutputFile));
+		PrintWriter pwNER = new PrintWriter(new FileOutputStream(nerOutputFile));
 		
 		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
 		String buf;

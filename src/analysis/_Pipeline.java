@@ -7,6 +7,7 @@ import parsestuff.AnalysisUtilities;
 import data.Document;
 
 public class _Pipeline {
+
 	public static void main(String[] args) throws IOException {
 		for (String path : args) {
 			if(!Preprocess.alreadyPreprocessed(path)){
@@ -22,4 +23,5 @@ public class _Pipeline {
 		Resolve.go(d);
 		RefsToEntities.go(d);
 	}
+	
 }
