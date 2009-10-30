@@ -186,7 +186,7 @@ public class Types {
 	}
 	
 	public static Personhood personhood(String pronoun) {
-		if (pronoun.matches("^(he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours|himself|herself|ourselves|myself)$")) {
+		if (pronoun.matches("^(me|he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours|himself|herself|ourselves|myself)$")) {
 			return Personhood.Person;
 		} else if (pronoun.matches("^(it|its|itself)$")) {
 			return Personhood.NotPerson;
