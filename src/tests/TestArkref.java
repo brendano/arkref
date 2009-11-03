@@ -339,6 +339,7 @@ public class TestArkref extends TestCase {
 	
 	public void testConjunctions() throws IOException{
 		//He and Fred went to the store.
+		//They also went to the library.
 		
 		Document d = Document.loadFiles("data/conjunctionsTest");
 		_Pipeline.go(d);
@@ -346,10 +347,11 @@ public class TestArkref extends TestCase {
 		Mention m1 = d.getMentions().get(0); //He and Fred
 		Mention m2 = d.getMentions().get(1); //the store
 		
-		assertTrue(d.getMentions().toString(), d.getMentions().size() == 2);
 		assertSurface(m1, "He and Fred");
 		assertSurface(m2, "the store");
-		assertNoLink(m1,m2, d);
+		assertNoLink(1, 2, d);
+		assertLink(1, 3, d);
+		
 	}
 	
 	public void testThey() throws IOException{
@@ -383,6 +385,7 @@ public class TestArkref extends TestCase {
 	
 	public void testFindNodeFromSpan() throws IOException{
 		//He and Fred went to the store.
+		//They also went to the library.
 		
 		Document d = Document.loadFiles("data/conjunctionsTest");
 		_Pipeline.go(d);

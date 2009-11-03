@@ -1,1 +1,2 @@
-(ROOT (S=H (NP (PRP=H He) (CC and) (NNP Fred)) (VP=H (VBD=H went) (PP (TO=H to) (NP (DT the) (NN=H store)))) (. .)))
+(ROOT (S (NP (PRP He) (CC and) (NNP Fred)) (VP (VBD went) (PP (TO to) (NP (DT the) (NN store)))) (. .)))
+(ROOT (S (NP (PRP They)) (ADVP (RB also)) (VP (VBD went) (PP (TO to) (NP (DT the) (NN library)))) (. .)))

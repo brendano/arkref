@@ -208,6 +208,13 @@ public class Types {
 	}
 	
 	public static Number number(Mention m) {
+		TregexPattern pat = TregexPatternFactory.getPattern("NP < CC|CONJP !>> NP");
+		TregexMatcher matcher = pat.matcher(m.getNode());
+		if(matcher.find()) {
+			return Number.Plural;
+		}
+		
+		
 		if (isPronominal(m)) {
 			String p = pronoun(m);
 			if (p.matches("^(they|them|these|those|we|us|their|ours|our|theirs|themselves|ourselves)$")) {
