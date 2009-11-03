@@ -1,2 +1,0 @@
-(ROOT (S (NP (PRP He) (CC and) (NNP Fred)) (VP (VBD went) (PP (TO to) (NP (DT the) (NN store)))) (. .)))
-(ROOT (S (NP (PRP He)) (VP (VBD bought) (NP (DT some) (NN ice) (NN cream))) (. .)))
