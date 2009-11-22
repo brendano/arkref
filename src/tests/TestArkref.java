@@ -3,7 +3,10 @@ package tests;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import parsestuff.AnalysisUtilities;
+import parsestuff.U;
 
 import analysis.FindMentions;
 import analysis.Types;
@@ -433,7 +436,51 @@ public class TestArkref extends TestCase {
 		
 	}
 	
-	
+	public void testTokenAlignments() throws IOException {
+		Document d = data.Document.loadFiles("data/indo");
+		
+		String text = parsestuff.U.readFile("data/indo.sent");
+		String[] lines = text.split("\n");
+		int[] alignments = AnalysisUtilities.alignTokens(lines[0], d.getSentences().get(0).getRootNode());
+		assertFalse(ArrayUtils.contains(alignments, -1));
+		assertEquals(0, alignments[0]); //[JAKARTA]
+		assertEquals(7, alignments[1]); //[,]
+		assertEquals(9, alignments[2]); //[Indonesia]
+		assertEquals(19, alignments[3]); //[(]
+		assertEquals(20, alignments[4]); //[AP]
+		assertEquals(22, alignments[5]); //[)]
+		assertEquals(24, alignments[6]); //[_]
+		assertEquals(26, alignments[7]); //[The]
+		assertEquals(30, alignments[8]); //[youngest]
+		assertEquals(39, alignments[9]); //[son]
+		assertEquals(43, alignments[10]); //[of]
+		assertEquals(46, alignments[11]); //[ex-dictator]
+		assertEquals(58, alignments[12]); //[Suharto]
+		assertEquals(66, alignments[13]); //[disobeyed]
+		assertEquals(76, alignments[14]); //[a]
+		assertEquals(78, alignments[15]); //[summons]
+		assertEquals(86, alignments[16]); //[to]
+		assertEquals(89, alignments[17]); //[surrender]
+		assertEquals(99, alignments[18]); //[himself]
+		assertEquals(107, alignments[19]); //[to]
+		assertEquals(110, alignments[20]); //[prosecutors]
+		assertEquals(122, alignments[21]); //[Monday]
+		assertEquals(129, alignments[22]); //[and]
+		assertEquals(133, alignments[23]); //[be]
+		assertEquals(136, alignments[24]); //[imprisoned]
+		assertEquals(147, alignments[25]); //[for]
+		assertEquals(151, alignments[26]); //[corruption]
+		assertEquals(161, alignments[27]); //[.]
+		
+		
+		alignments = AnalysisUtilities.alignTokens(lines[1], d.getSentences().get(1).getRootNode());
+		assertFalse(ArrayUtils.contains(alignments, -1));
+		assertEquals(0,alignments[0]); //Hutomo
+		assertEquals(7,alignments[1]); //``
+		assertEquals(9,alignments[2]); //Tommy
+		assertEquals(14,alignments[3]); //''
+
+	}
 	
 	public void testAdjunctPhrases() throws IOException{
 		//The students were tired of working. (s1)

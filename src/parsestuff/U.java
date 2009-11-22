@@ -34,6 +34,9 @@ public class U {
 		File file = new File(filename);
 		return new Scanner(file).useDelimiter("\\Z").next();
 	}
+	public static String readFile(File file) throws FileNotFoundException { 
+		return new Scanner(file).useDelimiter("\\Z").next();
+	}
 	public static void writeFile(String text, String file) throws IOException {
 		writeFile(text, new File(file));
 	}

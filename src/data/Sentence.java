@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.stanford.nlp.trees.Tree;
 
 public class Sentence {
-	private List<Word> words;
+	public List<Word> words;
 	private Map<String,Word> node2wordMap;
 	public Tree rootNode;
 

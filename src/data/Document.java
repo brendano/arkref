@@ -106,6 +106,11 @@ public class Document {
 
 		return res;
 	}
+	public Tree getLeaf(int sentenceIndex, int leafIndex) {
+		Sentence sent = sentences.get(sentenceIndex);
+		List<Tree> leaves = sent.getRootNode().getLeaves();
+		return leaves.get(leafIndex);
+	}
 
 
 	public Mention node2mention(Sentence s, Tree node) {
@@ -279,6 +284,25 @@ public class Document {
 
 		}
 		return tree;
+	}
+	
+	/** saves token alignments in the analysis.Word objects **/
+	public void doTokenAlignments(String rawText) {
+		List<Tree> allLeaves = new ArrayList<Tree>();
+		for (Sentence s : sentences) {
+			for (Word w : s.words) {
+				allLeaves.add(w.getNode());
+			}
+		}
+		int[] alignments = AnalysisUtilities.alignTokens(rawText, allLeaves);
+		int i=0;
+		for (Sentence s: sentences) {
+			for (Word w : s.words) {
+				w.charStart = alignments[i];
+				i++;
+			}
+		}
+		
 	}
 
 	public ArrayList<Mention> getMentions() {

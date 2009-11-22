@@ -8,6 +8,7 @@ import edu.stanford.nlp.trees.Tree;
 public class Word {
 	private Tree node;
 	private String neTag;
+	public int charStart = -1; // in raw original text
 	
 	public Tree getNode() {
 		return node;

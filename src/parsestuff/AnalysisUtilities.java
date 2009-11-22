@@ -7,6 +7,11 @@ import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 
+import data.Document;
+import dontuse.TokenByteAligner;
+import dontuse.TokenByteAligner.AlignmentFailed;
+
+
 //import net.didion.jwnl.data.POS;
 //import net.didion.jwnl.dictionary.Dictionary;
 
@@ -84,10 +89,48 @@ public class AnalysisUtilities {
 	}
 	
 	
+	public static int[] alignTokens(String rawText, Tree parse) {
+		List<Tree> leaves = parse.getLeaves();
+		
+		return alignTokens(rawText, leaves);
+	}
+	public static int[] alignTokens(String rawText, List<Tree> leaves) {
+		int MAX_ALIGNMENT_SKIP = 50;
+		int[] alignments = new int[leaves.size()];
+		int curPos = 0;
+		tok_loop:
+		for (int i=0; i < leaves.size(); i++) {
+			String tok = tokenSurfaceForm(leaves.get(i).value());
+//			U.pf("TOKEN [%s]  :  ", tok);
+			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
+				if (rawText.regionMatches(curPos + j, tok, 0, tok.length())) {
+					alignments[i] = curPos+j;
+					curPos = curPos+j+tok.length();
+//					U.pf("\n  Aligned to %d\n", alignments[i]);
+					continue tok_loop;
+				}
+//				U.pf("[%s] ", rawText.substring(curPos+j,curPos+j+1));
+			}
+			U.pf("  FAILED MATCH for token [%s]\n", tok);
+			alignments[i] = -1;
+		}
+		// TODO backoff for gaps .. at least guess the 2nd gap position or something (2nd char after previous token ends...)
+		return alignments;
+	}
+	
+	/** undo penn-treebankification of tokens.  want the raw original form if possible. **/
+	public static String tokenSurfaceForm(String tok) {
+		tok = tok.replace("-LRB-", "("); // ack, can also be "["
+		tok = tok.replace("-RRB-", ")");
+		return tok;
+	}
+	
+
+	
 	public List<String> getSentences(String document) {
 		List<String> res = new ArrayList<String>();
 		String sentence;
-		StringReader reader = new StringReader(document);
+		StringReader reader = new StringReader(cleanupDocument(document));
 		
 		List<List<? extends HasWord>> docs = new ArrayList<List<? extends HasWord>>();
 		Iterator<List<? extends HasWord>> iter1 ;
@@ -114,6 +157,12 @@ public class AnalysisUtilities {
 		}
 		
 		return res;
+	}
+	
+	/** some ACE docs have weird markup in them that serve as paragraph-ish markers **/
+	public String cleanupDocument(String document) {
+		document = document.replaceAll("<\\S+>", "\n");
+		return document;
 	}
 	
 	
@@ -219,7 +268,6 @@ public class AnalysisUtilities {
                 lastParseScore = -99999.0;
                 return lastParse;
 	}
-	
 	
 //	@SuppressWarnings("unchecked")
 //	public String getLemma(Tree tensedverb){
