@@ -10,5 +10,6 @@
 	</classpathentry>
 	<classpathentry kind="lib" path="commons-lang-2.4.jar" sourcepath="commons-lang-2.4-sources.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/simple-xml-2.1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

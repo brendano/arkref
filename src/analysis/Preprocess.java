@@ -32,17 +32,13 @@ public class Preprocess {
 
 	public static boolean alreadyPreprocessed(String path) {
 		String shortpath = shortPath(path);
-		
 		return 
 			new File(shortpath+".ner").exists() &&
 			new File(shortpath+".parse").exists();
 	}
 
 	public static String shortPath(String path) {
-		String shortpath = path;
-		shortpath = shortpath.replace(".txt", "");
-		shortpath = shortpath.replace(".sent", "");
-		return shortpath;
+		return path.replace(".txt","").replace(".sent","");
 	}
 	
 
