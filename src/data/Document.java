@@ -143,7 +143,7 @@ public class Document {
 			sent.setStuff(tree, ner);
 			d.sentences.add(sent);
 		}
-		System.out.printf("***  Input %s  ***\n\n", path);
+		System.out.printf("***  Input %s  ***\n\n", shortpath);
 		for (Sentence s : d.sentences) {
 			System.out.printf("S%-2d\t%s\n", s.getID(), s.text());
 		}
