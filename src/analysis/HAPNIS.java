@@ -13,7 +13,7 @@ import data.FirstNames;
 /**
  * Implementation of Hal Daume's HAPNIS perl script for 
  * parsing the internal structure of names. 
- * (http://www.cs.utah.edu/~hal/HAPNIS/hapnis.txt):
+ * (http://www.cs.utah.edu/~hal/HAPNIS/)
  * 
  * @author Michael Heilman
  *

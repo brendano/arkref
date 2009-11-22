@@ -2,6 +2,8 @@ package ace;
 import org.simpleframework.xml.*;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import org.simpleframework.xml.Attribute;
@@ -11,13 +13,11 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import edu.stanford.nlp.util.ArrayUtils;
+
 // http://simple.sourceforge.net/download/stream/doc/tutorial/tutorial.php
 
 public class AceDocument {
-	public ArrayList<AceMention> mentions;
-	public AceDocument() {
-		mentions = new ArrayList<AceMention>();
-	}
 	
 	////////////   APF XML structures  ////////////
 	
@@ -30,6 +30,24 @@ public class AceDocument {
 	public static class Document {
 		@ElementList(inline=true, entry="entity")
 		List <Entity> entities;
+		
+		
+		public ArrayList<Mention> getMentions() {
+			ArrayList <Mention> mentions = new ArrayList<Mention>();
+			for (Entity en : entities ) {
+				for (Mention m : en.mentions) {
+					mentions.add(m);
+				}
+			}
+			Collections.sort(mentions, 
+				new Comparator<Mention>() {
+				public int compare(Mention m1, Mention m2) {
+					return Integer.valueOf(m1.extent.charseq.start  ).compareTo(m2.extent.charseq.start);
+				}
+			});
+			return mentions;
+		}
+
 	}
 	@Root(name="entity",strict=false)
 	public static class Entity {
@@ -85,6 +103,7 @@ public class AceDocument {
 
 		return sf.document;
 	}
+	
 	public static void main(String args[]) throws Exception {
 		for (String f : args) {
 			Document d = parseFile(f);

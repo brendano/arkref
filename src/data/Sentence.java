@@ -15,7 +15,7 @@ import edu.stanford.nlp.trees.Tree;
 public class Sentence {
 	private List<Word> words;
 	private Map<String,Word> node2wordMap;
-	private Tree rootNode;
+	public Tree rootNode;
 
 
 	private int id;

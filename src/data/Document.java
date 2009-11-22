@@ -17,8 +17,8 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 import edu.stanford.nlp.util.IntPair;
 
 public class Document {
-	private List<Sentence> sentences;
-	private List<Mention> mentions;
+	private ArrayList<Sentence> sentences;
+	private ArrayList<Mention> mentions;
 	private Map<String, Mention> node2mention;
 	private RefGraph refGraph;
 	private Tree tree = null; //tree that includes all the trees for the sentences, in order, under a dummy node	
@@ -65,7 +65,7 @@ public class Document {
 	
 	/**
 	 * Given a span defined by indexes for the sentence, start token, and end token,
-	 * this method returns the smallest mention that includes that span. 
+	 * this method returns the smallest node that includes that span. 
 	 * 
 	 * @param sentenceIndex
 	 * @param spanStart inclusive
@@ -281,11 +281,11 @@ public class Document {
 		return tree;
 	}
 
-	public List<Mention> getMentions() {
+	public ArrayList<Mention> getMentions() {
 		return mentions;
 	}
 
-	public List<Sentence> getSentences() {
+	public ArrayList<Sentence> getSentences() {
 		return sentences;
 	}
 

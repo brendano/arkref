@@ -435,5 +435,5 @@ public class AnalysisUtilities {
 	private PennTreebankLanguagePack tlp;
 	private double lastParseScore;
 	private Tree lastParse;
-	private DocumentPreprocessor dp;
+	public DocumentPreprocessor dp;
 }
