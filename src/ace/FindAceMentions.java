@@ -21,9 +21,8 @@ import edu.stanford.nlp.stats.IntCounter;
  * @author brendano
  */
 public class FindAceMentions {
-	public static class AlignmentFailed extends Exception {
-
-	}
+	@SuppressWarnings("serial")
+	public static class AlignmentFailed extends Exception { }
 
 	public static void go(Document myDoc, AceDocument aceDoc) throws AlignmentFailed {
 		// (1) align our tokens to raw text char offsets
@@ -42,7 +41,7 @@ public class FindAceMentions {
 //		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
 		List<Word> allWords = myDoc.getAllWords();
 		int word_i = 0;
-		int m_i=0;
+		int m_i = 0;
 		
 		mention_loop:
 		while(m_i < aceMentions.size()) {
@@ -112,7 +111,14 @@ public class FindAceMentions {
 		
 		String aceHead = m.head.charseq.text;
 		String tok = w.getNode().value();
-		return tok.contains(aceHead) || aceHead.contains(tok);
+		
+		if (aceHead.length()==1 && tok.length()==1) {
+			return aceHead.equals(tok);
+		} else if (aceHead.length()==1 || tok.length()==1) {			
+			return false;
+		} else {
+			return tok.contains(aceHead) || aceHead.contains(tok);	
+		}
 	}
 	
 	public static void main(String[] args) throws Exception {

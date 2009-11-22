@@ -4,6 +4,8 @@ package parsestuff;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -95,21 +97,33 @@ public class AnalysisUtilities {
 		return alignTokens(rawText, leaves);
 	}
 	public static int[] alignTokens(String rawText, List<Tree> leaves) {
-		int MAX_ALIGNMENT_SKIP = 50;
+		int MAX_ALIGNMENT_SKIP = 100;
 		int[] alignments = new int[leaves.size()];
 		int curPos = 0;
 		tok_loop:
 		for (int i=0; i < leaves.size(); i++) {
-			String tok = tokenSurfaceForm(leaves.get(i).value());
-//			U.pf("TOKEN [%s]  :  ", tok);
+			String tok = leaves.get(i).value();
+			U.pf("TOKEN [%s]  :  ", tok);
 			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
-				if (rawText.regionMatches(curPos + j, tok, 0, tok.length())) {
+				boolean directMatch  = rawText.regionMatches(curPos + j, tok, 0, tok.length());
+				
+				
+				String substr = rawText.substring(curPos+j, curPos+j+tok.length()*2+10);
+				Matcher m=tokenSurfaceMatches(tok).matcher(substr);
+//				U.pl("PATTERN "+ tokenSurfaceMatches(tok));
+				boolean alternateMatch = m.find() && m.start()==0;
+				
+//				U.pl("MATCHES "+ directMatch + " " + alternateMatch);
+				if (directMatch || alternateMatch) {
 					alignments[i] = curPos+j;
-					curPos = curPos+j+tok.length();
-//					U.pf("\n  Aligned to %d\n", alignments[i]);
+					if (directMatch)
+						curPos = curPos+j+tok.length();
+					else
+						curPos = curPos+j+1;
+					U.pf("\n  Aligned to %d\n", alignments[i]);
 					continue tok_loop;
 				}
-//				U.pf("[%s] ", rawText.substring(curPos+j,curPos+j+1));
+				U.pf("%s", U.backslashEscape(rawText.substring(curPos+j,curPos+j+1)));
 			}
 			U.pf("  FAILED MATCH for token [%s]\n", tok);
 			alignments[i] = -1;
@@ -119,10 +133,17 @@ public class AnalysisUtilities {
 	}
 	
 	/** undo penn-treebankification of tokens.  want the raw original form if possible. **/
-	public static String tokenSurfaceForm(String tok) {
-		tok = tok.replace("-LRB-", "("); // ack, can also be "["
-		tok = tok.replace("-RRB-", ")");
-		return tok;
+	public static Pattern tokenSurfaceMatches(String tok) {
+		if (tok.equals("-LRB-")) {
+			return Pattern.compile("[(\\[]");
+		} else if (tok.equals("-RRB-")) {
+			return Pattern.compile("[)\\]]");
+		} else if (tok.equals("``")) {
+			return Pattern.compile("(\"|``)");
+		} else if (tok.equals("''")) {
+			return Pattern.compile("(\"|'')");
+		}
+		return Pattern.compile(Pattern.quote(tok));
 	}
 	
 
@@ -132,17 +153,17 @@ public class AnalysisUtilities {
 		String sentence;
 		StringReader reader = new StringReader(cleanupDocument(document));
 		
-		List<List<? extends HasWord>> docs = new ArrayList<List<? extends HasWord>>();
+		List<List<? extends HasWord>> sentences = new ArrayList<List<? extends HasWord>>();
 		Iterator<List<? extends HasWord>> iter1 ;
 		Iterator<? extends HasWord> iter2;
 		
 		try{
-			docs = dp.getSentencesFromText(reader);
+			sentences = dp.getSentencesFromText(reader);
 		}catch(Exception e){
 			e.printStackTrace();
 		}
 		
-		iter1 = docs.iterator();
+		iter1 = sentences.iterator();
 		while(iter1.hasNext()){
 			iter2 = iter1.next().iterator();
 			sentence = "";

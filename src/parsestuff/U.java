@@ -46,4 +46,12 @@ public class U {
 		fw.write(text);
 		fw.close();
 	}
+	
+	public static String backslashEscape(String s) {
+		s = s.replace("\\", "\\\\");
+		s = s.replace("\n", "\\n");
+		s = s.replace("\r", "\\r");
+		s = s.replace("\t", "\\t");
+		return s;
+	}
 }
