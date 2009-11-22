@@ -304,12 +304,22 @@ public class Document {
 		}
 		
 	}
+	
+	public List<Word> getAllWords() {
+		List<Word> allWords = new ArrayList<Word>();
+		for (Sentence s : sentences) {
+			for (Word w : s.words){ 
+				allWords.add(w);
+			}
+		}
+		return allWords;
+	}
 
-	public ArrayList<Mention> getMentions() {
+	public List<Mention> getMentions() {
 		return mentions;
 	}
 
-	public ArrayList<Sentence> getSentences() {
+	public List<Sentence> getSentences() {
 		return sentences;
 	}
 

@@ -14,6 +14,8 @@ import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
 import org.simpleframework.xml.core.Persister;
 
+import com.aliasi.util.Strings;
+
 import parsestuff.U;
 
 import edu.stanford.nlp.util.ArrayUtils;
@@ -126,6 +128,10 @@ public class AceDocument {
 		public Phrase head;
 		
 		public int ID() { return Integer.parseInt(aceID.replaceFirst(".*-","")); }
+		public String toString() { 
+			return String.format("M%-3d | %s | %s", ID(),
+				Strings.normalizeWhitespace(head.charseq.text), Strings.normalizeWhitespace(extent.charseq.text));
+		}
 	}
 	@Root(strict=false)
 	public static class Phrase {

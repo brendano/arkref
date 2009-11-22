@@ -29,6 +29,7 @@ public class Sentence {
 		assert neTaggedWords.length == leaves.size();
 		for (int i=0; i < leaves.size(); i++) {
 			Word word = new Word();
+			word.sentence = this;
 			word.setNode(leaves.get(i));
 			String[] parts = neTaggedWords[i].replace("\\/", "_SLASH_").split("/");
 			assert parts.length == 2;
