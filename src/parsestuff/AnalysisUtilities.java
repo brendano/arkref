@@ -9,10 +9,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
-import data.Document;
-import dontuse.TokenByteAligner;
-import dontuse.TokenByteAligner.AlignmentFailed;
-
 
 //import net.didion.jwnl.data.POS;
 //import net.didion.jwnl.dictionary.Dictionary;

@@ -4,12 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import analysis.FindMentions;
-
-import data.Document;
-import dontuse.AceAlignmentViaRetok;
-
 import parsestuff.U;
 
 public class AcePreprocess {
