@@ -177,7 +177,7 @@ public class AnalysisUtilities {
 	}
 	
 	/** some ACE docs have weird markup in them that serve as paragraph-ish markers **/
-	public String cleanupDocument(String document) {
+	public static String cleanupDocument(String document) {
 		document = document.replaceAll("<\\S+>", "\n");
 		return document;
 	}

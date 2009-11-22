@@ -16,7 +16,7 @@
 
 package sent;
 
-import com.aliasi.sentences.*;
+import sent.MyHeuristicSentenceModel;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -91,35 +91,14 @@ import java.util.Set;
  * @version 3.8
  * @since   LingPipe1.0
  */
-public class MyIndoEuropeanSentenceModel extends HeuristicSentenceModel {
+public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
 
-    /**
-     * Construct an Indo-European sentence model that does
-     * not force the final token to be a stop and does not
-     * balance parentheses.
-     */
-    public MyIndoEuropeanSentenceModel() {
-        this(false,false);
-    }
-
-    /**
-     * Construct an Indo-European sentence model that forces final
-     * tokens and balances parentheses according to the specified
-     * flags.
-     *
-     * @param forceFinalToken Whether the final token is always a
-     * sentence stop.
-     * @param balanceParentheses Whether sentences can stop if not all
-     * open parentheses have been closed.
-     *
-     */
-    public MyIndoEuropeanSentenceModel(boolean forceFinalToken,
-                                     boolean balanceParentheses) {
+    public MyIndoEuropeanSentenceModel(boolean firstWordMustBeCap) {
         super(POSSIBLE_STOPS,
-              IMPOSSIBLE_PENULTIMATES,
-              IMPOSSIBLE_STARTS,
-              forceFinalToken,balanceParentheses);
-    }
+                IMPOSSIBLE_PENULTIMATES,
+                IMPOSSIBLE_STARTS,
+                false,false,  firstWordMustBeCap);
+      }
 
     private static final Set<String> POSSIBLE_STOPS = new HashSet<String>();
     static {
@@ -133,8 +112,6 @@ public class MyIndoEuropeanSentenceModel extends HeuristicSentenceModel {
         POSSIBLE_STOPS.add(").");
         POSSIBLE_STOPS.add("\u00BB"); // french close quote
         POSSIBLE_STOPS.add(">>"); // french close quote
-        
-        POSSIBLE_STOPS.add("<TURN>");
     }
 
     private static final Set<String> IMPOSSIBLE_PENULTIMATES
