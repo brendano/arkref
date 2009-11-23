@@ -135,7 +135,7 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
      */
     private final boolean mBalanceParens;
 
-    private final boolean mFirstWordMustBeCap;
+    private final boolean mUsingCapitalizationConventions;
     
     /**
      * Construct a heuristic sentence model with the specified sets
@@ -154,14 +154,22 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
                                   Set<String> impossibleStarts,
                                   boolean forceFinalStop,
                                   boolean balanceParens,
-                                  boolean firstWordMustBeCap
+                                  boolean usingCapitalizationConventions
                                   ) {
-        mPossibleStops = toLowerCase(possibleStops);
+		mPossibleStops = toLowerCase(possibleStops);
         mBadPrevious = toLowerCase(impossiblePenultimate);
-        mBadFollowing = toLowerCase(impossibleStarts);
+        mBadFollowing = toLowerCase(impossibleStarts);	
         mForceFinalStop = forceFinalStop;
         mBalanceParens = balanceParens;
-        mFirstWordMustBeCap = firstWordMustBeCap;
+        mUsingCapitalizationConventions = usingCapitalizationConventions;
+    }
+    
+    public boolean contains(Set<String> set, String tok) {
+    	if (mUsingCapitalizationConventions) {
+    		return set.contains(tok.toLowerCase());
+    	} else {
+    		return set.contains(tok);
+    	}
     }
 
     /**
@@ -309,7 +317,7 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
     protected boolean possibleStart(String[] tokens, String[] whitespaces,
                                     int start, int end) {
         String tok = tokens[start];
-        if (mFirstWordMustBeCap)
+        if (mUsingCapitalizationConventions)
         	return tok.length() > 0 && !Character.isLowerCase(tok.charAt(0));
         else
         	return tok.length() > 0;

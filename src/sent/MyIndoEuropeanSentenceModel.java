@@ -154,6 +154,7 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("Bros");
         IMPOSSIBLE_PENULTIMATES.add("No");  // too common ??
         IMPOSSIBLE_PENULTIMATES.add("vs");
+        // TODO allow as penult depending on cap status of next token, whether it's a legitimate sentence start
         IMPOSSIBLE_PENULTIMATES.add("etc");
         IMPOSSIBLE_PENULTIMATES.add("Fig"); // thanks to MM
 
@@ -173,12 +174,12 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
 
 
         // Personal Honorifics
-        IMPOSSIBLE_PENULTIMATES.add("Mr");
-        IMPOSSIBLE_PENULTIMATES.add("Mrs");
-	IMPOSSIBLE_PENULTIMATES.add("Ms");
-	IMPOSSIBLE_PENULTIMATES.add("MM");
-        IMPOSSIBLE_PENULTIMATES.add("Mssrs");
-        IMPOSSIBLE_PENULTIMATES.add("Messrs");
+		IMPOSSIBLE_PENULTIMATES.add("Mr");
+		IMPOSSIBLE_PENULTIMATES.add("Mrs");
+		IMPOSSIBLE_PENULTIMATES.add("Ms");
+		IMPOSSIBLE_PENULTIMATES.add("MM");
+		IMPOSSIBLE_PENULTIMATES.add("Mssrs");
+		IMPOSSIBLE_PENULTIMATES.add("Messrs");
 
         // Professional Honorifics
         IMPOSSIBLE_PENULTIMATES.add("Dr");
@@ -337,7 +338,7 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("Kans");
         IMPOSSIBLE_PENULTIMATES.add("Ky");
         IMPOSSIBLE_PENULTIMATES.add("Md");
-        IMPOSSIBLE_PENULTIMATES.add("Mass");
+//        IMPOSSIBLE_PENULTIMATES.add("Mass"); //too common
         IMPOSSIBLE_PENULTIMATES.add("Mich");
         IMPOSSIBLE_PENULTIMATES.add("Minn");
         IMPOSSIBLE_PENULTIMATES.add("Miss");
@@ -365,7 +366,7 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("Tx");
         IMPOSSIBLE_PENULTIMATES.add("Vt");
         IMPOSSIBLE_PENULTIMATES.add("Va");
-        IMPOSSIBLE_PENULTIMATES.add("Wash");
+//        IMPOSSIBLE_PENULTIMATES.add("Wash");
         IMPOSSIBLE_PENULTIMATES.add("W.Va");
         IMPOSSIBLE_PENULTIMATES.add("Wis");
         IMPOSSIBLE_PENULTIMATES.add("Wisc");
@@ -426,7 +427,7 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("CR");
         IMPOSSIBLE_PENULTIMATES.add("CRCL");
         IMPOSSIBLE_PENULTIMATES.add("CRES");
-        IMPOSSIBLE_PENULTIMATES.add("CRESCENT");
+//        IMPOSSIBLE_PENULTIMATES.add("CRESCENT");
         IMPOSSIBLE_PENULTIMATES.add("CRK");
         IMPOSSIBLE_PENULTIMATES.add("CRSCNT");
         IMPOSSIBLE_PENULTIMATES.add("CRSE");
@@ -673,12 +674,9 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("A.O");
         IMPOSSIBLE_PENULTIMATES.add("APS");
         IMPOSSIBLE_PENULTIMATES.add("A&P");
-        IMPOSSIBLE_PENULTIMATES.add("AS");
-        IMPOSSIBLE_PENULTIMATES.add("AS");
+//        IMPOSSIBLE_PENULTIMATES.add("AS");
         IMPOSSIBLE_PENULTIMATES.add("A.S");
-        IMPOSSIBLE_PENULTIMATES.add("AS");
         IMPOSSIBLE_PENULTIMATES.add("A/S");
-        IMPOSSIBLE_PENULTIMATES.add("A.S");
         IMPOSSIBLE_PENULTIMATES.add("AY");
         IMPOSSIBLE_PENULTIMATES.add("BA");
         IMPOSSIBLE_PENULTIMATES.add("B.A");
@@ -698,7 +696,6 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("C.A");
         IMPOSSIBLE_PENULTIMATES.add("CA");
         IMPOSSIBLE_PENULTIMATES.add("Cia.");
-        IMPOSSIBLE_PENULTIMATES.add("CDERL");
         IMPOSSIBLE_PENULTIMATES.add("CDERL");
         IMPOSSIBLE_PENULTIMATES.add("CV");
         IMPOSSIBLE_PENULTIMATES.add("C.V");

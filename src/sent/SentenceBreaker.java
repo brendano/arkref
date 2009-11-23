@@ -103,22 +103,21 @@ public class SentenceBreaker {
     		if (Strings.allPunctuation(tok))  numPunct++;
     		if (Strings.capitalized(tok.toCharArray())) numCap++;
     	}
-//    	U.pf("CAPRATIO %f\n", numCap/numPunct);
+    	U.pf("CAPRATIO\t%f\n", numCap/numPunct);
     	return (numCap / numPunct) > 0.3;
     }
     
     public static void main(String[] args) throws IOException {
     	for (String arg : args) {
     		if (args.length > 1)
-    			U.pf("DOCUMENT\t%s\n", arg);
+    			U.pf("\nDOCUMENT\t%s\n", arg);
     		String text = U.readFile(arg);
     		text = AnalysisUtilities.cleanupDocument(text);
     		for (Sentence s : getSentences(text)) {
     			// rawText might have newlines, tabs
 //    			System.out.printf("%d\t%d\t%s\n", s.charStart, s.charEnd, s.cleanText);
-    			U.pl(StringUtils.join(s.tokens));
+    			U.pf("SENTENCE\t%s\n", StringUtils.join(s.tokens));
     		}
-    		
     	}
     }
 }
