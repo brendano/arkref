@@ -230,8 +230,6 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
             if (mForceFinalStop
             	|| isPossibleStop(tokens, start)
             ) {
-//                || mPossibleStops.contains(tokens[start].toLowerCase())) {
-
                 indices.add(Integer.valueOf(start));
             }
             return;
@@ -268,7 +266,6 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
 
             // check that token is good end of sentence token
             if (!isPossibleStop(tokens,i)) continue;
-//            if (!mPossibleStops.contains(tokens[i].toLowerCase())) continue;
 
             // only break after whitespace
             if (whitespaces[i+1].length() == 0) continue;
@@ -288,7 +285,6 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
         // deal with case of last tag
         if (mForceFinalStop
             || (isPossibleStop(tokens, end)
-//    		|| ( mPossibleStops.contains(tokens[end].toLowerCase())
                  && !mBadPrevious.contains(tokens[end-1].toLowerCase())))
             indices.add(Integer.valueOf(end));
     }
