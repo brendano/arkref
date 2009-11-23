@@ -1,15 +1,9 @@
 package ace;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 
-import ace.AceDocument.Mention;
-
 import parsestuff.U;
-
+import analysis.Preprocess;
 import data.Document;
 import data.Sentence;
 import data.Word;
@@ -24,20 +18,34 @@ public class FindAceMentions {
 	@SuppressWarnings("serial")
 	public static class AlignmentFailed extends Exception { }
 
+
+	public static void main(String[] args) throws Exception {
+		for (String path : args) {
+			path = Preprocess.shortPath(path);
+			U.pf("DOC\t%s\n", path);
+			Document myDoc    = Document.loadFiles(path);
+			AceDocument aceDoc= AceDocument.load(path);
+			myDoc.ensureSurfaceSentenceLoad(path);
+			go(myDoc, aceDoc);	
+		}
+		
+		
+	}
 	public static void go(Document myDoc, AceDocument aceDoc) throws AlignmentFailed {
 		// (1) align our tokens to raw text char offsets
-		// (2) calibrate ACE offsets to real text offsets (they're all wrong by a constant)
+		// (2) calibrate ACE offsets to real text offsets
 		// (3) map ACE mentions to Stanford tokens
 		// (4) and map those to appropriate parse nodes
 		// Issues
 		//  * What about sentences that didn't parse?
 		
+		
 		myDoc.doTokenAlignments(aceDoc.text);
 		int aceOffsetCorrection = calculateAceOffsetCorrection(myDoc, aceDoc);
 		
-		
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
+		U.pl("All Mentions:  " + aceMentions);
 //		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
 		List<Word> allWords = myDoc.getAllWords();
 		int word_i = 0;
@@ -47,14 +55,14 @@ public class FindAceMentions {
 		while(m_i < aceMentions.size()) {
 			AceDocument.Mention m = aceMentions.get(m_i);
 			int aceHeadStart = m.head.charseq.start - aceOffsetCorrection;
-			U.pf("ALIGNING pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
+			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
 			Word word;
 			word = allWords.get(word_i);
 			// want to use right edge of token, not left edge, in case ACE head matches an internal subword inside our token
 			// e.g. ACE thinks [Russian] and [American] separate, but Stanford thinks [Russian-American] in 20001115_AFP_ARB_0060_ENG
 			// [Russian] aligns to [Russian-American], but it advances past when trying to find [American]'s alignment.
-			while( word.charStart+word.getNode().value().length() < aceHeadStart ) {
-				U.pf("  not high enough pos=%-3d  :  %s\n", word.charStart, word);
+			while( word.charStart+word.token.length() < aceHeadStart ) {
+//				U.pf("  not high enough pos=%-3d  :  %s\n", word.charStart, word);
 				word_i++;
 				if (word_i >= allWords.size()) break mention_loop;
 				word = allWords.get(word_i);
@@ -93,7 +101,6 @@ public class FindAceMentions {
 			for (Sentence s : myDoc.getSentences()) {
 				for (Word w : s.words) {
 					if (crudeMatch_AceHead_vs_Token(m,w)) {
-//					if (m.head.charseq.text.equals( w.getNode().value() )) {
 						offsetDiffs.incrementCount( m.head.charseq.start - w.charStart );
 						break sent_loop;
 					}
@@ -110,7 +117,7 @@ public class FindAceMentions {
 		// * multiwords:  [Jeb Bush] vs [Jeb]
 		
 		String aceHead = m.head.charseq.text;
-		String tok = w.getNode().value();
+		String tok = w.token;
 		
 		if (aceHead.length()==1 && tok.length()==1) {
 			return aceHead.equals(tok);
@@ -121,10 +128,4 @@ public class FindAceMentions {
 		}
 	}
 	
-	public static void main(String[] args) throws Exception {
-		String path = args[0];
-		Document myDoc    = Document.loadFiles(path);
-		AceDocument aceDoc= AceDocument.load(path);
-		go(myDoc, aceDoc);
-	}
 }

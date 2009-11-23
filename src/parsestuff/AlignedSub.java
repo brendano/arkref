@@ -29,7 +29,7 @@ import org.apache.commons.lang.NotImplementedException;
  * 
  * Also run main() for more examples.
  * 
- * @author brendano
+ * @author Brendan O'Connor (http://anyall.org)
  *
  */
 public class AlignedSub {
@@ -53,7 +53,10 @@ public class AlignedSub {
 	}
 	public AlignedSub replaceAll(String regex, String replacement) {
 		Pattern p = Pattern.compile(regex);
-		AlignedSub as = replace(this.text, p, replacement, false);
+		return replaceAll(p, replacement);
+	}
+	public AlignedSub replaceAll(Pattern pattern, String replacement) {
+		AlignedSub as = replace(this.text, pattern, replacement, false);
 		if (this.alignments != null)
 			as.alignments = project(as.alignments, this.alignments);
 		return as;
@@ -98,6 +101,7 @@ public class AlignedSub {
 	/** 
 	 * pipe x through map.  output is parallel to x.  
 	 * if map indices don't span the full range of x values, an error will happen.
+	 * this is equivalent to R/Matlab/Python:  map[x]
 	 **/
 	public static int[] project(int[] x, int[] map) {
 		int[] ret = new int[x.length];

@@ -52,7 +52,6 @@ public class AceDocument {
 		for (Entity en : sf.document.entities ) {
 			for (Mention m : en.mentions) {
 				assert en.ID().replace("E","").equals(m.aceID.replaceFirst("-.*",""));
-				
 			}
 		}
 		return sf.document;

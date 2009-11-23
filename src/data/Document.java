@@ -8,6 +8,8 @@ import analysis.Preprocess;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
+import parsestuff.U;
+import sent.SentenceBreaker;
 
 import edu.stanford.nlp.trees.LabeledScoredTreeFactory;
 import edu.stanford.nlp.trees.Tree;
@@ -47,7 +49,7 @@ public class Document {
 		Mention res = null;
 		Tree tmpNode = node;
 		
-		if(sentenceIndex >= sentences.size()){
+		if (sentenceIndex >= sentences.size()){
 			return null;
 		}
 		
@@ -87,7 +89,7 @@ public class Document {
 		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()){
 			return null;
 		}
-		
+
 		Tree startLeaf = leaves.get(spanStart);
 		Tree endLeaf = leaves.get(spanEnd);
 		
@@ -95,15 +97,12 @@ public class Document {
 				if(!(t.dominates(startLeaf) && t.dominates(endLeaf))){
 					continue;
 				}
-				
 				nodeSpanLength = t.getLeaves().size();
 				if(smallestSpan > nodeSpanLength){
 					smallestSpan = nodeSpanLength;
 					res = t;
 				}
-			
 		}
-
 		return res;
 	}
 	public Tree getLeaf(int sentenceIndex, int leafIndex) {
@@ -136,24 +135,51 @@ public class Document {
 		String neFilename = path = shortpath + ".ner";
 		BufferedReader parseR = new BufferedReader(new FileReader(parseFilename));
 		BufferedReader nerR = new BufferedReader(new FileReader(neFilename));
-		String parse; String ner;
-		int curSentId=0;
-		while ( (parse = parseR.readLine()) != null) {
-			parse = parse.replace("=H ", " ");
-			Tree tree = AnalysisUtilities.getInstance().readTreeFromString(parse);
+		
+		String parseLine, ner;
+		int curSentId = 0;
+		while ( (parseLine = parseR.readLine()) != null) {
+			Sentence sent = new Sentence(++curSentId);
+			
+			parseLine = parseLine.replace("=H ", " ");
+			Tree tree=null;
+			if (parseLine.split("\t").length == 1) {
+				// old version: just the parse
+				tree = AnalysisUtilities.getInstance().readTreeFromString(parseLine);
+				sent.hasParse = true;
+			} else {
+				tree = AnalysisUtilities.getInstance().readTreeFromString(parseLine.split("\t")[2]);
+				sent.hasParse = !parseLine.split("\t")[0].equals("ERROR");
+			}
+			
 			Document.addNPsAbovePossessivePronouns(tree);
 			Document.addInternalNPStructureForRoleAppositives(tree);
+
 			ner = nerR.readLine();
-			Sentence sent = new Sentence(++curSentId);
-			sent.setStuff(tree, ner);
+			sent.setStuff(tree, ner, sent.hasParse);
 			d.sentences.add(sent);
 		}
-		System.out.printf("***  Input %s  ***\n\n", shortpath);
-		for (Sentence s : d.sentences) {
-			System.out.printf("S%-2d\t%s\n", s.getID(), s.text());
-		}
-
 		return d;
+	}
+	
+	/** do sentence breaking (again) on the .txt file for surface info, after parses etc. have been loaded 
+	 * @throws FileNotFoundException **/
+	public void loadSurfaceSentences(String path) throws FileNotFoundException {
+		if (! new File(path+".txt").exists()) {
+			throw new FileNotFoundException("Need the .txt file to re-break");
+		}
+		int i=0;
+		for (SentenceBreaker.Sentence s : AnalysisUtilities.cleanAndBreakSentences(U.readFile(path+".txt"))) {
+			sentences.get(i).surfSent = s;
+			i++;
+		}
+		
+	}
+	
+	public void ensureSurfaceSentenceLoad(String path) throws FileNotFoundException {
+		if (sentences.size()>0 && sentences.get(0).surfSent == null) {
+			loadSurfaceSentences(path);
+		}
 	}
 
 
@@ -286,23 +312,24 @@ public class Document {
 		return tree;
 	}
 	
-	/** saves token alignments in the analysis.Word objects **/
-	public void doTokenAlignments(String rawText) {
-		List<Tree> allLeaves = new ArrayList<Tree>();
+	/** 
+	 * saves doc-level token alignments in the analysis.Word objects
+	 * Requires surfSent's in the document's sentences.
+	 **/
+	public void doTokenAlignments(String docText) {
+		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
-			for (Word w : s.words) {
-				allLeaves.add(w.getNode());
+			U.pl("SENTENCE WORDS     " + s.words);
+			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(s.surfSent.rawText, s.words);
+			// adjust to doc position
+			// TODO will fail if there are adjustment gaps inside the sentence.
+			// the sentence was projected to original text only on charStart and charEnd
+			// to do correctly, need full alignment info to be carried around in the surfSent.
+			// i think.
+			for (int i=0; i < s.words.size(); i++) {
+				s.words.get(i).charStart = wordAlignsInSent[i] + s.surfSent.charStart;
 			}
 		}
-		int[] alignments = AnalysisUtilities.alignTokens(rawText, allLeaves);
-		int i=0;
-		for (Sentence s: sentences) {
-			for (Word w : s.words) {
-				w.charStart = alignments[i];
-				i++;
-			}
-		}
-		
 	}
 	
 	public List<Word> getAllWords() {

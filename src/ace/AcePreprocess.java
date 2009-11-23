@@ -7,27 +7,28 @@ import java.util.regex.Pattern;
 import parsestuff.U;
 
 public class AcePreprocess {
-	public static void go(String apfFileName) throws IOException {
-		String path = apfFileName.replace("_APF.XML", "");
-		String sgmlFilename = path + ".SGM";
+	public static void go(String path1) throws IOException {
+		String shortpath = analysis.Preprocess.shortPath(path1);
+		
+		shortpath = shortpath.replace("_APF.XML", "");
+		String apfFileName = shortpath + "_APF.XML";
+		String sgmlFilename = shortpath + ".SGM";
 		assert new File(sgmlFilename).exists();
-		if (!analysis.Preprocess.alreadyPreprocessed(path)){
+		if (!analysis.Preprocess.alreadyPreprocessed(shortpath)) {
 			String sgml = U.readFile(sgmlFilename);
 			Pattern p = Pattern.compile("<TEXT>(.*)</TEXT>", Pattern.DOTALL);
 			Matcher m = p.matcher(sgml);
 			m.find();
 			String text = m.group(1);
-			U.writeFile(text, path + ".txt");
-			analysis.Preprocess.go(path + ".txt");
+			U.writeFile(text, shortpath + ".txt");
+			analysis.Preprocess.go(shortpath + ".txt");
 		}
-		
-//		AceAlignmentViaRetok alignment = new AceAlignmentViaRetok();
-//		data.Document doc = Document.loadFiles(path);
-//		FindMentions.go(doc);
-//		alignment.alignMentions(doc, AceDocument.parseFile(apfFileName));
 	}
 	
 	public static void main(String args[]) throws IOException {
-		go(args[0]);
+		for (String arg : args) {
+			if (args.length > 1)  U.pf("DOC\t%s\n", arg);
+			go(arg);
+		}
 	}
 }

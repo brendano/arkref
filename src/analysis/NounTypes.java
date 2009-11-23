@@ -94,9 +94,9 @@ public class NounTypes {
 			
 			String word, label;
 			
-			List<String> sentences = AnalysisUtilities.getInstance().getSentences(doc);
+			List<String> sentences = AnalysisUtilities.getInstance().getSentencesStanford(doc);
 			for(String s: sentences){
-				Tree parse = AnalysisUtilities.getInstance().parseSentence(s);
+				Tree parse = AnalysisUtilities.getInstance().parseSentence(s).parse;
 				for(Tree leaf: parse.getLeaves()){
 					word = leaf.label().value();
 					label = "";

@@ -10,33 +10,44 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
+import parsestuff.U;
+
+import sent.SentenceBreaker;
+
 import edu.stanford.nlp.trees.Tree;
 
 public class Sentence {
 	public List<Word> words;
 	private Map<String,Word> node2wordMap;
 	public Tree rootNode;
-
+	public boolean hasParse;
+	/** optional: more surface info **/
+	public SentenceBreaker.Sentence surfSent = null;
 
 	private int id;
 
 	public Sentence(int id) { this.id = id; words=new ArrayList<Word>(); node2wordMap=new HashMap<String,Word>(); }
 
-	public void setStuff(Tree root, String neTagging) {
+	public void setStuff(Tree root, String neTagging, boolean parseSuccess) {
 		this.rootNode = root;
 		String[] neTaggedWords = neTagging.split(" ");
 		List<Tree> leaves = root.getLeaves();
-		assert neTaggedWords.length == leaves.size();
-		for (int i=0; i < leaves.size(); i++) {
+		assert !parseSuccess || neTaggedWords.length == leaves.size();
+		
+		for (int i=0; i < neTaggedWords.length; i++) {
 			Word word = new Word();
-			word.sentence = this;
-			word.setNode(leaves.get(i));
+//			word.sentence = this;
 			String[] parts = neTaggedWords[i].replace("\\/", "_SLASH_").split("/");
 			assert parts.length == 2;
 			word.setNeTag(parts[1]);
-			//				System.out.println(word);
+			word.token = parts[0];
+			if (parseSuccess) {
+				word.setNode(leaves.get(i));
+				assert parts[0].equals( word.getNode().value() );
+				set_node2word(word.getNode(), word);
+			}
 			words.add(word);
-			set_node2word(word.getNode(), word);
+
 		}
 	}
 

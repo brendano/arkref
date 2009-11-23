@@ -1,20 +1,18 @@
 package analysis;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
 
+import parsestuff.AnalysisUtilities;
+import parsestuff.U;
+import sent.SentenceBreaker;
 import edu.stanford.nlp.trees.Tree;
 
-import parsestuff.AnalysisUtilities;
-
 public class Preprocess {
-
 	/**
 	 * @param args
 	 * @throws IOException 
@@ -24,10 +22,8 @@ public class Preprocess {
 			System.err.println("You need to pass a text file as a command line argument.");
 			System.exit(0);
 		}
-		
 		String txtfile = args[0];
 		Preprocess.go(txtfile);
-
 	}
 
 	public static boolean alreadyPreprocessed(String path) {
@@ -41,23 +37,29 @@ public class Preprocess {
 		return path.replace(".txt","").replace(".sent","");
 	}
 	
-
 	public static void go(String path) throws IOException {
 		go(path, false);
 	}
 	
-	
-	public static void go(String path, boolean useTempFiles) throws IOException {
-		String shortpath = shortPath(path);
-		
-		File nerOutputFile;
-		File parseOutputFile;
-		
+	public static void writeOffsetSentenceFile(List <SentenceBreaker.Sentence> sentences, String shortpath, boolean useTempFiles) throws FileNotFoundException {
+		File osentOutputFile = new File(shortpath + ".osent");
+		if (useTempFiles) osentOutputFile.deleteOnExit();
+		PrintWriter pwOSent = new PrintWriter(new FileOutputStream(osentOutputFile));
 
-		parseOutputFile = new File(shortpath+".parse");
-		nerOutputFile = new File(shortpath+".ner");
+		for (SentenceBreaker.Sentence s : sentences) {
+			pwOSent.printf("%d\t%d\t%s\n", s.charStart, s.charEnd, s.cleanText);
+		}
+		pwOSent.close();
+	}
+	public static void go(String path, boolean useTempFiles) throws IOException {
+		assert path.endsWith(".txt") || path.endsWith(".sent");
 		
-		if(useTempFiles && !parseOutputFile.exists() && !nerOutputFile.exists()){
+		String shortpath = shortPath(path);
+
+		File parseOutputFile = new File(shortpath+".parse");
+		File nerOutputFile = new File(shortpath+".ner");
+		
+		if (useTempFiles && !parseOutputFile.exists() && !nerOutputFile.exists()) {
 			parseOutputFile.deleteOnExit();
 			nerOutputFile.deleteOnExit();
 		}
@@ -65,30 +67,30 @@ public class Preprocess {
 		PrintWriter pwParse = new PrintWriter(new FileOutputStream(parseOutputFile));
 		PrintWriter pwNER = new PrintWriter(new FileOutputStream(nerOutputFile));
 		
-		BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(path)));
-		String buf;
-		String doc = "";
-		while((buf=br.readLine()) != null){
-			doc += buf + " ";
+		String text = U.readFile(path);
+		String[] sentenceTexts = null;
+		
+		if (path.endsWith(".sent")) {
+			sentenceTexts = text.split("\n");
+		
+		} else if(path.endsWith(".txt")) {
+			List<SentenceBreaker.Sentence> sentences = AnalysisUtilities.cleanAndBreakSentences(text);
+			writeOffsetSentenceFile(sentences, shortpath, useTempFiles);
+			
+			sentenceTexts = new String[sentences.size()];
+			for(int i=0; i < sentences.size(); i++) {
+				sentenceTexts[i] = sentences.get(i).cleanText;
+			}
 		}
 		
-		
-		//split sentences
-		List<String> sentences = AnalysisUtilities.getInstance().getSentences(doc);
-		
-		for(String sentence:sentences){
-		
+		for(String sentence : sentenceTexts) {
 			String ner = AnalysisUtilities.getInstance().annotateSentenceNER(sentence);
-			Tree parse = AnalysisUtilities.getInstance().parseSentence(sentence);
-			
-			
-			//write output
-			pwParse.println(parse);
+			AnalysisUtilities.ParseResult res = AnalysisUtilities.getInstance().parseSentence(sentence);
+			U.pf("%s\t%s\t%s\n", res.success ? "PARSE" : "ERROR", res.score, res.parse);
+			pwParse.printf("%s\t%s\t%s\n", res.success ? "PARSE" : "ERROR", res.score, res.parse);
 			pwNER.println(ner);
 		}
-		
 		pwNER.close();
-		pwParse.close();		
+		pwParse.close();
 	}
-
 }

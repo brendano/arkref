@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.aliasi.util.Strings;
+
+import sent.SentenceBreaker;
+
 
 //import net.didion.jwnl.data.POS;
 //import net.didion.jwnl.dictionary.Dictionary;
@@ -87,27 +91,33 @@ public class AnalysisUtilities {
 	}
 	
 	
-	public static int[] alignTokens(String rawText, Tree parse) {
-		List<Tree> leaves = parse.getLeaves();
-		
-		return alignTokens(rawText, leaves);
+	public static int[] alignTokens(String rawText, List<data.Word> words) {
+		String[] tokens = new String[words.size()];
+		for (int i=0; i < words.size(); i++) {
+			tokens[i] = words.get(i).token;
+		}
+		return alignTokens(rawText, tokens);
 	}
-	public static int[] alignTokens(String rawText, List<Tree> leaves) {
+	public static int[] alignTokens(String rawText, String[] tokens) {
 		int MAX_ALIGNMENT_SKIP = 100;
-		int[] alignments = new int[leaves.size()];
+		int[] alignments = new int[tokens.length];
 		int curPos = 0;
+		
 		tok_loop:
-		for (int i=0; i < leaves.size(); i++) {
-			String tok = leaves.get(i).value();
-			U.pf("TOKEN [%s]  :  ", tok);
+		
+		for (int i=0; i < tokens.length; i++) {
+			String tok = tokens[i];
+//			U.pf("TOKEN [%s]  :  ", tok);
 			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
 				boolean directMatch  = rawText.regionMatches(curPos + j, tok, 0, tok.length());
-				
-				
-				String substr = rawText.substring(curPos+j, curPos+j+tok.length()*2+10);
-				Matcher m=tokenSurfaceMatches(tok).matcher(substr);
-//				U.pl("PATTERN "+ tokenSurfaceMatches(tok));
-				boolean alternateMatch = m.find() && m.start()==0;
+				boolean alternateMatch = false;
+				if (!directMatch) {
+					int roughLast = curPos+j+tok.length()*2+10;
+					String substr = StringUtils.substring(rawText, curPos+j, roughLast);
+					Matcher m = tokenSurfaceMatches(tok).matcher(substr);
+//					U.pl("PATTERN "+ tokenSurfaceMatches(tok));
+					alternateMatch = m.find() && m.start()==0;
+				}
 				
 //				U.pl("MATCHES "+ directMatch + " " + alternateMatch);
 				if (directMatch || alternateMatch) {
@@ -116,7 +126,8 @@ public class AnalysisUtilities {
 						curPos = curPos+j+tok.length();
 					else
 						curPos = curPos+j+1;
-					U.pf("\n  Aligned to %d\n", alignments[i]);
+//					U.pf("\n  Aligned to pos=%d : [%s]\n", alignments[i], 
+//							U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
 					continue tok_loop;
 				}
 				U.pf("%s", U.backslashEscape(rawText.substring(curPos+j,curPos+j+1)));
@@ -144,10 +155,28 @@ public class AnalysisUtilities {
 	
 
 	
-	public List<String> getSentences(String document) {
+	public static List <SentenceBreaker.Sentence> cleanAndBreakSentences(String docText) {
+		AlignedSub cleaner = AnalysisUtilities.cleanupDocument(docText);
+		List<SentenceBreaker.Sentence> sentences = SentenceBreaker.getSentences(cleaner.text);
+		// Project back to positions in original unclean text
+		for (SentenceBreaker.Sentence s : sentences) {
+			s.charStart = cleaner.alignments[s.charStart];
+			s.charEnd = cleaner.alignments[s.charEnd];
+		}
+		return sentences;
+	}
+	public static List <String> cleanAndBreakSentencesToText(String docText) {
+		List <String> sentenceTexts = new ArrayList<String>();
+		for (SentenceBreaker.Sentence s : cleanAndBreakSentences(docText))
+			sentenceTexts.add( s.cleanText );
+		return sentenceTexts;
+	}
+	
+	/** uses stanford library for document cleaning and sentence breaking **/
+	public List<String> getSentencesStanford(String document) {
 		List<String> res = new ArrayList<String>();
 		String sentence;
-		StringReader reader = new StringReader(cleanupDocument(document));
+		StringReader reader = new StringReader(cleanupDocument(document).text);
 		
 		List<List<? extends HasWord>> sentences = new ArrayList<List<? extends HasWord>>();
 		Iterator<List<? extends HasWord>> iter1 ;
@@ -177,9 +206,9 @@ public class AnalysisUtilities {
 	}
 	
 	/** some ACE docs have weird markup in them that serve as paragraph-ish markers **/
-	public static String cleanupDocument(String document) {
-		document = document.replaceAll("<\\S+>", "\n");
-		return document;
+	public static AlignedSub cleanupDocument(String document) {
+		AlignedSub ret = new AlignedSub(document).replaceAll("<\\S+>", "\n");
+		return ret;
 	}
 	
 	
@@ -215,7 +244,14 @@ public class AnalysisUtilities {
 		return res;
 	}
 	
-	public Tree parseSentence(String sentence) {
+	public static class ParseResult {
+		public boolean success;
+		public Tree parse;
+		public double score;
+		public ParseResult(boolean s, Tree p, double sc) { success=s; parse=p; score=sc; }
+	}
+	
+	public ParseResult parseSentence(String sentence) {
 		String result = "";
 		
 		//see if a parser socket server is available
@@ -252,14 +288,15 @@ public class AnalysisUtilities {
 			System.err.println("parser output:"+ result);
 			
 			lastParse = readTreeFromString(result);
-			return lastParse;
+			boolean success = !Strings.normalizeWhitespace(result).equals("(ROOT (. .))");
+			return new ParseResult(success, lastParse, lastParseScore);
 		} catch (Exception ex) {
 			if(DEBUG) System.err.println("Could not connect to parser server.");
 			//ex.printStackTrace();
 		}
         
 		//if socket server not available, then use a local parser object
-		if(parser == null){
+		if (parser == null) {
 			try {
 				Options op = new Options();
 				String serializedInputFileOrUrl = properties.getProperty("parserGrammarFile", "lib/englishPCFG.ser.gz");
@@ -267,23 +304,23 @@ public class AnalysisUtilities {
 				int maxLength = new Integer(properties.getProperty("parserMaxLength", "40")).intValue();
 				parser.setMaxLength(maxLength);
 				parser.setOptionFlags("-outputFormat", "oneline");
-			} catch (Exception e){
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
 
 		try{
-			if(parser.parse(sentence)){
+			if (parser.parse(sentence)) {
 				lastParse = parser.getBestParse();
 				lastParseScore = parser.getPCFGScore();
-				return lastParse;
+				return new ParseResult(true, lastParse, lastParseScore);
 			}
 		}catch(Exception e){
 		}
 
 		lastParse = readTreeFromString("(ROOT (. .))");
-                lastParseScore = -99999.0;
-                return lastParse;
+        lastParseScore = -99999.0;
+        return new ParseResult(false, lastParse, lastParseScore);
 	}
 	
 //	@SuppressWarnings("unchecked")

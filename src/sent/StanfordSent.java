@@ -8,7 +8,7 @@ import parsestuff.U;
 public class StanfordSent {
 	public static void main(String[] args) throws FileNotFoundException {
 		String text = U.readFile(args[0]);
-		for(String s : AnalysisUtilities.getInstance().getSentences(text)) {
+		for(String s : AnalysisUtilities.getInstance().getSentencesStanford(text)) {
 			U.pl(s);
 		}
 	}

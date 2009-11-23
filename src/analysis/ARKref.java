@@ -69,7 +69,7 @@ public class ARKref {
 			}
 			
 			//print the input to a temporary file
-			File sentFile = File.createTempFile("ARKrefTempFile", ".sent");
+			File sentFile = File.createTempFile("ARKrefTempFile", ".txt");
 			sentFile.deleteOnExit();
 			PrintWriter pw = new PrintWriter(new FileOutputStream(sentFile));
 			pw.println(doc);

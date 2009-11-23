@@ -24,7 +24,8 @@ import parsestuff.U;
 
 
 /**
- * Breaks a document into sentences in a very re-traceable manner, using LingPipe's sentence breaker.
+ * Breaks a document into sentences in a very re-traceable manner, using our hacked-up
+ * version of LingPipe's sentence breaker.
  * @author brendano
  */
 public class SentenceBreaker {
@@ -83,6 +84,8 @@ public class SentenceBreaker {
 		    
 		    sentStartTok = sentEndTok+1;
 		    charStart = charEnd;
+//		    charStart += whites[seentEndTok+1].length();
+		    
 		}
 //		Sentence last = sentences.get(sentences.size()-1);
 //		String rest = text.substring(last.charEnd, text.length());
@@ -108,13 +111,13 @@ public class SentenceBreaker {
     public static void main(String[] args) throws IOException {
     	for (String arg : args) {
     		if (args.length > 1)
-    			U.pf("\nDOCUMENT\t%s\n", arg);
+    			U.pf("\nDOC\t%s\n", arg);
     		String text = U.readFile(arg);
-    		text = AnalysisUtilities.cleanupDocument(text);
+    		text = AnalysisUtilities.cleanupDocument(text).text;
     		for (Sentence s : getSentences(text)) {
     			// rawText might have newlines, tabs
 //    			System.out.printf("%d\t%d\t%s\n", s.charStart, s.charEnd, s.cleanText);
-    			U.pf("SENTENCE\t%s\n", StringUtils.join(s.tokens));
+    			U.pf("SENT\t%s\n", StringUtils.join(s.tokens));
     		}
     	}
     }

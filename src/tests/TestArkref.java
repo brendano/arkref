@@ -441,7 +441,7 @@ public class TestArkref extends TestCase {
 		
 		String text = parsestuff.U.readFile("data/indo.sent");
 		String[] lines = text.split("\n");
-		int[] alignments = AnalysisUtilities.alignTokens(lines[0], d.getSentences().get(0).getRootNode());
+		int[] alignments = AnalysisUtilities.alignTokens(lines[0], d.getSentences().get(0).words);
 		assertFalse(ArrayUtils.contains(alignments, -1));
 		assertEquals(0, alignments[0]); //[JAKARTA]
 		assertEquals(7, alignments[1]); //[,]
@@ -473,7 +473,7 @@ public class TestArkref extends TestCase {
 		assertEquals(161, alignments[27]); //[.]
 		
 		
-		alignments = AnalysisUtilities.alignTokens(lines[1], d.getSentences().get(1).getRootNode());
+		alignments = AnalysisUtilities.alignTokens(lines[1], d.getSentences().get(1).words);
 		assertFalse(ArrayUtils.contains(alignments, -1));
 		assertEquals(0,alignments[0]); //Hutomo
 		assertEquals(7,alignments[1]); //``
