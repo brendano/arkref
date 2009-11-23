@@ -97,7 +97,7 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         super(POSSIBLE_STOPS,
                 IMPOSSIBLE_PENULTIMATES,
                 IMPOSSIBLE_STARTS,
-                false,false,  firstWordMustBeCap);
+                true,false,  firstWordMustBeCap);
       }
 
     private static final Set<String> POSSIBLE_STOPS = new HashSet<String>();

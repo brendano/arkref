@@ -60,9 +60,7 @@ public class SentenceBreaker {
 		if (sentenceBoundaries.length < 1) {
 		    return sentences;
 		}
-		if (sentenceBoundaries[sentenceBoundaries.length-1] < tokens.length - 1) {
-			sentenceBoundaries = ArrayUtils.add(sentenceBoundaries, tokens.length-1);
-		}
+		
 
 		int charStart = 0;
 		int charEnd = 0;
