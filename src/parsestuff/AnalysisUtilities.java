@@ -130,7 +130,7 @@ public class AnalysisUtilities {
 //							U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
 					continue tok_loop;
 				}
-				U.pf("%s", U.backslashEscape(rawText.substring(curPos+j,curPos+j+1)));
+				U.pf("%s", U.backslashEscape(StringUtils.substring(rawText,curPos+j,curPos+j+1)));
 			}
 			U.pf("  FAILED MATCH for token [%s]\n", tok);
 			alignments[i] = -1;
@@ -153,15 +153,12 @@ public class AnalysisUtilities {
 		return Pattern.compile(Pattern.quote(tok));
 	}
 	
-
-	
 	public static List <SentenceBreaker.Sentence> cleanAndBreakSentences(String docText) {
 		AlignedSub cleaner = AnalysisUtilities.cleanupDocument(docText);
 		List<SentenceBreaker.Sentence> sentences = SentenceBreaker.getSentences(cleaner.text);
 		// Project back to positions in original unclean text
 		for (SentenceBreaker.Sentence s : sentences) {
-			s.charStart = cleaner.alignments[s.charStart];
-			s.charEnd = cleaner.alignments[s.charEnd];
+			s.setAlignmentProjection(cleaner.alignments);
 		}
 		return sentences;
 	}
@@ -208,6 +205,9 @@ public class AnalysisUtilities {
 	/** some ACE docs have weird markup in them that serve as paragraph-ish markers **/
 	public static AlignedSub cleanupDocument(String document) {
 		AlignedSub ret = new AlignedSub(document).replaceAll("<\\S+>", "\n");
+		ret = ret.replaceAll("&(amp|AMP);", "&");
+		ret = ret.replaceAll("&(lt|LT);", "<");
+		ret = ret.replaceAll("&(gt|GT);", ">");
 		return ret;
 	}
 	

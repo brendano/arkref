@@ -41,6 +41,7 @@ public class FindAceMentions {
 		
 		
 		myDoc.doTokenAlignments(aceDoc.text);
+		U.pl("***  ACE alignments ***\n");
 		int aceOffsetCorrection = calculateAceOffsetCorrection(myDoc, aceDoc);
 		
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
@@ -50,6 +51,8 @@ public class FindAceMentions {
 		List<Word> allWords = myDoc.getAllWords();
 		int word_i = 0;
 		int m_i = 0;
+		
+		int BACKWARDS_FUDGE = 20; // e.g ACE "msnbc" and our "msnbc/reuters" .. and more?
 		
 		mention_loop:
 		while(m_i < aceMentions.size()) {
@@ -61,7 +64,7 @@ public class FindAceMentions {
 			// want to use right edge of token, not left edge, in case ACE head matches an internal subword inside our token
 			// e.g. ACE thinks [Russian] and [American] separate, but Stanford thinks [Russian-American] in 20001115_AFP_ARB_0060_ENG
 			// [Russian] aligns to [Russian-American], but it advances past when trying to find [American]'s alignment.
-			while( word.charStart+word.token.length() < aceHeadStart ) {
+			while( word.charStart+word.token.length() + BACKWARDS_FUDGE < aceHeadStart ) {
 //				U.pf("  not high enough pos=%-3d  :  %s\n", word.charStart, word);
 				word_i++;
 				if (word_i >= allWords.size()) break mention_loop;
@@ -94,7 +97,7 @@ public class FindAceMentions {
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
 
-		for (int i=0; i<aceMentions.size() && (i < 20 || offsetDiffs.max() < 5); i++) {
+		for (int i=0; i<aceMentions.size() && (i < 15 || offsetDiffs.max() < 2); i++) {
 			AceDocument.Mention m = aceMentions.get(i);
 			// find our first token that matches ace head
 			sent_loop:
@@ -108,6 +111,7 @@ public class FindAceMentions {
 			}
 		}
 		U.pl("ace offset diff histogram: " + offsetDiffs);
+		U.pl("Using offset: " + offsetDiffs.argmax());
 		return offsetDiffs.argmax();
 	}
 	

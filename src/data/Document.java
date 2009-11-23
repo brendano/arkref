@@ -3,6 +3,8 @@ package data;
 import java.util.*;
 import java.io.*;
 
+import com.aliasi.util.Math;
+
 import analysis.FindMentions;
 import analysis.Preprocess;
 
@@ -142,7 +144,7 @@ public class Document {
 			Sentence sent = new Sentence(++curSentId);
 			
 			parseLine = parseLine.replace("=H ", " ");
-			Tree tree=null;
+			Tree tree = null;
 			if (parseLine.split("\t").length == 1) {
 				// old version: just the parse
 				tree = AnalysisUtilities.getInstance().readTreeFromString(parseLine);
@@ -322,13 +324,24 @@ public class Document {
 			U.pl("SENTENCE WORDS     " + s.words);
 			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(s.surfSent.rawText, s.words);
 			// adjust to doc position
-			// TODO will fail if there are adjustment gaps inside the sentence.
-			// the sentence was projected to original text only on charStart and charEnd
-			// to do correctly, need full alignment info to be carried around in the surfSent.
-			// i think.
 			for (int i=0; i < s.words.size(); i++) {
-				s.words.get(i).charStart = wordAlignsInSent[i] + s.surfSent.charStart;
+				if (wordAlignsInSent[i]==-1) {
+					s.words.get(i).charStart = -1;
+				} else {
+					s.words.get(i).charStart = s.surfSent.alignments[ wordAlignsInSent[i] ];
+				}
 			}
+			if (s.words.get(0).charStart==-1) {
+				s.words.get(0).charStart = s.surfSent.alignments[0];
+			}
+			for (int i=1; i < s.words.size(); i++) {
+				if (s.words.get(i).charStart==-1) {
+					Word prev = s.words.get(i-1);
+					s.words.get(i).charStart = prev.charStart + prev.token.length();	
+				}
+				
+			}
+				
 		}
 	}
 	

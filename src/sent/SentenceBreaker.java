@@ -39,6 +39,18 @@ public class SentenceBreaker {
     	public String rawText;
     	public String cleanText;
     	public List<String> tokens;
+    	/** parallel to rawText **/
+    	public int alignments[] = null;
+    	/** assume charStart and charEnd are correct relative to map. move them & fill in indiv alignments. **/ 
+    	public void setAlignmentProjection(int[] map) {
+			alignments = new int[rawText.length()];
+			for (int i=0; i < alignments.length; i++) {
+				alignments[i] = map[i+charStart];
+			}
+			charStart = alignments[0];
+			charEnd = alignments[alignments.length-1];
+
+    	}
     }
     
     public static List<Sentence> getSentences(String text) {
