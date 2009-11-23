@@ -110,8 +110,6 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         POSSIBLE_STOPS.add("..");  // abbrev + stop occurs
         POSSIBLE_STOPS.add("!");
         POSSIBLE_STOPS.add("?");
-        POSSIBLE_STOPS.add("\"");
-        POSSIBLE_STOPS.add("''");
         POSSIBLE_STOPS.add(").");
         POSSIBLE_STOPS.add("\u00BB"); // french close quote
         POSSIBLE_STOPS.add(">>"); // french close quote
@@ -119,10 +117,9 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
     
     private static final Set<String> STOP_PATTERNS = new HashSet<String>();
     static {
-    	String endpunct = R.or(R.quote(new String[]{ ".", "!", "?" }));
+    	String endpunct = R.or(R.quote(new String[]{ ".", "..", "!", "?" }));
     	String endquote = R.or(R.quote(new String[]{ "''", "'", "\""}));
     	String mildWhitespace = "[ \\t]*[\\r\\n]?[ \\t]*";
-    	
     	STOP_PATTERNS.add( endpunct + mildWhitespace + endquote );
     	STOP_PATTERNS.add( endquote + mildWhitespace + endpunct ); // British-y convention
     }
