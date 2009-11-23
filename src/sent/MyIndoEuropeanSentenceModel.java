@@ -20,6 +20,8 @@ import sent.MyHeuristicSentenceModel;
 import java.util.HashSet;
 import java.util.Set;
 
+import parsestuff.RegexUtil.R;
+
 /**
  * HACKED UP FROM LINGPIPE ORIGINAL BY BRENDAN
  * 
@@ -94,10 +96,12 @@ import java.util.Set;
 public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
 
     public MyIndoEuropeanSentenceModel(boolean firstWordMustBeCap) {
-        super(POSSIBLE_STOPS,
+        super(
+        		POSSIBLE_STOPS,
+        		STOP_PATTERNS,
                 IMPOSSIBLE_PENULTIMATES,
                 IMPOSSIBLE_STARTS,
-                true,false,  firstWordMustBeCap);
+                true,false, firstWordMustBeCap);
       }
 
     private static final Set<String> POSSIBLE_STOPS = new HashSet<String>();
@@ -108,10 +112,39 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         POSSIBLE_STOPS.add("?");
         POSSIBLE_STOPS.add("\"");
         POSSIBLE_STOPS.add("''");
-        POSSIBLE_STOPS.add("''?");
         POSSIBLE_STOPS.add(").");
         POSSIBLE_STOPS.add("\u00BB"); // french close quote
         POSSIBLE_STOPS.add(">>"); // french close quote
+    }    
+    
+    private static final Set<String> STOP_PATTERNS = new HashSet<String>();
+    static {
+    	String endpunct = R.or(R.quote(new String[]{ ".", "!", "?" }));
+    	String endquote = R.or(R.quote(new String[]{ "''", "'", "\""}));
+    	String mildWhitespace = "[ \\t]*[\\r\\n]?[ \\t]*";
+    	
+    	STOP_PATTERNS.add( endpunct + mildWhitespace + endquote );
+    	STOP_PATTERNS.add( endquote + mildWhitespace + endpunct ); // British-y convention
+    }
+    
+    private static final Set<String> IMPOSSIBLE_STARTS
+        = new HashSet<String>();
+    static {
+        IMPOSSIBLE_STARTS.add(",");
+        IMPOSSIBLE_STARTS.add(")");
+        IMPOSSIBLE_STARTS.add("]");
+        IMPOSSIBLE_STARTS.add("}");
+        IMPOSSIBLE_STARTS.add(">");
+        IMPOSSIBLE_STARTS.add("<");
+        IMPOSSIBLE_STARTS.add(".");
+        IMPOSSIBLE_STARTS.add("!");
+        IMPOSSIBLE_STARTS.add("?");
+        IMPOSSIBLE_STARTS.add(":");
+        IMPOSSIBLE_STARTS.add(";");
+        IMPOSSIBLE_STARTS.add("-");
+        IMPOSSIBLE_STARTS.add("--");
+        IMPOSSIBLE_STARTS.add("---");
+        IMPOSSIBLE_STARTS.add("%");
     }
 
     private static final Set<String> IMPOSSIBLE_PENULTIMATES
@@ -852,26 +885,6 @@ public class MyIndoEuropeanSentenceModel extends MyHeuristicSentenceModel {
         IMPOSSIBLE_PENULTIMATES.add("VN");
         IMPOSSIBLE_PENULTIMATES.add("WLL");
         IMPOSSIBLE_PENULTIMATES.add("W.L.L");
-    }
-
-    private static final Set<String> IMPOSSIBLE_STARTS
-        = new HashSet<String>();
-    static {
-        IMPOSSIBLE_STARTS.add(",");
-        IMPOSSIBLE_STARTS.add(")");
-        IMPOSSIBLE_STARTS.add("]");
-        IMPOSSIBLE_STARTS.add("}");
-        IMPOSSIBLE_STARTS.add(">");
-        IMPOSSIBLE_STARTS.add("<");
-        IMPOSSIBLE_STARTS.add(".");
-        IMPOSSIBLE_STARTS.add("!");
-        IMPOSSIBLE_STARTS.add("?");
-        IMPOSSIBLE_STARTS.add(":");
-        IMPOSSIBLE_STARTS.add(";");
-        IMPOSSIBLE_STARTS.add("-");
-        IMPOSSIBLE_STARTS.add("--");
-        IMPOSSIBLE_STARTS.add("---");
-        IMPOSSIBLE_STARTS.add("%");
     }
 
 }

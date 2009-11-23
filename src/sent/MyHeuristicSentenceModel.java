@@ -19,6 +19,9 @@ package sent;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
+
+import parsestuff.RegexUtil.R;
 
 import com.aliasi.sentences.AbstractSentenceModel;
 
@@ -103,38 +106,14 @@ import com.aliasi.sentences.AbstractSentenceModel;
  * @since   LingPipe1.0
  */
 public class MyHeuristicSentenceModel extends AbstractSentenceModel {
+	// see original code for more comments
 
-    /**
-     * The set of possible tokens on which a sentence may end.
-     */
     Set<String> mPossibleStops;
-
-    /**
-     * The set of tokens which may not precede a sentence-ending
-     * token.
-     */
     Set<String> mBadPrevious;
-
-    /**
-     * The set of tokens which may not follow a sentence-ending
-     * token.
-     */
     Set<String> mBadFollowing;
-
-    /**
-     * Flags whether or not the final token must be a sentence-ending
-     * token.  If true, allows retrieval of truncated sentences that
-     * occur at the end of the input.  Default value is false.
-     *
-     */
+    Set<Pattern> mStopPatterns;
     private final boolean mForceFinalStop;
-
-    /**
-     * Flags whether or not to track open and close parentheticals.
-     * Default value is false.
-     */
     private final boolean mBalanceParens;
-
     private final boolean mUsingCapitalizationConventions;
     
     /**
@@ -149,19 +128,31 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
      * @param impossibleStarts Tokens that may not follow a stop.
 
     */
-    public MyHeuristicSentenceModel(Set<String> possibleStops,
-                                  Set<String> impossiblePenultimate,
-                                  Set<String> impossibleStarts,
-                                  boolean forceFinalStop,
-                                  boolean balanceParens,
-                                  boolean usingCapitalizationConventions
-                                  ) {
+    public MyHeuristicSentenceModel(
+    		Set<String> possibleStops,
+    		Set<String> stopPatterns,						
+			Set<String> impossiblePenultimate,
+			Set<String> impossibleStarts,
+			boolean forceFinalStop,
+			boolean balanceParens,
+			boolean usingCapitalizationConventions
+          ) {
 		mPossibleStops = toLowerCase(possibleStops);
+		mStopPatterns = convertStopPatterns(stopPatterns);
         mBadPrevious = toLowerCase(impossiblePenultimate);
         mBadFollowing = toLowerCase(impossibleStarts);	
         mForceFinalStop = forceFinalStop;
         mBalanceParens = balanceParens;
         mUsingCapitalizationConventions = usingCapitalizationConventions;
+    }
+    
+    private Set<Pattern> convertStopPatterns(Set<String> stopPatterns) {
+    	Set<Pattern> ret = new HashSet<Pattern>();
+    	for (String pat : stopPatterns) {
+    		Pattern p = Pattern.compile("\\b" + pat + "\\b");
+    		ret.add(p);
+    	}
+    	return ret;
     }
     
     public boolean contains(Set<String> set, String tok) {
@@ -210,6 +201,10 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
     public boolean balanceParens() {
         return mBalanceParens;
     }
+    
+    public boolean isPossibleStop(String[] tokens, int tokPos) {
+    	return mPossibleStops.contains(tokens[tokPos].toLowerCase());
+    }
 
 
     /**
@@ -233,13 +228,15 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
 
         if (length == 1) {
             if (mForceFinalStop
-                || mPossibleStops.contains(tokens[start].toLowerCase())) {
+            	|| isPossibleStop(tokens, start)
+            ) {
+//                || mPossibleStops.contains(tokens[start].toLowerCase())) {
 
                 indices.add(Integer.valueOf(start));
             }
             return;
         }
-
+        
         // run from second to penultimate tag (first can't be stop)
         boolean inParens = false;
         if (tokens[start].equals("(")) inParens = true;
@@ -270,7 +267,8 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
             }
 
             // check that token is good end of sentence token
-            if (!mPossibleStops.contains(tokens[i].toLowerCase())) continue;
+            if (!isPossibleStop(tokens,i)) continue;
+//            if (!mPossibleStops.contains(tokens[i].toLowerCase())) continue;
 
             // only break after whitespace
             if (whitespaces[i+1].length() == 0) continue;
@@ -289,7 +287,8 @@ public class MyHeuristicSentenceModel extends AbstractSentenceModel {
 
         // deal with case of last tag
         if (mForceFinalStop
-            || ( mPossibleStops.contains(tokens[end].toLowerCase())
+            || (isPossibleStop(tokens, end)
+//    		|| ( mPossibleStops.contains(tokens[end].toLowerCase())
                  && !mBadPrevious.contains(tokens[end-1].toLowerCase())))
             indices.add(Integer.valueOf(end));
     }
