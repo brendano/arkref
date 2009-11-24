@@ -107,7 +107,7 @@ public class AnalysisUtilities {
 		
 		for (int i=0; i < tokens.length; i++) {
 			String tok = tokens[i];
-//			U.pf("TOKEN [%s]  :  ", tok);
+			U.pf("TOKEN [%s]  :  ", tok);
 			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
 				boolean directMatch  = rawText.regionMatches(curPos + j, tok, 0, tok.length());
 				boolean alternateMatch = false;
@@ -126,8 +126,8 @@ public class AnalysisUtilities {
 						curPos = curPos+j+tok.length();
 					else
 						curPos = curPos+j+1;
-//					U.pf("\n  Aligned to pos=%d : [%s]\n", alignments[i], 
-//							U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
+					U.pf("\n  Aligned to pos=%d : [%s]\n", alignments[i], 
+							U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
 					continue tok_loop;
 				}
 				U.pf("%s", U.backslashEscape(StringUtils.substring(rawText,curPos+j,curPos+j+1)));
@@ -139,7 +139,7 @@ public class AnalysisUtilities {
 		return alignments;
 	}
 	
-	/** undo penn-treebankification of tokens.  want the raw original form if possible. **/
+	/** undo penn-treebankification of tokens.  want to match raw original form if possible. **/
 	public static Pattern tokenSurfaceMatches(String tok) {
 		if (tok.equals("-LRB-")) {
 			return Pattern.compile("[(\\[]");
@@ -149,6 +149,8 @@ public class AnalysisUtilities {
 			return Pattern.compile("(\"|``)");
 		} else if (tok.equals("''")) {
 			return Pattern.compile("(\"|'')");
+		} else if (tok.equals("`")) {
+			return Pattern.compile("('|`)");
 		}
 		return Pattern.compile(Pattern.quote(tok));
 	}
