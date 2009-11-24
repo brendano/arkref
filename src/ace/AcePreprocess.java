@@ -11,7 +11,6 @@ public class AcePreprocess {
 		String shortpath = analysis.Preprocess.shortPath(path1);
 		
 		shortpath = shortpath.replace("_APF.XML", "");
-		String apfFileName = shortpath + "_APF.XML";
 		String sgmlFilename = shortpath + ".SGM";
 		assert new File(sgmlFilename).exists();
 		if (!analysis.Preprocess.alreadyPreprocessed(shortpath)) {

@@ -1,6 +1,8 @@
 package ace;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import parsestuff.U;
 import analysis.Preprocess;
@@ -46,8 +48,24 @@ public class FindAceMentions {
 		
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
-		U.pl("All Mentions:  " + aceMentions);
-//		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
+		Map<AceDocument.Mention, Word> ace2word = 
+			alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
+		
+		Sentence curS = null;
+		for (AceDocument.Mention m : aceMentions) {
+			if (ace2word.get(m).sentence != curS) {
+				curS = ace2word.get(m).sentence;
+				System.out.printf("S%-2s  %s\n", curS.getID(), curS.text());
+			}
+			String estr = m.entity.mentions.size()==1 ? "" : m.entity.ID();
+			U.pf("  %-4s | %s\n", estr, m);
+		}
+	}
+	
+	private static Map<AceDocument.Mention, Word> alignToTokens(Document myDoc, int aceOffsetCorrection,
+			List<AceDocument.Mention> aceMentions) throws AlignmentFailed {
+		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
+
 		List<Word> allWords = myDoc.getAllWords();
 		int word_i = 0;
 		int m_i = 0;
@@ -58,7 +76,7 @@ public class FindAceMentions {
 		while(m_i < aceMentions.size()) {
 			AceDocument.Mention m = aceMentions.get(m_i);
 			int aceHeadStart = m.head.charseq.start - aceOffsetCorrection;
-			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
+//			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
 			Word word;
 			word = allWords.get(word_i);
 			// want to use right edge of token, not left edge, in case ACE head matches an internal subword inside our token
@@ -70,22 +88,21 @@ public class FindAceMentions {
 				if (word_i >= allWords.size()) break mention_loop;
 				word = allWords.get(word_i);
 			}
-			// sometimes the offset increases - i.e., ACE offsets fall behind the real offsets relative to how ahead they were earlier in the document.
-			// so do a second matching round via string matching
-			// this will not solve if the offset decreases (ACE offsets get more ahead)
+			// guard against more weirdness, though this now seems weird. is necessary with BACKWARDS_FUDGE though
 			while ( ! crudeMatch_AceHead_vs_Token(m, word)) {
-				U.pf("  no string match pos=%-3d  :  %s\n", word.charStart, word);
+//				U.pf("  no string match pos=%-3d  :  %s\n", word.charStart, word);
 				word_i++;
 				if (word_i >= allWords.size()) break mention_loop;
 				word = allWords.get(word_i);
 			}
-			U.pf("Alignment!  Word:ACE  %-4d:%-4d  :   [%-15s]  <->  [%-60s]\n", 
-					word.charStart, m.head.charseq.start-aceOffsetCorrection, word,m);
+//			U.pf("ALIGN\t%-4d %-4d   ****   [%-20s]  ******  [%-60s]\n", word.charStart, m.head.charseq.start-aceOffsetCorrection, word,m);
+			ace2word.put(m, word);
 			m_i++;
 		}
-		if (m_i < aceMentions.size()) {
+		if (m_i < aceMentions.size())
 			throw new AlignmentFailed();
-		}
+		
+		return ace2word;
 	}
 	
 	/**

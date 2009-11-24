@@ -1,26 +1,18 @@
 package sent;
 
-import com.aliasi.sentences.SentenceModel;
-
-import com.aliasi.tokenizer.TokenizerFactory;
-import com.aliasi.tokenizer.Tokenizer;
-
-import com.aliasi.util.Arrays;
-import com.aliasi.util.Files;
-import com.aliasi.util.Strings;
-
-import edu.stanford.nlp.util.StringUtils;
-
-import java.io.File;
 import java.io.IOException;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
+
+import com.aliasi.sentences.SentenceModel;
+import com.aliasi.tokenizer.Tokenizer;
+import com.aliasi.tokenizer.TokenizerFactory;
+import com.aliasi.util.Strings;
+
+import edu.stanford.nlp.util.StringUtils;
 
 
 /**
@@ -29,7 +21,6 @@ import parsestuff.U;
  * @author brendano
  */
 public class SentenceBreaker {
-
 	
     static final TokenizerFactory TOKENIZER_FACTORY = MyIndoEuropeanTokenizerFactory.INSTANCE;
 
@@ -49,7 +40,6 @@ public class SentenceBreaker {
 			}
 			charStart = alignments[0];
 			charEnd = alignments[alignments.length-1];
-
     	}
     }
     

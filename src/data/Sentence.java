@@ -17,6 +17,14 @@ import sent.SentenceBreaker;
 
 import edu.stanford.nlp.trees.Tree;
 
+/**
+ * Our notion of a sentence, integrating information from all subsystems (or at least maintaining pointers to those data structures)
+ * 
+ * Note that this is different than sent.SentenceBreaker.Sentence, which only contains early-stage surface information about a sentence.
+ * 
+ * @author brendano
+ *
+ */
 public class Sentence {
 	public List<Word> words;
 	private Map<String,Word> node2wordMap;
@@ -37,11 +45,13 @@ public class Sentence {
 		
 		for (int i=0; i < neTaggedWords.length; i++) {
 			Word word = new Word();
+			word.sentence = this;
+			
 //			String[] parts = neTaggedWords[i].replaceAll("\\\\/", "_SLASH_").split("/");
 //			assert parts.length == 2 : String.format("bad ne tag: [%s]", neTaggedWords[i]);
 //			word.setNeTag(parts[1]);
 //			word.token = parts[0].replaceAll("_SLASH_", "\\\\/");
-
+			
 			String[] parts = neTaggedWords[i].split("/");
 			word.setNeTag(parts[parts.length-1]);
 			String nerToken = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");

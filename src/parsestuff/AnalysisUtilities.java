@@ -107,7 +107,7 @@ public class AnalysisUtilities {
 		
 		for (int i=0; i < tokens.length; i++) {
 			String tok = tokens[i];
-			U.pf("TOKEN [%s]  :  ", tok);
+//			U.pf("TOKEN [%s]  :  ", tok);
 			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
 				boolean directMatch  = rawText.regionMatches(curPos + j, tok, 0, tok.length());
 				boolean alternateMatch = false;
@@ -126,11 +126,10 @@ public class AnalysisUtilities {
 						curPos = curPos+j+tok.length();
 					else
 						curPos = curPos+j+1;
-					U.pf("\n  Aligned to pos=%d : [%s]\n", alignments[i], 
-							U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
+//					U.pf("\n  Aligned to pos=%d : [%s]\n", alignments[i], U.backslashEscape(StringUtils.substring(rawText, alignments[i], alignments[i]+10)));
 					continue tok_loop;
 				}
-				U.pf("%s", U.backslashEscape(StringUtils.substring(rawText,curPos+j,curPos+j+1)));
+//				U.pf("%s", U.backslashEscape(StringUtils.substring(rawText,curPos+j,curPos+j+1)));
 			}
 			U.pf("  FAILED MATCH for token [%s]\n", tok);
 			alignments[i] = -1;

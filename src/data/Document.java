@@ -321,7 +321,7 @@ public class Document {
 	public void doTokenAlignments(String docText) {
 		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
-			U.pl("SENTENCE WORDS     " + s.words);
+//			U.pl("SENTENCE WORDS     " + s.words);
 			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(s.surfSent.rawText, s.words);
 			// adjust to doc position
 			for (int i=0; i < s.words.size(); i++) {

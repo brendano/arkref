@@ -52,6 +52,7 @@ public class AceDocument {
 		for (Entity en : sf.document.entities ) {
 			for (Mention m : en.mentions) {
 				assert en.ID().replace("E","").equals(m.aceID.replaceFirst("-.*",""));
+				m.entity = en;
 			}
 		}
 		return sf.document;
@@ -126,7 +127,10 @@ public class AceDocument {
 		@Element
 		public Phrase head;
 		
+		public Entity entity;
+		
 		public int ID() { return Integer.parseInt(aceID.replaceFirst(".*-","")); }
+		 
 		public String toString() { 
 			return String.format("M%-3d | %s | %s", ID(),
 				Strings.normalizeWhitespace(head.charseq.text), Strings.normalizeWhitespace(extent.charseq.text));
