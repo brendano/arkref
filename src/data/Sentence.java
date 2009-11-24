@@ -44,13 +44,14 @@ public class Sentence {
 
 			String[] parts = neTaggedWords[i].split("/");
 			word.setNeTag(parts[parts.length-1]);
-			word.token = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");
+			String nerToken = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");
+			
 			if (parseSuccess) {
 				word.setNode(leaves.get(i));
-//				U.pf("[%s] vs [%s]\n", word.token, word.getNode().value());
-				assert word.token.equals( word.getNode().value() ) : String.format("NER and parser tokens disagree: [%s] vs [%s]", word.token, word.getNode().value());
+				assert nerToken.equals( word.getNode().value() ) : String.format("NER and parser tokens disagree: [%s] vs [%s]", word.token, word.getNode().value());
 				set_node2word(word.getNode(), word);
 			}
+			word.token = nerToken.replace("\\/", "/");
 			words.add(word);
 
 		}
