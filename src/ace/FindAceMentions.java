@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 import analysis.Preprocess;
 import analysis.SyntacticPaths;
@@ -24,7 +26,10 @@ import edu.stanford.nlp.trees.Tree;
  * @author brendano
  */
 public class FindAceMentions {
-	public static class AlignmentFailed extends Exception { }
+	public static class AlignmentFailed extends Exception {
+		public AlignmentFailed() { super(); }
+		public AlignmentFailed(String s) { super(s); }
+	}
 
 
 	public static void main(String[] args) throws Exception {
@@ -61,10 +66,10 @@ public class FindAceMentions {
 		Map<AceDocument.Mention, Word> aceMention2word = 
 			alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
 		
-		
 //		displayAceMentions(aceMentions, ace2word);
 
 
+		U.pl("\n** Step 4 **");
 		// Step (4)
 		// these are the relationships we are building between (1) parse nodes, (2) our mentions, (3) ACE mentions
 		//   node -> myM    1-1, no more than one mention per node
@@ -184,8 +189,32 @@ public class FindAceMentions {
 		mention_loop:
 		while(m_i < aceMentions.size()) {
 			AceDocument.Mention m = aceMentions.get(m_i);
-//			int aceExtentStart = m.extent.charseq.start - aceOffsetCorrection;
-//			Sentence s = myDoc.getSentenceContaining(aceExtentStart);
+			int aceExtentStart = m.extent.charseq.start - aceOffsetCorrection;
+			Sentence sent = myDoc.getSentenceContaining(aceExtentStart);
+//			U.pl("\nSENTENCE\n"+sent.surfSent.rawText);
+//			U.pl("<" + m.extent.charseq.text + ">");
+//			U.pf("%d to %d\n", m.extent.charseq.start, m.extent.charseq.end);
+			int start = m.extent.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
+			int end = m.extent.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
+			// sentence breaking errors can lead to
+			if (start<0 && end>=sent.surfSent.rawText.length())
+				throw new AlignmentFailed("both ACE extent bounds outside the sentence, very weird");
+			boolean weird=false;
+			if (start<0) {start=0; weird=true;}
+			if (end>sent.surfSent.rawText.length()) {end=sent.surfSent.rawText.length(); weird=true;}
+			
+			String pick = sent.surfSent.rawText.substring(start, end);
+			pick = AnalysisUtilities.cleanupMarkup(pick).text;
+			assert weird || pick.equals( m.extent.charseq.text ) : "["+pick+"] -vs- <"+m.extent.charseq.text+">";
+			if (weird)  U.pl("WEIRD:  "+"["+pick+"] -vs- <"+m.extent.charseq.text+">");
+
+			//			int internalIndex = s.surfSent.rawText.indexOf(m.extent.charseq.text);
+//			U.pl("\n"+m);
+//			U.pl(s.surfSent.cleanText);
+//			U.pf("claimed start %-4d  observed start %-4d\n", aceExtentStart, internalIndex + s.surfSent.charStart );
+//			
+//			assert aceExtentStart == internalIndex+s.surfSent.charStart : "damn";
+			
 //			U.pl("RAW TEXT\n"+s.surfSent.rawText);
 //			U.pl("EXTENT TEXT\n"+m.extent.charseq.text);
 //			String[] extentTokens = AnalysisUtilities.getInstance().stanfordTokenize(m.extent.charseq.text);
@@ -231,22 +260,46 @@ public class FindAceMentions {
 	 * string equality alignments then plurality vote **/
 	public static int calculateAceOffsetCorrection(Document myDoc, AceDocument aceDoc) {
 		IntCounter<Integer> offsetDiffs = new IntCounter();
+		IntCounter<String> headCounts = new IntCounter();
+		
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
-
-		for (int i=0; i<aceMentions.size() && (i < 15 || offsetDiffs.max() < 2); i++) {
-			AceDocument.Mention m = aceMentions.get(i);
-			// find our first token that matches ace head
-			sent_loop:
+		
+		for (AceDocument.Mention m : aceMentions) {
+			headCounts.incrementCount(m.head.charseq.text);
+		}
+		assert !headCounts.keysAt(1).isEmpty() : "no singleton mention heads, alignment is hard.";
+		U.pl(headCounts);
+		Set<String> uniqueHeads = headCounts.keysAt(1);
+		for (AceDocument.Mention m : aceMentions) {
+			if ( ! uniqueHeads.contains(m.head.charseq.text)) continue;
+			if (offsetDiffs.size() > 5) break;
 			for (Sentence s : myDoc.sentences()) {
 				for (Word w : s.words) {
-					if (crudeMatch_AceHead_vs_Token(m,w)) {
+					if (m.head.charseq.text.equals(w.token)) {  //  crudeMatch_AceHead_vs_Token(m,w)) {
 						offsetDiffs.incrementCount( m.head.charseq.start - w.charStart );
-						break sent_loop;
+//						break sent_loop;
 					}
 				}
 			}
 		}
+	
+		
+		
+
+//		for (int i=0; i<aceMentions.size() && (i < 15 || offsetDiffs.max() < 2); i++) {
+//			AceDocument.Mention m = aceMentions.get(i);
+//			// find our first token that matches ace head
+//			sent_loop:
+//			for (Sentence s : myDoc.sentences()) {
+//				for (Word w : s.words) {
+//					if (crudeMatch_AceHead_vs_Token(m,w)) {
+//						offsetDiffs.incrementCount( m.head.charseq.start - w.charStart );
+////						break sent_loop;
+//					}
+//				}
+//			}
+//		}
 		U.pl("ace offset diff histogram: " + offsetDiffs);
 		U.pl("Using offset: " + offsetDiffs.argmax());
 		return offsetDiffs.argmax();

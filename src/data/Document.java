@@ -8,6 +8,7 @@ import com.aliasi.util.Math;
 import analysis.FindMentions;
 import analysis.Preprocess;
 
+import parsestuff.AlignedSub;
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import parsestuff.U;
@@ -309,7 +310,11 @@ public class Document {
 		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
 //			U.pl("SENTENCE WORDS     " + s.words);
-			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(s.surfSent.rawText, s.words);
+			AlignedSub cleanText = AnalysisUtilities.cleanupMarkup(s.surfSent.rawText); 
+			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(cleanText.text, s.words);
+			for (int i=0; i<wordAlignsInSent.length; i++)
+				if (wordAlignsInSent[i] != -1)
+					wordAlignsInSent[i] = cleanText.alignments[wordAlignsInSent[i]];
 			// adjust to doc position
 			for (int i=0; i < s.words.size(); i++) {
 				if (wordAlignsInSent[i]==-1) {
