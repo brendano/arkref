@@ -19,7 +19,7 @@ public class Resolve {
 		System.out.println("\n***  Resolve ***\n");
 		Mention antecedent;
 		
-		for (Mention m : d.getMentions()) {
+		for (Mention m : d.mentions()) {
 			System.out.println("= Resolving\t" + m);
 			
 			if (Types.isPronominal(m)) {
@@ -27,9 +27,9 @@ public class Resolve {
 			} else if (inAppositiveConstruction(m)) {
 				resolveAppositive(m, d);
 			} else if ((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null) {
-				d.getRefGraph().setRef(m, antecedent);		
+				d.refGraph().setRef(m, antecedent);		
 			} else if ((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null) {
-				d.getRefGraph().setRef(m, antecedent);		
+				d.refGraph().setRef(m, antecedent);		
 			} else {
 				resolveOther(m, d);
 			}
@@ -48,7 +48,7 @@ public class Resolve {
 	 */
 	private static Mention findAntecedentInRoleAppositiveConstruction(Mention m, Document d) {
 		Tree root = m.getSentence().getRootNode();
-		Tree node = m.getNode();
+		Tree node = m.node();
 		Tree parent = node.parent(root);
 		
 		//System.err.println("mention:"+node.yield().toString()+"\thead:"+node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).yield().toString());
@@ -72,8 +72,8 @@ public class Resolve {
 				Tree maxProj = SyntacticPaths.getMaximalProjection(head, root);
 				
 				//find the mention for the parent
-				for(Mention cand:d.getMentions()){
-					if(cand.getNode() == maxProj){
+				for(Mention cand:d.mentions()){
+					if(cand.node() == maxProj){
 						if(cand.neType().matches("^PER.*$")){
 							return cand;
 						}
@@ -94,15 +94,15 @@ public class Resolve {
 	 */
 	private static Mention findAntecendentInPredicateNominativeConstruction(Mention m, Document d) {
 		Tree root = m.getSentence().getRootNode();
-		Tree node = m.getNode();
+		Tree node = m.node();
 		
 		TregexPattern pat = TregexPatternFactory.getPattern("S < NP=np1 <+(VP) (VP < (/^VB.*/ < be|is|was|were|are|being|been) < NP=np2)");
 		TregexMatcher matcher = pat.matcher(root);
 		while (matcher.find()) {
 			if(matcher.getNode("np2") == node){
 				Tree ante  = matcher.getNode("np1");
-				for(Mention m2: d.getMentions()){
-					if(ante == m2.getNode()){
+				for(Mention m2: d.mentions()){
+					if(ante == m2.node()){
 						return m2;
 					}
 				}
@@ -122,7 +122,7 @@ public class Resolve {
 	 */
 	private static boolean inAppositiveConstruction(Mention m) {
 		Tree root = m.getSentence().getRootNode();
-		Tree node = m.getNode();
+		Tree node = m.node();
 		Tree parent = node.parent(root);
 		
 		if(parent.numChildren()<3){
@@ -148,22 +148,22 @@ public class Resolve {
 	
 	public static void resolveAppositive(Mention mention, Document d) {
 		Tree root = mention.getSentence().getRootNode();
-		Tree node = mention.getNode();
+		Tree node = mention.node();
 		Tree parent = node.parent(root);
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			if(cand.getNode() == parent){
-				d.getRefGraph().setRef(mention, cand);
+			if(cand.node() == parent){
+				d.refGraph().setRef(mention, cand);
 				break;
 			}
 		}
 		
 		
-		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
+		Mention ref = d.refGraph().getFinalResolutions().get(mention);
 		if(ref != null){
 			System.out.printf("resolved appositive M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-					mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
-					 AnalysisUtilities.abbrevTree(ref.getNode()));
+					mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
+					 AnalysisUtilities.abbrevTree(ref.node()));
 		}
 	}
 	
@@ -195,19 +195,19 @@ public class Resolve {
 		}
 		if (candidates.size() == 0) {
 			System.out.println("No legal candidates");
-			d.getRefGraph().setNullRef(mention);
+			d.refGraph().setNullRef(mention);
 		} else if (candidates.size() == 1) {
 			System.out.println("Single legal resolution");
-			d.getRefGraph().setRef(mention, candidates.get(0));
+			d.refGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
 			System.out.println("Finding pronoun antecedent by shortest syntactic path");
-			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
+			d.refGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
-		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
+		Mention ref = d.refGraph().getFinalResolutions().get(mention);
 		if(ref != null){
 			System.out.printf("resolved pronoun M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
-				 AnalysisUtilities.abbrevTree(ref.getNode()));
+				mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
+				 AnalysisUtilities.abbrevTree(ref.node()));
 		}
 	}
 
@@ -242,20 +242,20 @@ public class Resolve {
 		
 		if (candidates.size() == 0) {
 			System.out.println("No legal candidates");
-			d.getRefGraph().setNullRef(mention);
+			d.refGraph().setNullRef(mention);
 		} else if (candidates.size() == 1) {
 			System.out.println("Single legal resolution");
-			d.getRefGraph().setRef(mention, candidates.get(0));
+			d.refGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
 			System.out.println("Finding pronoun antecedent by shortest syntactic path");
-			d.getRefGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
+			d.refGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
 		
-		Mention ref = d.getRefGraph().getFinalResolutions().get(mention);
+		Mention ref = d.refGraph().getFinalResolutions().get(mention);
 		if(ref != null){
 			System.out.printf("resolved after filtering M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.getID(), ref.getID(), AnalysisUtilities.abbrevTree(mention.getNode()),
-				 AnalysisUtilities.abbrevTree(ref.getNode()));
+				mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
+				 AnalysisUtilities.abbrevTree(ref.node()));
 		}
 		
 		//semantics!

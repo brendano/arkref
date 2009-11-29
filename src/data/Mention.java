@@ -35,11 +35,11 @@ public class Mention {
 		return o.toString();
 	}
 	
-	public int getID() {
+	public int ID() {
 		return id;
 	}
 	
-	public Tree getNode() {
+	public Tree node() {
 		return node;
 	}
 	

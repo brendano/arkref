@@ -14,7 +14,7 @@ public class Word {
 	public String token;
 	public Sentence sentence; // enclosing sentence, just for convenience
 	
-	public Tree getNode() {
+	public Tree node() {
 		return node;
 	}
 	
@@ -22,7 +22,7 @@ public class Word {
 		this.node = node;
 	}
 	
-	public String getNeTag() {
+	public String neTag() {
 		return neTag;
 	}
 	

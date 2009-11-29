@@ -10,18 +10,21 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * progressively add pairwise equivalences to this data structure.  
+ * internally, it builds the transitive closure. 
+ **/
 public class EntityGraph {
 	public Map<Mention, HashSet<Mention>> mention2corefs;
 	
 	public EntityGraph(Document d) {
 		mention2corefs = new HashMap<Mention, HashSet<Mention>>();
-		for (Mention m : d.getMentions()) { 
+		for (Mention m : d.mentions()) { 
 			mention2corefs.put(m, new HashSet<Mention>());
 			mention2corefs.get(m).add(m);
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	public void addPair(Mention m1, Mention m2) {
 		// Strategy: always keep mention2corefs a complete record of all coreferents for that mention
 		// So all we do is merge
@@ -51,7 +54,7 @@ public class EntityGraph {
 	public String entName(Set<Mention> corefs) {
 		List<Integer> L = new ArrayList<Integer>();
 		for (Mention m : corefs) {
-			L.add(m.getID());
+			L.add(m.ID());
 		}
 		Collections.sort(L);
 		return StringUtils.join(L, "_");

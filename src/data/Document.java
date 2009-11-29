@@ -268,20 +268,9 @@ public class Document {
 			return mentions.get(mi);
 
 		}
-
-		// why-t-f did i write this?
-		//		if (!filterToRemaining) {
-		//			mi--;				
-		//		} else {
-		//			do {
-		//				mi--;
-		//				if (refGraph.needsReso(mentions.get(mi))) break;
-		//			} while (mi != -1);
-		//		}
-
 		@Override
-		public void remove() {	
-			System.out.println("bad");			
+		public void remove() {
+			throw new RuntimeException("can't remove from the mention iterator!");
 		}
 
 	}
@@ -345,7 +334,7 @@ public class Document {
 		}
 	}
 	
-	public List<Word> getAllWords() {
+	public List<Word> allWords() {
 		List<Word> allWords = new ArrayList<Word>();
 		for (Sentence s : sentences) {
 			for (Word w : s.words){ 
@@ -355,15 +344,15 @@ public class Document {
 		return allWords;
 	}
 
-	public List<Mention> getMentions() {
+	public List<Mention> mentions() {
 		return mentions;
 	}
 
-	public List<Sentence> getSentences() {
+	public List<Sentence> sentences() {
 		return sentences;
 	}
 
-	public RefGraph getRefGraph() {
+	public RefGraph refGraph() {
 		return refGraph;
 	}
 
@@ -371,7 +360,7 @@ public class Document {
 		this.entGraph = entGraph;
 	}
 
-	public EntityGraph getEntGraph() {
+	public EntityGraph entGraph() {
 		return entGraph;
 	}
 

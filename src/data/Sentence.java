@@ -58,8 +58,8 @@ public class Sentence {
 			
 			if (parseSuccess) {
 				word.setNode(leaves.get(i));
-				assert nerToken.equals( word.getNode().value() ) : String.format("NER and parser tokens disagree: [%s] vs [%s]", word.token, word.getNode().value());
-				set_node2word(word.getNode(), word);
+				assert nerToken.equals( word.node().value() ) : String.format("NER and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value());
+				set_node2word(word.node(), word);
 			}
 			word.token = nerToken.replace("\\/", "/");
 			words.add(word);
@@ -86,7 +86,7 @@ public class Sentence {
 		assert leaf.isLeaf();
 		Word w = node2word(leaf);
 		//			if (w == null) return null;
-		return w.getNeTag();
+		return w.neTag();
 	}
 
 	public String text() {

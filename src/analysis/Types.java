@@ -113,13 +113,13 @@ public class Types {
 	}
 
 	public static boolean isPronominal(Mention m) {
-		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.getNode());
+		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.node());
 		return matcher.find();
 	}
 	
 	public static String pronoun(Mention m) {
 		TregexPattern pat = TregexPatternFactory.getPattern("NP=np <<# /^PRP/=pronoun !>> NP");
-		TregexMatcher matcher = pat.matcher(m.getNode());
+		TregexMatcher matcher = pat.matcher(m.node());
 		if (matcher.find()) {
 			Tree PRP = matcher.getNode("pronoun");
 			return pronoun(PRP);
@@ -160,8 +160,8 @@ public class Types {
 		//Go through all the NNP tokens in the noun phrase and see if any of them
 		//are person names.  If so, return the gender of that name.
 		//Note: this will fail for ambiguous month/person names like "April"
-		for(Tree leaf : m.getNode().getLeaves()){
-			if(!leaf.parent(m.getNode()).label().value().equals("NNP")){
+		for(Tree leaf : m.node().getLeaves()){
+			if(!leaf.parent(m.node()).label().value().equals("NNP")){
 				continue;
 			}
 			String genderS = FirstNames.getInstance().getGenderString(leaf.value());
@@ -209,7 +209,7 @@ public class Types {
 	
 	public static Number number(Mention m) {
 		TregexPattern pat = TregexPatternFactory.getPattern("NP < CC|CONJP !>> NP");
-		TregexMatcher matcher = pat.matcher(m.getNode());
+		TregexMatcher matcher = pat.matcher(m.node());
 		if(matcher.find()) {
 			return Number.Plural;
 		}
@@ -224,7 +224,7 @@ public class Types {
 			}
 		} else {
 			HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
-			Tree head = m.getNode().headPreTerminal(hf);
+			Tree head = m.node().headPreTerminal(hf);
 			String tag = head.label().toString();
 			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
 			String headWord = head.getChild(0).label().value();

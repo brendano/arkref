@@ -53,7 +53,7 @@ public class SyntacticPaths {
 		Mention tmpCandidate;
 		while(iter.hasNext()){
 			tmpCandidate = iter.next();
-			pathLengths.add(computePathLength(mention.getNode(), tmpCandidate.getNode(), doc.getTree()));
+			pathLengths.add(computePathLength(mention.node(), tmpCandidate.node(), doc.getTree()));
 
 		}
 
@@ -102,7 +102,7 @@ public class SyntacticPaths {
 
 
 	public static boolean aIsDominatedByB(Mention A, Mention B) {
-		boolean bDominatesA = B.getNode().dominates(A.getNode());
+		boolean bDominatesA = B.node().dominates(A.node());
 
 
 		return bDominatesA;
@@ -130,8 +130,8 @@ public class SyntacticPaths {
 
 	public static boolean haveSameHeadWord(Mention m1, Mention m2) {
 		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
-		String h1 = m1.getNode().headTerminal(hf).yield().toString();
-		String h2 = m2.getNode().headTerminal(hf).yield().toString();
+		String h1 = m1.node().headTerminal(hf).yield().toString();
+		String h2 = m2.node().headTerminal(hf).yield().toString();
 
 		return h1.equalsIgnoreCase(h2);
 	}
@@ -148,7 +148,7 @@ public class SyntacticPaths {
 	 * @return
 	 */
 	public static boolean inSubjectObjectRelationship(Mention m1, Mention m2) {
-		Tree t = m2.getNode();
+		Tree t = m2.node();
 		Tree root = m2.getSentence().getRootNode();
 
 		//return false if these mentions are not in the same sentence
@@ -164,7 +164,7 @@ public class SyntacticPaths {
 				TregexMatcher matcher = pat.matcher(ancestor);
 				if (matcher.find()) {
 					Tree subj = matcher.getNode("subject");
-					return m1.getNode() == subj;
+					return m1.node() == subj;
 				}				
 			}else if(ancestor.label().value().equals("NP")){ 
 				//return false if m2 is not a maximally projected node.
@@ -191,7 +191,7 @@ public class SyntacticPaths {
 	 * @return
 	 */
 	public static boolean isSubjectAndMentionInAdjunctPhrase(Mention m1, Mention m2) {
-		Tree t = m1.getNode();
+		Tree t = m1.node();
 		Tree root = m1.getSentence().getRootNode();
 
 		Tree clause = t.parent(root);
@@ -203,7 +203,7 @@ public class SyntacticPaths {
 		TregexMatcher matcher = pat.matcher(clause);
 		while(matcher.find()) {
 			Tree np = matcher.getNode("np");
-			if(np == m2.getNode()) return true;
+			if(np == m2.node()) return true;
 		}		
 
 		return false;

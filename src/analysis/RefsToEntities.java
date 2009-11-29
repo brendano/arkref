@@ -8,9 +8,9 @@ import data.Mention;
 public class RefsToEntities {
 	public static void go(Document d) {
 		EntityGraph eg = new EntityGraph(d);
-		for (Mention m1 : d.getRefGraph().getFinalResolutions().keySet()) {
-			if (d.getRefGraph().getFinalResolutions().get(m1) != null) {
-				eg.addPair(m1, d.getRefGraph().getFinalResolutions().get(m1));
+		for (Mention m1 : d.refGraph().getFinalResolutions().keySet()) {
+			if (d.refGraph().getFinalResolutions().get(m1) != null) {
+				eg.addPair(m1, d.refGraph().getFinalResolutions().get(m1));
 			}
 		}
 		
@@ -18,7 +18,7 @@ public class RefsToEntities {
 		
 		System.out.println("\n*** Entity Report ***\n");
 		int s=-1;
-		for (Mention m : d.getMentions()){
+		for (Mention m : d.mentions()){
 			if (m.getSentence().getID() != s) {
 				s = m.getSentence().getID();
 				System.out.printf("S%-2s  %s\n",s, m.getSentence().text());

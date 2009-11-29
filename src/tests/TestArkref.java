@@ -36,32 +36,32 @@ public class TestArkref extends TestCase {
 	
 	
 	public void assertLink(Mention m1, Mention m2, Document d) {
-		assertTrue(m1.getNode().toString()+"\t==>\t"+m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+		assertTrue(m1.node().toString()+"\t==>\t"+m2.node().toString(), d.entGraph().getLinkedMentions(m1).contains(m2));
 	}
 	public void assertLink(Document d, Mention m1, Mention m2){ assertLink(m1,m2,d); }
 	public void assertNoLink(Mention m1, Mention m2, Document d) {
-		assertFalse(m1.getNode().toString()+"\t==>\t"+m2.getNode().toString(), d.getEntGraph().getLinkedMentions(m1).contains(m2));
+		assertFalse(m1.node().toString()+"\t==>\t"+m2.node().toString(), d.entGraph().getLinkedMentions(m1).contains(m2));
 	}
 	public void assertNoLink(Document d, Mention m1, Mention m2){ assertNoLink(m1,m2,d); }
 	public void assertSurface(Mention m, String surface) {
 		// "surface" is space-sep tokens
-		assertEquals(surface, m.getNode().yield().toString());
+		assertEquals(surface, m.node().yield().toString());
 	}
 	public void assertSingleton(Document d, int mi) {
-		Mention m = d.getMentions().get(mi-1);
-		assertEquals(1, d.getEntGraph().getLinkedMentions(m).size());
+		Mention m = d.mentions().get(mi-1);
+		assertEquals(1, d.entGraph().getLinkedMentions(m).size());
 	}
 
 	public void assertLink(int m1, int m2, Document d) {
-		assertLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
+		assertLink(d.mentions().get(m1-1), d.mentions().get(m2-1), d);
 	}
 	public void assertLink(Document d, int m1, int m2) { assertLink(m1,m2,d); }
 	public void assertNoLink(Document d, int m1, int m2) { assertNoLink(m1,m2,d); }
 	public void assertNoLink(int m1, int m2, Document d) {
-		assertNoLink(d.getMentions().get(m1-1), d.getMentions().get(m2-1), d);
+		assertNoLink(d.mentions().get(m1-1), d.mentions().get(m2-1), d);
 	}
 	public void assertSurface(Document d, int m, String s) {
-		assertSurface(d.getMentions().get(m-1), s);
+		assertSurface(d.mentions().get(m-1), s);
 	}
 	
 		
@@ -118,7 +118,7 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/roleAppositivesTest");
 		_Pipeline.go(d);
 		
-		assertTrue(d.getMentions().toString(), d.getMentions().size()==9);
+		assertTrue(d.mentions().toString(), d.mentions().size()==9);
 		
 		//Tree t = AnalysisUtilities.getInstance().readTreeFromString("(NP (NP (DT The) (NN author)) (NNP John) (NNP Smith))");
 		//System.err.println(t.toString());
@@ -240,7 +240,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d,3,"its new console"); 
 		assertSurface(d,4,"its"); 
 		
-		assertTrue(""+d.getMentions(), d.getMentions().size()==4);		
+		assertTrue(""+d.mentions(), d.mentions().size()==4);		
 	}
 	
 
@@ -249,10 +249,10 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/pathLengthTest2");
 		_Pipeline.go(d);
 
-		Mention m1 = d.getMentions().get(0); //Nintendo of America
-		Mention m2 = d.getMentions().get(1); //America
-		Mention m3 = d.getMentions().get(2); //its new console
-		Mention m4 = d.getMentions().get(3); //its
+		Mention m1 = d.mentions().get(0); //Nintendo of America
+		Mention m2 = d.mentions().get(1); //America
+		Mention m3 = d.mentions().get(2); //its new console
+		Mention m4 = d.mentions().get(3); //its
 		
 		assertLink(m4,m1, d);
 		assertNoLink(m4,m2, d);
@@ -325,16 +325,16 @@ public class TestArkref extends TestCase {
 		Mention m1;
 		Mention m2;
 		
-		m1 = d.getMentions().get(0); //Lincoln
-		m2 = d.getMentions().get(1); //president
+		m1 = d.mentions().get(0); //Lincoln
+		m2 = d.mentions().get(1); //president
 		assertLink(m1,m2,d);
 
-		m1 = d.getMentions().get(2); //Lincoln
-		m2 = d.getMentions().get(3); //president
+		m1 = d.mentions().get(2); //Lincoln
+		m2 = d.mentions().get(3); //president
 		assertLink(m1,m2,d);
 
-		m1 = d.getMentions().get(6); //Lincoln
-		m2 = d.getMentions().get(7); //president
+		m1 = d.mentions().get(6); //Lincoln
+		m2 = d.mentions().get(7); //president
 		assertLink(m1,m2,d);
 	}
 	
@@ -347,8 +347,8 @@ public class TestArkref extends TestCase {
 		Document d = Document.loadFiles("data/conjunctionsTest");
 		_Pipeline.go(d);
 
-		Mention m1 = d.getMentions().get(0); //He and Fred
-		Mention m2 = d.getMentions().get(1); //the store
+		Mention m1 = d.mentions().get(0); //He and Fred
+		Mention m2 = d.mentions().get(1); //the store
 		
 		assertSurface(m1, "He and Fred");
 		assertSurface(m2, "the store");
@@ -382,7 +382,7 @@ public class TestArkref extends TestCase {
 	
 	
 	public Mention mention(Document d, int mi) {
-		return d.getMentions().get(mi-1);
+		return d.mentions().get(mi-1);
 	}
 	
 	
@@ -422,17 +422,17 @@ public class TestArkref extends TestCase {
 		t = d.findNodeThatCoversSpan(0, 0, 0);
 		m = d.findMentionDominatingNode(0, t);
 		assertTrue(t.yield().toString(), t.yield().toString().equals("Walmart"));
-		assertTrue(m.toString(), m.getNode().yield().toString().equals("Walmart"));
+		assertTrue(m.toString(), m.node().yield().toString().equals("Walmart"));
 		
 		t = d.findNodeThatCoversSpan(0, 6, 6);
 		m = d.findMentionDominatingNode(0, t);
 		assertTrue(t.yield().toString(), t.yield().toString().equals("brand"));
-		assertTrue(m.toString(), m.getNode().yield().toString().equals("its top-selling brand"));
+		assertTrue(m.toString(), m.node().yield().toString().equals("its top-selling brand"));
 		
 		t = d.findNodeThatCoversSpan(0, 2, 2);
 		m = d.findMentionDominatingNode(0, t);
 		assertTrue(t.yield().toString(), t.yield().toString().equals("Gitano"));
-		assertTrue(m.toString(), m.getNode().yield().toString().equals("Gitano , its top-selling brand ,"));
+		assertTrue(m.toString(), m.node().yield().toString().equals("Gitano , its top-selling brand ,"));
 		
 	}
 	
@@ -441,7 +441,7 @@ public class TestArkref extends TestCase {
 		
 		String text = parsestuff.U.readFile("data/indo.sent");
 		String[] lines = text.split("\n");
-		int[] alignments = AnalysisUtilities.alignTokens(lines[0], d.getSentences().get(0).words);
+		int[] alignments = AnalysisUtilities.alignTokens(lines[0], d.sentences().get(0).words);
 		assertFalse(ArrayUtils.contains(alignments, -1));
 		assertEquals(0, alignments[0]); //[JAKARTA]
 		assertEquals(7, alignments[1]); //[,]
@@ -473,7 +473,7 @@ public class TestArkref extends TestCase {
 		assertEquals(161, alignments[27]); //[.]
 		
 		
-		alignments = AnalysisUtilities.alignTokens(lines[1], d.getSentences().get(1).words);
+		alignments = AnalysisUtilities.alignTokens(lines[1], d.sentences().get(1).words);
 		assertFalse(ArrayUtils.contains(alignments, -1));
 		assertEquals(0,alignments[0]); //Hutomo
 		assertEquals(7,alignments[1]); //``

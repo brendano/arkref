@@ -66,7 +66,7 @@ public class FindAceMentions {
 			List<AceDocument.Mention> aceMentions) throws AlignmentFailed {
 		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
 
-		List<Word> allWords = myDoc.getAllWords();
+		List<Word> allWords = myDoc.allWords();
 		int word_i = 0;
 		int m_i = 0;
 		
@@ -118,7 +118,7 @@ public class FindAceMentions {
 			AceDocument.Mention m = aceMentions.get(i);
 			// find our first token that matches ace head
 			sent_loop:
-			for (Sentence s : myDoc.getSentences()) {
+			for (Sentence s : myDoc.sentences()) {
 				for (Word w : s.words) {
 					if (crudeMatch_AceHead_vs_Token(m,w)) {
 						offsetDiffs.incrementCount( m.head.charseq.start - w.charStart );
