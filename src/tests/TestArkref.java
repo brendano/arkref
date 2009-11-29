@@ -411,6 +411,9 @@ public class TestArkref extends TestCase {
 		t = d.findNodeThatCoversSpan(0, 0,0);
 		assertEquals("Jerusalem", t.yield().toString());
 		t = d.findNodeThatCoversSpan(0, 48,48);
+		// when using Tree.subTrees(),
+		// this gets (S (VP (VBG reaching) (NP (NNP Israel))))
+		// but should be just (NP (NNP Israel))
 		assertEquals("Israel", t.yield().toString());
 	}
 	

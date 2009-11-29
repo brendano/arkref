@@ -97,22 +97,14 @@ public class Document {
 		return findNodeThatCoversSpan(sent, startLeaf, endLeaf);
 	}
 	public Tree findNodeThatCoversSpan(Sentence sent, Tree startLeaf, Tree endLeaf) {
-		Tree res = null;
-
-		int smallestSpan = 999999;
-		int nodeSpanLength;
-
-		for(Tree t: sent.rootNode().subTrees()){
-				if(!(t.dominates(startLeaf) && t.dominates(endLeaf))){
-					continue;
-				}
-				nodeSpanLength = t.getLeaves().size();
-				if(smallestSpan > nodeSpanLength){
-					smallestSpan = nodeSpanLength;
-					res = t;
-				}
+		Tree cur = startLeaf;
+		while(cur != null) {
+			if (cur.dominates(startLeaf) && cur.dominates(endLeaf))
+				return cur;
+			cur = cur.parent(sent.rootNode());
 		}
-		return res;
+		assert false : "got to top without finding covering span";
+		return cur;
 	}
 	public Tree getLeaf(int sentenceIndex, int leafIndex) {
 		Sentence sent = sentences.get(sentenceIndex);
