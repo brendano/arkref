@@ -17,6 +17,10 @@ public class Mention {
 		//List<Tree> leaves = node.getLeaves();
 		//Tree rightmost = leaves.get(leaves.size()-1);
 		//return sentence.neType(rightmost);
+		if (node==null) {
+			// TODO wrong!!!  can get from Word alignment
+			return "O";
+		}
 		Tree head = node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()); 
 		return sentence.neType(head);
 	}
@@ -44,6 +48,11 @@ public class Mention {
 	}
 	
 	public String getHeadWord(){
+		if (node==null) {
+			// TODO tricky: use the token span alignments and do guesswork if length>1.
+			// for now, bailing...
+			return "NO_HEAD_WORD";
+		}
 		return node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).yield().toString();
 	}
 	

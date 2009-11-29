@@ -174,7 +174,6 @@ public class Document {
 			if (s.surfSent.charStart <= charOffset  &&  charOffset < s.surfSent.charEnd) {
 				return s;
 			}
-			
 		}
 		assert false : "no sentence for char offset "+charOffset;
 		return null;
@@ -307,6 +306,8 @@ public class Document {
 		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
 //			U.pl("SENTENCE WORDS     " + s.words);
+			U.pl("" + s.surfSent);
+//			U.pl("" + s.surfSent.rawText);
 			AlignedSub cleanText = AnalysisUtilities.moreCleanup(s.surfSent.rawText); 
 			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(cleanText.text, s.words);
 			for (int i=0; i<wordAlignsInSent.length; i++)
@@ -362,6 +363,14 @@ public class Document {
 
 	public EntityGraph entGraph() {
 		return entGraph;
+	}
+
+	public Mention newMention(Sentence s, Tree subtree) {
+		Mention mention = new Mention(mentions.size()+1, s, subtree);
+		mentions.add(mention);
+		if (subtree != null)
+			node2mention.put(s, subtree, mention);
+		return mention;
 	}
 
 }

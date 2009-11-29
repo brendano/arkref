@@ -10,14 +10,15 @@ import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 public class Types {
+
+	// in all cases, null indicates unknown; that is, our system does not know.
 	
 	public static enum Gender {
-		Male, Female, Unknown;
+		Male, Female;
 		public String toString() {
 			switch(this) {
 			case Male: return "Mal";
 			case Female: return "Fem";
-			case Unknown: return null;
 			}
 			return null;
 		}
@@ -108,11 +109,12 @@ public class Types {
 			//number(mention) == number(cand);
 	}
 	
-	public static boolean isReflexive(Mention m){
+	public static boolean isReflexive(Mention m) {
 		return m.getHeadWord().matches("^(itself|yourself|myself|himself|herself|themselves|ourselves)$");
 	}
 
 	public static boolean isPronominal(Mention m) {
+		if (m.node()==null) return false;
 		TregexMatcher matcher = TregexPatternFactory.getPattern("NP <<# /^PRP/ !>> NP").matcher(m.node());
 		return matcher.find();
 	}
@@ -136,6 +138,7 @@ public class Types {
 	}
 	
 	public static Gender gender(Mention m) {
+		if (m.node()==null) return null;
 		if (isPronominal(m)) {
 			String p = pronoun(m);
 			if (p.matches("^(he|him|his|himself)$")) {
@@ -208,6 +211,7 @@ public class Types {
 	}
 	
 	public static Number number(Mention m) {
+		if (m.node()==null) return null;
 		TregexPattern pat = TregexPatternFactory.getPattern("NP < CC|CONJP !>> NP");
 		TregexMatcher matcher = pat.matcher(m.node());
 		if(matcher.find()) {

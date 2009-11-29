@@ -13,15 +13,12 @@ public class AcePreprocess {
 		shortpath = shortpath.replace("_APF.XML", "");
 		String sgmlFilename = shortpath + ".SGM";
 		assert new File(sgmlFilename).exists();
-		if (!analysis.Preprocess.alreadyPreprocessed(shortpath)) {
-			String sgml = U.readFile(sgmlFilename);
-			Pattern p = Pattern.compile("<TEXT>(.*)</TEXT>", Pattern.DOTALL);
-			Matcher m = p.matcher(sgml);
-			m.find();
-			String text = m.group(1);
-			U.writeFile(text, shortpath + ".txt");
-			analysis.Preprocess.go(shortpath + ".txt");
-		}
+		String sgml = U.readFile(sgmlFilename);
+		Pattern p = Pattern.compile("<TEXT>(.*)</TEXT>", Pattern.DOTALL);
+		Matcher m = p.matcher(sgml);
+		m.find();
+		String text = m.group(1);
+		U.writeFile(text, shortpath + ".txt");
 	}
 	
 	public static void main(String args[]) throws IOException {

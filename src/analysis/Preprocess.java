@@ -52,12 +52,10 @@ public class Preprocess {
 		pwOSent.close();
 	}
 	public static void go(String path, boolean useTempFiles) throws IOException {
-		assert path.endsWith(".txt") || path.endsWith(".sent") : "bad filename extension";
+//		assert path.endsWith(".txt") || path.endsWith(".sent") : "bad filename extension";
 		
-		String shortpath = shortPath(path);
-
-		File parseOutputFile = new File(shortpath+".parse");
-		File nerOutputFile = new File(shortpath+".ner");
+		File parseOutputFile = new File(path+".parse");
+		File nerOutputFile = new File(path+".ner");
 		
 		if (useTempFiles && !parseOutputFile.exists() && !nerOutputFile.exists()) {
 			parseOutputFile.deleteOnExit();
@@ -67,21 +65,25 @@ public class Preprocess {
 		PrintWriter pwParse = new PrintWriter(new FileOutputStream(parseOutputFile));
 		PrintWriter pwNER = new PrintWriter(new FileOutputStream(nerOutputFile));
 		
-		String text = U.readFile(path);
+		String textpath;
+		if (new File( (textpath=  path+".sent")).exists()) {
+		} else if(new File(textpath= path+".txt").exists()) {
+		} else { assert false : "need a sentence or text file"; }
+		String text = U.readFile(textpath);
 		String[] sentenceTexts = null;
 		
-		if (path.endsWith(".sent")) {
+		if (textpath.endsWith(".sent")) {
 			sentenceTexts = text.split("\n");
 		
-		} else if(path.endsWith(".txt")) {
+		} else if (textpath.endsWith(".txt")) {
 			List<SentenceBreaker.Sentence> sentences = AnalysisUtilities.cleanAndBreakSentences(text);
-			writeOffsetSentenceFile(sentences, shortpath, useTempFiles);
+			writeOffsetSentenceFile(sentences, path, useTempFiles);
 			
 			sentenceTexts = new String[sentences.size()];
 			for(int i=0; i < sentences.size(); i++) {
 				sentenceTexts[i] = sentences.get(i).cleanText;
 			}
-		}
+		} else { assert false; }
 		
 		for(String sentence : sentenceTexts) {
 			String ner = AnalysisUtilities.getInstance().annotateSentenceNER(sentence);

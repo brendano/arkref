@@ -6,6 +6,7 @@ import java.util.List;
 
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
+import parsestuff.U;
 import data.Document;
 import data.Mention;
 import data.Sentence;
@@ -21,7 +22,10 @@ public class Resolve {
 		
 		for (Mention m : d.mentions()) {
 			System.out.println("= Resolving\t" + m);
-			
+			if (m.node()==null) {
+				U.pl("No parse node, skipping");
+				continue;
+			}
 			if (Types.isPronominal(m)) {
 				resolvePronoun(m, d);
 			} else if (inAppositiveConstruction(m)) {
@@ -121,6 +125,7 @@ public class Resolve {
 	 * @return
 	 */
 	private static boolean inAppositiveConstruction(Mention m) {
+		if (m.node()==null) return false;
 		Tree root = m.getSentence().rootNode();
 		Tree node = m.node();
 		Tree parent = node.parent(root);
@@ -220,18 +225,22 @@ public class Resolve {
 		boolean match = false;
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
-				match = false;
-			} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-				match = false;
-			} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-				match = false;
-			} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
-				//TODO keep this or not?
-				match = true;
+			if (cand.node() != null) {
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
+					match = false;
+				} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+					match = false;
+				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+					match = false;
+				} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
+					//TODO keep this or not?
+					match = true;
+				} else {
+					match = false;
+				}							
 			} else {
 				match = false;
-			}			
+			}
 			if (match) {
 				System.out.println("yay   match:\t" + cand);
 				candidates.add(cand);
