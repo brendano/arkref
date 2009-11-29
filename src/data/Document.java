@@ -79,16 +79,14 @@ public class Document {
 	 * @return
 	 */
 	public Tree findNodeThatCoversSpan(int sentenceIndex, int spanStart, int spanEnd){
-		Tree res = null;
-
 		if(sentenceIndex >= sentences.size()){
 			return null;
 		}
 		Sentence sent = sentences.get(sentenceIndex);
-
-		int smallestSpan = 999999;
-		int nodeSpanLength;
-
+		return findNodeThatCoversSpan(sent, spanStart, spanEnd);
+	}
+	
+	public Tree findNodeThatCoversSpan(Sentence sent, int spanStart, int spanEnd){
 		List<Tree> leaves = sent.rootNode().getLeaves();
 		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()){
 			return null;
@@ -96,7 +94,14 @@ public class Document {
 
 		Tree startLeaf = leaves.get(spanStart);
 		Tree endLeaf = leaves.get(spanEnd);
-		
+		return findNodeThatCoversSpan(sent, startLeaf, endLeaf);
+	}
+	public Tree findNodeThatCoversSpan(Sentence sent, Tree startLeaf, Tree endLeaf) {
+		Tree res = null;
+
+		int smallestSpan = 999999;
+		int nodeSpanLength;
+
 		for(Tree t: sent.rootNode().subTrees()){
 				if(!(t.dominates(startLeaf) && t.dominates(endLeaf))){
 					continue;

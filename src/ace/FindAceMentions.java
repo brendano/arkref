@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
+
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 import analysis.Preprocess;
@@ -63,12 +65,14 @@ public class FindAceMentions {
 		// Step (3)
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
-		Map<AceDocument.Mention, Word> aceMention2word = 
-			alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
 		
-//		displayAceMentions(aceMentions, ace2word);
+		
+		
+		
+		alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
+		
 
-
+		if(true) return;
 		U.pl("\n** Step 4 **");
 		// Step (4)
 		// these are the relationships we are building between (1) parse nodes, (2) our mentions, (3) ACE mentions
@@ -84,7 +88,7 @@ public class FindAceMentions {
 		
 		Sentence curS = null;
 		for (AceDocument.Mention m : aceMentions) {
-			Word w = aceMention2word.get(m);
+			Word w = null;//aceMention2word.get(m);
 			assert w != null : "wtf every mention needs to map to something";
 			if (w.sentence != curS) {
 				curS = w.sentence;
@@ -176,82 +180,92 @@ public class FindAceMentions {
 		}
 	}
 	
-	private static Map<AceDocument.Mention, Word> alignToTokens(Document myDoc, int aceOffsetCorrection,
+	private static void alignToTokens(Document myDoc, int aceOffsetCorrection,
 			List<AceDocument.Mention> aceMentions) throws Exception {
 		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
 
 		List<Word> allWords = myDoc.allWords();
 		int word_i = 0;
 		int m_i = 0;
-		
-		int BACKWARDS_FUDGE = 20; // e.g ACE "msnbc" and our "msnbc/reuters" .. and more?
-		
+			
 		mention_loop:
-		while(m_i < aceMentions.size()) {
-			AceDocument.Mention m = aceMentions.get(m_i);
-			int aceExtentStart = m.extent.charseq.start - aceOffsetCorrection;
+		for (AceDocument.Mention aceM : aceMentions) {
+			int aceExtentStart = aceM.extent.charseq.start - aceOffsetCorrection;
 			Sentence sent = myDoc.getSentenceContaining(aceExtentStart);
-//			U.pl("\nSENTENCE\n"+sent.surfSent.rawText);
-//			U.pl("<" + m.extent.charseq.text + ">");
-//			U.pf("%d to %d\n", m.extent.charseq.start, m.extent.charseq.end);
-			int start = m.extent.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
-			int end = m.extent.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
-			// sentence breaking errors can lead to
+			U.pl("\nSENTENCE "+sent.surfSent.cleanText);
+			U.pl("EXTENT <" + aceM.extent.charseq.text + ">");
+			U.pf("EXTENT %d to %d\n", aceM.extent.charseq.start, aceM.extent.charseq.end);
+			
+			// Compute position of extent in this sentence
+			int start = aceM.extent.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
+			int end = aceM.extent.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
+			// sentence breaking errors can lead to the following
 			if (start<0 && end>=sent.surfSent.rawText.length())
-				throw new AlignmentFailed("both ACE extent bounds outside the sentence, very weird");
+				throw new AlignmentFailed("both ACE extent bounds outside the sentence, weird");
 			boolean weird=false;
 			if (start<0) {start=0; weird=true;}
 			if (end>sent.surfSent.rawText.length()) {end=sent.surfSent.rawText.length(); weird=true;}
 			
+			// Sanity check
 			String pick = sent.surfSent.rawText.substring(start, end);
 			pick = AnalysisUtilities.cleanupMarkup(pick).text;
-			assert weird || pick.equals( m.extent.charseq.text ) : "["+pick+"] -vs- <"+m.extent.charseq.text+">";
-			if (weird)  U.pl("WEIRD:  "+"["+pick+"] -vs- <"+m.extent.charseq.text+">");
-
-			//			int internalIndex = s.surfSent.rawText.indexOf(m.extent.charseq.text);
-//			U.pl("\n"+m);
-//			U.pl(s.surfSent.cleanText);
-//			U.pf("claimed start %-4d  observed start %-4d\n", aceExtentStart, internalIndex + s.surfSent.charStart );
-//			
-//			assert aceExtentStart == internalIndex+s.surfSent.charStart : "damn";
+			assert weird || pick.equals( aceM.extent.charseq.text ) : "["+pick+"] -vs- <"+aceM.extent.charseq.text+">";
+			if (weird)  U.pl("WEIRD:  "+"["+pick+"] -vs- <"+aceM.extent.charseq.text+">");
 			
-//			U.pl("RAW TEXT\n"+s.surfSent.rawText);
-//			U.pl("EXTENT TEXT\n"+m.extent.charseq.text);
-//			String[] extentTokens = AnalysisUtilities.getInstance().stanfordTokenize(m.extent.charseq.text);
-//			int[][] alignments = TokenByteAligner.INSTANCE.alignTextToTokens(s.surfSent.rawText, extentTokens);
-//			for (int i=0; i<alignments.length;i++)
-//				U.pf("%s,%s  ", alignments[i][0], alignments[i][1]);
-//			U.pl("");
+			U.pf("ADJUSTED EXTENT:  %d to %d\n", start,end);
 			
-			
-			int aceHeadStart = m.head.charseq.start - aceOffsetCorrection;
-			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
-			Word word;
-			word = allWords.get(word_i);
-			// want to use right edge of token, not left edge, in case ACE head matches an internal subword inside our token
-			// e.g. ACE thinks [Russian] and [American] separate, but Stanford thinks [Russian-American] in 20001115_AFP_ARB_0060_ENG
-			// [Russian] aligns to [Russian-American], but it advances past when trying to find [American]'s alignment.
-			while( word.charStart+word.token.length() + BACKWARDS_FUDGE < aceHeadStart ) {
-//				U.pf("  not high enough pos=%-3d  :  %s\n", word.charStart, word);
-				word_i++;
-				if (word_i >= allWords.size()) break mention_loop;
-				word = allWords.get(word_i);
+			// Find the span around this extent
+//			Word leftW=null, rightW=null;
+			int leftW=-1, rightW=-1;
+			for (int wi=0; wi < sent.words.size(); wi++) {
+				Word w = sent.words.get(wi);
+				int leftPos = w.charStart - sent.surfSent.charStart;
+				int rightPos = -1;
+				if (wi < sent.words.size()-1)
+					rightPos = sent.words.get(wi+1).charStart - sent.surfSent.charStart;
+				else
+					rightPos = sent.surfSent.charEnd - sent.surfSent.charStart;
+				
+//				U.pf("word [%s] : %d to %d\n", w, leftPos, rightPos);
+				
+				if (leftPos <= start && start < rightPos) {
+					assert leftW == -1;
+//					U.pl("here");
+					leftW = wi;
+				}
+				if (rightPos-1 <= end) {
+					// tricky .. trailing commas and the like. i dont think this is right.
+//					U.pl("here2");
+					rightW = wi;
+				}
 			}
-			// guard against more weirdness, though this now seems weird. is necessary with BACKWARDS_FUDGE though
-			while ( ! crudeMatch_AceHead_vs_Token(m, word)) {
-//				U.pf("  no string match pos=%-3d  :  %s\n", word.charStart, word);
-				word_i++;
-				if (word_i >= allWords.size()) break mention_loop;
-				word = allWords.get(word_i);
+			assert leftW!=-1 && rightW!=-1;
+			assert rightW >= leftW : "leftW,rightW = "+leftW+","+rightW;
+			U.pl("leftW,rightW = "+leftW+","+rightW);
+			Tree[] aceLeaves = new Tree[rightW - leftW + 1];
+			for (int wi=leftW; wi<=rightW; wi++)  {
+				aceLeaves[wi-leftW] = sent.words.get(wi).node();
 			}
-			U.pf("ALIGN\t%-4d %-4d   ****   [%-20s]  ******  [%-60s]\n", word.charStart, m.head.charseq.start-aceOffsetCorrection, word,m);
-			ace2word.put(m, word);
-			m_i++;
+			U.pf("ACE extent leaves [size %2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
+			
+			// Shoehorn into the parsetree
+			if (leftW == rightW) {
+				Tree parent = sent.words.get(leftW).node().parent(sent.rootNode());
+				if (parent.label().equals("JJ")) {
+					U.pl("Adjectival Mention " + aceM);
+					// TODO dont do following stuff
+				}
+			}
+			Tree subtree = myDoc.findNodeThatCoversSpan(sent, leftW, rightW);
+			int subtreeSize = subtree.getLeaves().size();
+			if (subtreeSize == rightW-leftW+1) {
+				U.pl("Happy parse alignment size "+subtreeSize+"  :  " + subtree);
+				// TODO yay we're done
+			} else {
+				U.pf("UHOH, ACE extent leaves [size %-2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
+				U.pf("UHOH, lowest subtree    [size %-2d]:  %s\n", subtreeSize, subtree);
+			}
 		}
-		if (m_i < aceMentions.size())
-			throw new AlignmentFailed();
-		
-		return ace2word;
 	}
 	
 	/**
