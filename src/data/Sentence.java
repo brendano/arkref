@@ -92,6 +92,14 @@ public class Sentence {
 		}
 		return StringUtils.join(toks, " ");
 	}
+	
+	public String[] tokens() {
+		List<Tree> leaves = rootNode().getLeaves();
+		String[] toks = new String[leaves.size()];
+		for (int i=0; i<leaves.size(); i++)
+			toks[i] = leaves.get(i).value();
+		return toks;
+	}
 
 	public Tree rootNode() {
 		return rootNode;

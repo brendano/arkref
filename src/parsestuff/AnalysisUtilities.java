@@ -21,6 +21,7 @@ import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
+import edu.stanford.nlp.ling.Word;
 import edu.stanford.nlp.parser.lexparser.*;
 import edu.stanford.nlp.process.DocumentPreprocessor;
 import edu.stanford.nlp.trees.*;
@@ -110,6 +111,8 @@ public class AnalysisUtilities {
 //			U.pf("TOKEN [%s]  :  ", tok);
 			for (int j=0; j < MAX_ALIGNMENT_SKIP; j++) {
 				boolean directMatch  = rawText.regionMatches(curPos + j, tok, 0, tok.length());
+				if (!directMatch)
+					directMatch = rawText.toLowerCase().regionMatches(curPos + j, tok.toLowerCase(), 0, tok.length());
 				boolean alternateMatch = false;
 				if (!directMatch) {
 					int roughLast = curPos+j+tok.length()*2+10;
@@ -131,7 +134,9 @@ public class AnalysisUtilities {
 				}
 //				U.pf("%s", U.backslashEscape(StringUtils.substring(rawText,curPos+j,curPos+j+1)));
 			}
-			U.pf("  FAILED MATCH for token [%s]\n", tok);
+			U.pf("FAILED MATCH for token [%s]\n", tok);
+			U.pl("sentence: "+rawText);
+			U.pl("tokens: " + StringUtils.join(tokens," "));
 			alignments[i] = -1;
 		}
 		// TODO backoff for gaps .. at least guess the 2nd gap position or something (2nd char after previous token ends...)
@@ -152,6 +157,14 @@ public class AnalysisUtilities {
 			return Pattern.compile("('|`)");
 		}
 		return Pattern.compile(Pattern.quote(tok));
+	}
+	
+	public String[] stanfordTokenize(String str) {
+		List<Word> wordToks = AnalysisUtilities.getInstance().dp.getWordsFromString(str);
+		String[] tokens = new String[wordToks.size()];
+		for (int i=0; i < wordToks.size(); i++)
+			tokens[i] = wordToks.get(i).value();
+		return tokens;
 	}
 	
 	public static List <SentenceBreaker.Sentence> cleanAndBreakSentences(String docText) {

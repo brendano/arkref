@@ -39,7 +39,7 @@ public class FindAceMentions {
 		
 		
 	}
-	public static void go(Document myDoc, AceDocument aceDoc) throws AlignmentFailed {
+	public static void go(Document myDoc, AceDocument aceDoc) throws Exception {
 		// (1) align our tokens to raw text char offsets
 		// (2) calibrate ACE offsets to real text offsets
 		// (3) map ACE mentions to Stanford tokens
@@ -50,7 +50,7 @@ public class FindAceMentions {
 		
 		// Step (1)
 		myDoc.doTokenAlignments(aceDoc.text);
-		
+
 		U.pl("***  ACE alignments ***\n");
 		// Step (2)
 		int aceOffsetCorrection = calculateAceOffsetCorrection(myDoc, aceDoc);
@@ -172,7 +172,7 @@ public class FindAceMentions {
 	}
 	
 	private static Map<AceDocument.Mention, Word> alignToTokens(Document myDoc, int aceOffsetCorrection,
-			List<AceDocument.Mention> aceMentions) throws AlignmentFailed {
+			List<AceDocument.Mention> aceMentions) throws Exception {
 		HashMap<AceDocument.Mention, Word> ace2word = new HashMap();
 
 		List<Word> allWords = myDoc.allWords();
@@ -184,8 +184,19 @@ public class FindAceMentions {
 		mention_loop:
 		while(m_i < aceMentions.size()) {
 			AceDocument.Mention m = aceMentions.get(m_i);
+//			int aceExtentStart = m.extent.charseq.start - aceOffsetCorrection;
+//			Sentence s = myDoc.getSentenceContaining(aceExtentStart);
+//			U.pl("RAW TEXT\n"+s.surfSent.rawText);
+//			U.pl("EXTENT TEXT\n"+m.extent.charseq.text);
+//			String[] extentTokens = AnalysisUtilities.getInstance().stanfordTokenize(m.extent.charseq.text);
+//			int[][] alignments = TokenByteAligner.INSTANCE.alignTextToTokens(s.surfSent.rawText, extentTokens);
+//			for (int i=0; i<alignments.length;i++)
+//				U.pf("%s,%s  ", alignments[i][0], alignments[i][1]);
+//			U.pl("");
+			
+			
 			int aceHeadStart = m.head.charseq.start - aceOffsetCorrection;
-//			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
+			U.pf("Ace Mention to Align:  pos=%-3d  :  %s\n", m.head.charseq.start-aceOffsetCorrection, m);
 			Word word;
 			word = allWords.get(word_i);
 			// want to use right edge of token, not left edge, in case ACE head matches an internal subword inside our token
@@ -204,7 +215,7 @@ public class FindAceMentions {
 				if (word_i >= allWords.size()) break mention_loop;
 				word = allWords.get(word_i);
 			}
-//			U.pf("ALIGN\t%-4d %-4d   ****   [%-20s]  ******  [%-60s]\n", word.charStart, m.head.charseq.start-aceOffsetCorrection, word,m);
+			U.pf("ALIGN\t%-4d %-4d   ****   [%-20s]  ******  [%-60s]\n", word.charStart, m.head.charseq.start-aceOffsetCorrection, word,m);
 			ace2word.put(m, word);
 			m_i++;
 		}

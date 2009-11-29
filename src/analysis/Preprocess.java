@@ -52,7 +52,7 @@ public class Preprocess {
 		pwOSent.close();
 	}
 	public static void go(String path, boolean useTempFiles) throws IOException {
-		assert path.endsWith(".txt") || path.endsWith(".sent");
+		assert path.endsWith(".txt") || path.endsWith(".sent") : "bad filename extension";
 		
 		String shortpath = shortPath(path);
 

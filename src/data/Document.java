@@ -170,6 +170,17 @@ public class Document {
 			loadSurfaceSentences(path);
 		}
 	}
+	
+	public Sentence getSentenceContaining(int charOffset) {
+		for (Sentence s : sentences) {
+			if (s.surfSent.charStart < charOffset  &&  charOffset < s.surfSent.charEnd) {
+				return s;
+			}
+			
+		}
+		assert false : "no sentence for char offset "+charOffset;
+		return null;
+	}
 
 
 	private static void addNPsAbovePossessivePronouns(Tree tree) {
