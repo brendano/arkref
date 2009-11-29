@@ -53,6 +53,7 @@ public class EntityGraph {
 	/** Call this only once, and only once all addPair()ing is done. **/
 	public void freezeEntities() {
 		assert entities == null : "call freezeEntities() only once please";
+		entities = new HashSet<Entity>();
 		for (Mention m : mention2corefs.keySet()) {
 			Entity e = makeEntity(m);
 			entities.add(e);
