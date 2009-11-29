@@ -32,6 +32,8 @@ public class ARKref {
 		public static boolean ace = false;
 		@Option(gloss="Force preprocessing?")
 		public static boolean forcePre = false;
+		@Option(gloss="Write entity/mention xml output?")
+		public static boolean writeXml = false;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -83,6 +85,9 @@ public class ARKref {
 				Resolve.go(d);
 				RefsToEntities.go(d);
 			}
+			
+			if (Opts.writeXml)
+				WriteXml.go(d.entGraph(), path);
 		}
 	}
 

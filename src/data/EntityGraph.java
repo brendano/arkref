@@ -2,6 +2,7 @@ package data;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +10,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+
+import parsestuff.U;
 
 /**
  * progressively add pairwise equivalences to this data structure.  
@@ -19,13 +22,27 @@ public class EntityGraph {
 	public Set<Entity> entities = null;
 	
 	public static class Entity {
-		public String id; 
+		public String id;
 		public Set<Mention> mentions;
 		
+
 		public int hashCode() { return id.hashCode(); }
-		public boolean equals(Entity e2) { 
+		public boolean equals(Object _e2) {
+			Entity e2 = (Entity) _e2;
+			if (e2==null) return false;
 			assert this.id!=null && e2.id!=null;
 			return this.id.equals( e2.id );
+		}
+		public List<Mention> sortedMentions() {
+			List<Mention> ms = new ArrayList();
+			for (Mention m : mentions)
+				ms.add(m);
+			Collections.sort(ms, new Comparator<Mention>() {
+				public int compare(Mention m1, Mention m2) {
+					return new Integer(m1.ID()).compareTo(m2.ID());
+				}
+			});
+			return ms;
 		}
 	}
 	public EntityGraph(Document d) {
@@ -50,10 +67,11 @@ public class EntityGraph {
 		}
 	}
 	
-	/** Call this only once, and only once all addPair()ing is done. **/
+	/** Call this only once, and only after all addPair()ing is done. **/
 	public void freezeEntities() {
 		assert entities == null : "call freezeEntities() only once please";
 		entities = new HashSet<Entity>();
+		Set<String> bla = new HashSet<String>();
 		for (Mention m : mention2corefs.keySet()) {
 			Entity e = makeEntity(m);
 			entities.add(e);
@@ -86,5 +104,23 @@ public class EntityGraph {
 		}
 		Collections.sort(L);
 		return StringUtils.join(L, "_");
+	}
+	
+	
+	public List<Entity> sortedEntities() {
+		List<Entity> ents = new ArrayList();
+		for (Entity e : entities) {
+			ents.add(e);
+		}
+		Collections.sort(ents, new Comparator<Entity>() {
+			public int compare(Entity e1, Entity e2) {
+				return e1.id.compareTo(e2.id);
+//				List<Mention> ms1 = e1.sortedMentions();
+//				List<Mention> ms2 = e2.sortedMentions();
+//				if (ms1.size()==0 || ms2.size()==0)
+//				e1.id
+//				e1.mentions
+		}});
+		return ents;
 	}
 }
