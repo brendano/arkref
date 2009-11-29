@@ -208,7 +208,8 @@ public class FindAceMentions {
 			
 			// Sanity check
 			String pick = sent.surfSent.rawText.substring(start, end);
-			pick = AnalysisUtilities.cleanupMarkup(pick).text;
+			U.pf("EXTENT PICK: [%s]\n", U.backslashEscape(pick));
+			pick = AnalysisUtilities.moreCleanup(pick).text;
 			assert weird || pick.equals( aceM.extent.charseq.text ) : "["+pick+"] -vs- <"+aceM.extent.charseq.text+">";
 			if (weird)  U.pl("WEIRD:  "+"["+pick+"] -vs- <"+aceM.extent.charseq.text+">");
 			
@@ -220,25 +221,24 @@ public class FindAceMentions {
 			for (int wi=0; wi < sent.words.size(); wi++) {
 				Word w = sent.words.get(wi);
 				int leftPos = w.charStart - sent.surfSent.charStart;
-				int rightPos = -1;
-				if (wi < sent.words.size()-1)
-					rightPos = sent.words.get(wi+1).charStart - sent.surfSent.charStart;
-				else
-					rightPos = sent.surfSent.charEnd - sent.surfSent.charStart;
-				
-//				U.pf("word [%s] : %d to %d\n", w, leftPos, rightPos);
+				int rightPos = (wi < sent.words.size() - 1) ? 
+						sent.words.get(wi+1).charStart - sent.surfSent.charStart: 
+						sent.surfSent.charEnd - sent.surfSent.charStart;
+
+				U.pf("word [%s] : %d to %d  =  [%s]\n", w, leftPos, rightPos, sent.surfSent.rawText.substring(leftPos,rightPos));
 				
 				if (leftPos <= start && start < rightPos) {
 					assert leftW == -1;
-//					U.pl("here");
+					U.pl("PICK LEFTPOS");
 					leftW = wi;
 				}
-				if (rightPos-1 <= end) {
-					// tricky .. trailing commas and the like. i dont think this is right.
-//					U.pl("here2");
+				if (rightPos >= end  &&  leftPos < end) {
+					assert rightW == -1;
+					U.pl("PICK RIGHTPOS");
 					rightW = wi;
 				}
 			}
+			
 			assert leftW!=-1 && rightW!=-1;
 			assert rightW >= leftW : "leftW,rightW = "+leftW+","+rightW;
 			U.pl("leftW,rightW = "+leftW+","+rightW);

@@ -171,15 +171,7 @@ public class AnalysisUtilities {
 		// ACE IS EVIL
 		docText = docText.replaceAll("<\\S+>", "");
 		AlignedSub cleaner = AnalysisUtilities.cleanupDocument(docText);
-		List<SentenceBreaker.Sentence> sentences = SentenceBreaker.getSentences(cleaner.text);
-		// Project back to positions in original unclean text
-		for (SentenceBreaker.Sentence s : sentences) {
-			U.pf("ALIGNING: %s\n", s.cleanText);
-			U.pf("BEFORE %d %d\n", s.charStart, s.charEnd);
-//			s.setAlignmentProjection( AlignedSub.selfAligned(s.rawText).alignments);
-			s.setAlignmentProjection(cleaner.alignments);
-			U.pf("AFTER %d %d\n", s.charStart, s.charEnd);
-		}
+		List<SentenceBreaker.Sentence> sentences = SentenceBreaker.getSentences(cleaner);
 		return sentences;
 	}
 	public static List <String> cleanAndBreakSentencesToText(String docText) {
@@ -222,12 +214,15 @@ public class AnalysisUtilities {
 		return res;
 	}
 	
+	static Pattern leadingWhitespace = Pattern.compile("^\\s+");
 	/** some ACE docs have weird markup in them that serve as paragraph-ish markers **/
 	public static AlignedSub cleanupDocument(String document) {
-		AlignedSub ret = new AlignedSub(document).replaceAll("<\\S+>", "\n");
+		AlignedSub ret = new AlignedSub(document);
+		ret = ret.replaceAll("<\\S+>", "");
+		ret = ret.replaceAll(leadingWhitespace, ""); // sentence breaker char offset correctness sensitive to this
 		return ret;
 	}
-	public static AlignedSub cleanupMarkup(String str) {
+	public static AlignedSub moreCleanup(String str) {
 		AlignedSub ret = new AlignedSub(str);
 		ret = ret.replaceAll("&(amp|AMP);", "&");
 		ret = ret.replaceAll("&(lt|LT);", "<");

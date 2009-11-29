@@ -171,7 +171,7 @@ public class Document {
 	
 	public Sentence getSentenceContaining(int charOffset) {
 		for (Sentence s : sentences) {
-			if (s.surfSent.charStart < charOffset  &&  charOffset < s.surfSent.charEnd) {
+			if (s.surfSent.charStart <= charOffset  &&  charOffset < s.surfSent.charEnd) {
 				return s;
 			}
 			
@@ -307,7 +307,7 @@ public class Document {
 		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
 //			U.pl("SENTENCE WORDS     " + s.words);
-			AlignedSub cleanText = AnalysisUtilities.cleanupMarkup(s.surfSent.rawText); 
+			AlignedSub cleanText = AnalysisUtilities.moreCleanup(s.surfSent.rawText); 
 			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(cleanText.text, s.words);
 			for (int i=0; i<wordAlignsInSent.length; i++)
 				if (wordAlignsInSent[i] != -1)

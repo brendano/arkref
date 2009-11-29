@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
+import parsestuff.AlignedSub;
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 
@@ -42,6 +43,15 @@ public class SentenceBreaker {
     	}
     }
     
+    /** also do the projections back to original text **/
+    public static List<Sentence> getSentences(AlignedSub cleanText) {
+    	List<Sentence> sentences = getSentences(cleanText.text);
+    	for (Sentence s : sentences) {
+    		s.setAlignmentProjection(cleanText.alignments);
+    	}
+    	return sentences;
+    }
+    
     public static List<Sentence> getSentences(String text) {
     	ArrayList<Sentence> sentences = new ArrayList<Sentence>();
     	
@@ -70,8 +80,10 @@ public class SentenceBreaker {
 		int sentEndTok = 0;
 		for (int i = 0; i < sentenceBoundaries.length; ++i) {
 			sentEndTok = sentenceBoundaries[i];
+			
 			List<String> sentToks = new ArrayList<String>();
 		    for (int j=sentStartTok; j<=sentEndTok; j++) {
+//		    	U.pf("adding [%s] size %d and %d  (ws [%s])\n", tokens[j], tokens[j].length(), tokens[j].length()+whites[j+1].length(), U.backslashEscape(whites[j+1]));
 		    	charEnd += tokens[j].length() + whites[j+1].length();
 		    	sentToks.add(tokens[j]);
 		    }
@@ -114,11 +126,12 @@ public class SentenceBreaker {
     		if (args.length > 1)
     			U.pf("\nDOC\t%s\n", arg);
     		String text = U.readFile(arg);
-    		text = AnalysisUtilities.cleanupDocument(text).text;
-    		for (Sentence s : getSentences(text)) {
+    		AlignedSub textAS = AnalysisUtilities.cleanupDocument(text);
+    		for (Sentence s : getSentences(textAS)) {
     			// rawText might have newlines, tabs
-//    			System.out.printf("%d\t%d\t%s\n", s.charStart, s.charEnd, s.cleanText);
-    			U.pf("SENT\t%s\n", StringUtils.join(s.tokens, " "));
+    			U.pf("SENT\t%d\t%d\nNEARRAW\t%s\n", s.charStart, s.charEnd, U.backslashEscape(s.rawText));
+    			U.pf("TOKS\t%s\n", StringUtils.join(s.tokens, " "));
+    			U.pf("CLEAN\t%s\n", s.cleanText);
     		}
     	}
     }
