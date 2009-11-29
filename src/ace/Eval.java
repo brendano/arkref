@@ -1,11 +1,9 @@
 package ace;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
 import parsestuff.U;
-
 import data.EntityGraph;
 
 public class Eval {
@@ -24,76 +22,89 @@ public class Eval {
 		int gold_tp=0,fn=0;
 		
 		
-		U.pl("\n**   Real positives   **\n");
+		U.pl("\n**  Analysis of gold clusters  (Recall)  **\n");
 		for (AceDocument.Entity aceE : aceDoc.document.entities) {
+			U.pl("");
+			U.pl(aceE);
+			int cluster_tp=0, cluster_fn=0;
 			for (int i=0; i < aceE.mentions.size(); i++) {
-				for (int j=i+1; j < aceE.mentions.size(); j++) {
-					AceDocument.Mention am1 = aceE.mentions.get(i);
+				AceDocument.Mention am1 = aceE.mentions.get(i);
+				data.Mention mm1 = am1.myMention;
+				U.pl(am1);
+				Set<data.Mention> corefs = eg.getLinkedMentions(mm1);
+				U.pf("  %-20s | %s\n", corefs.size()==1 ? "singleton" : "entity_"+eg.entName(mm1),   mm1);
+//				if (eg.mention2corefs.get(mm1).size()==1)
+//					U.pl("Resolved as singleton");
+//				else
+//					U.pl("Resolved to  =>  " + eg.entName(mm1));
+				for (int j=0; j < aceE.mentions.size(); j++) {
+					if (i==j) continue;
 					AceDocument.Mention am2 = aceE.mentions.get(j);
-					data.Mention mm1 = am1.myMention;
-					data.Mention mm2 = am2.myMention;
-					
+					data.Mention mm2 = am2.myMention;					
 					boolean match;
 					if (mm1==null || mm2==null)
 						match = false;
 					else
 						match = eg.mention2corefs.get(mm1).contains(mm2);
-					
-					U.pl("");
-					U.pf("%-5s ACE [[%s]]   -vs-   [[%s]]\n", match ? "TP" : "FN",  am1, am2);
-					U.pf("%-5s MyM ((%s))\n%-5s MyM ((%s))\n", " ", mm1, " ", mm2);
-					
 					if (match)
-						gold_tp++;
+						cluster_tp++;
 					else
-						fn++;
+						cluster_fn++;
 				}
 				
 			}
+			cluster_fn /= 2;
+			cluster_tp /= 2;
+			U.pf("%3d/%-3d  missing links\n", cluster_fn, cluster_tp+cluster_fn);
+			gold_tp += cluster_tp;
+			fn += cluster_fn;
 		}
 		
 		int pred_tp=0, fp=0;
 		
-//		U.pl("\n**  Predicted positives  **\n");
-//		for (EntityGraph.Entity myE : eg.entities.toArray(new EntityGraph.Entity[0])) {
-//			List<data.Mention> mentions = new ArrayList();
-//			for (data.Mention m : myE.mentions)  mentions.add(m);
-//			
-//			for (int i=0; i < mentions.size(); i++) {
-//				for (int j=i+1; j < mentions.size(); j++) {
-//					data.Mention mm1 = mentions.get(i);
-//					data.Mention mm2 = mentions.get(j);
-//					
-//					AceDocument.Mention am1 = LOOKUP mm1;
-//					AceDocument.Mention am2 = LOOKUP mm2;
-//					
-//					boolean match;
-//					if (am1==null || am2==null)
-//						match = false;
-//					else
-//						match = am1.entity == am2.entity;
-//					
-//					U.pl("");
-//					U.pf("%-5s ACE [[%s]]   -vs-   [[%s]]\n", match ? "TP" : "FN",  am1, am2);
-//					U.pf("%-5s MyM ((%s))\n%-5s MyM ((%s))\n", " ", mm1, " ", mm2);
-//					
-//					if (match)
-//						pred_tp++;
-//					else
-//						fp++;
-//				}
-//				
+		U.pl("\n**  Analysis of false negatives  (Precision)  **\n");
+		for (EntityGraph.Entity myE : eg.sortedEntities()) {
+			List<data.Mention> mentions = myE.sortedMentions();
+			int cluster_tp=0, cluster_fp=0;
+			
+			if (myE.mentions.size()==1)  continue;
+			U.pf("%s", myE);
+//			if (myE.mentions.size()==1)  {
+//				U.pf("  skipping\n");
+//				continue;
 //			}
-//
-//		}
+			U.pl("");
+			for (int i=0; i < mentions.size(); i++) {
+				data.Mention mm1 = mentions.get(i);
+				AceDocument.Mention am1 = aceDoc.getAceMention(mm1);
+				
+				AceDocument.Entity goldEnt = aceDoc.getAceMention(mm1)==null ? null : aceDoc.getAceMention(mm1).entity;
+				U.pf("  gold %-12s || %s\n",  goldEnt,   mm1);
+
+				for (int j=0; j < mentions.size(); j++) {
+					if (i==j) continue;
+					data.Mention mm2 = mentions.get(j);
+					AceDocument.Mention am2 = aceDoc.getAceMention(mm2);					
+					boolean match;
+					if (am1==null || am2==null)
+						match = false;
+					else
+						match = am1.entity == am2.entity;
+					
+					if (match)
+						cluster_tp++;
+					else
+						cluster_fp++;
+				}	
+			}
+			cluster_fp /= 2;
+			cluster_tp /= 2;
+			U.pf("%3d/%-3d  bad links\n", cluster_fp, cluster_fp+cluster_tp);
+			pred_tp += cluster_tp;
+			fp += cluster_fp;		}
 		
 		U.pl("\n***  Numbers  ***\n");
-		U.pf("pred_tp=%-4d fp=%-4d\n", pred_tp, fp);
-		U.pf("gold_tp=%-4d fn=%-4d\n", gold_tp, fn);
-		
-		U.pf("Recall = %.3f\n", gold_tp*1.0 / (gold_tp + fn));
-		
-		
-
+		U.pf("pred_tp=%-4d fp=%-4d  =>  Precision = %.3f\n", pred_tp, fp,  pred_tp*1.0/(pred_tp+fp));
+		U.pf("gold_tp=%-4d fn=%-4d  =>  Recall = %.3f\n", gold_tp, fn,  gold_tp*1.0/(gold_tp+fn));
 	}
 }

@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 public class U {
 	public static <T> void pl(T s) { System.out.println(s); }
+	public static void pf(String pat) {  System.out.printf(pat);  }
 	public static <A> void pf(String pat, A a0) {  System.out.printf(pat, a0);  }
 	public static <A,B> void pf(String pat, A a0, B a1) {  System.out.printf(pat, a0, a1);  }
 	public static <A,B,C> void pf(String pat, A a0, B a1, C a2) {  System.out.printf(pat, a0, a1, a2);  }

@@ -1,24 +1,23 @@
 package ace;
-import org.simpleframework.xml.*;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.simpleframework.xml.Attribute;
 import org.simpleframework.xml.Element;
 import org.simpleframework.xml.ElementList;
 import org.simpleframework.xml.Root;
 import org.simpleframework.xml.Serializer;
+import org.simpleframework.xml.Text;
 import org.simpleframework.xml.core.Persister;
-
-import com.aliasi.util.Strings;
 
 import parsestuff.U;
 
-import edu.stanford.nlp.util.ArrayUtils;
+import com.aliasi.util.Strings;
 
 /**
  * A fairly thin wrapper around the APF XML data structures.
@@ -32,7 +31,19 @@ import edu.stanford.nlp.util.ArrayUtils;
 public class AceDocument {
 	public Document document;
 	public String text;
+	private Map<data.Mention, AceDocument.Mention> myMention2aceMention;
 	
+	public void freezeMyMentions() {
+		assert myMention2aceMention==null : "freeze only once!";
+		myMention2aceMention = new HashMap();
+		for (Mention aceM : document.getMentions()) {
+			if (aceM.myMention != null)
+				myMention2aceMention.put(aceM.myMention, aceM);
+		}
+	}
+	public AceDocument.Mention getAceMention(data.Mention myMention) {
+		return myMention2aceMention.get(myMention);
+	}
 	public static AceDocument load(String path) throws Exception {
 		String apfPath = path + "_APF.XML";
 		String textPath= path + ".txt";
@@ -117,6 +128,7 @@ public class AceDocument {
 		@ElementList(inline=true)
 		List <Mention> mentions;
 		public String ID() { return aceID.replaceFirst(".*-E", "E"); }
+		public String toString() { return String.format("%-3s (size %2d)", ID(), mentions.size()); }
 	}
 	@Root(name="entity_mention",strict=false)
 	public static class Mention {
@@ -135,8 +147,14 @@ public class AceDocument {
 		public int ID() { return Integer.parseInt(aceID.replaceFirst(".*-","")); }
 		 
 		public String toString() { 
-			return String.format("AM%-3d | %s | %s", ID(),
-				Strings.normalizeWhitespace(head.charseq.text), Strings.normalizeWhitespace(extent.charseq.text));
+			if (myMention != null) {
+				return String.format("M%-2d <%s>", myMention.ID(), Strings.normalizeWhitespace(extent.charseq.text));
+			} else {
+				return String.format("AM%-2d | %s", ID(),
+						Strings.normalizeWhitespace(extent.charseq.text));	
+			}
+//			return String.format("AM%-3d | %s | %s", ID(),
+//				Strings.normalizeWhitespace(head.charseq.text), Strings.normalizeWhitespace(extent.charseq.text));
 		}
 	}
 	@Root(strict=false)

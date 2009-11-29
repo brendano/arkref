@@ -1,6 +1,10 @@
--sentbreaking and precleaning: ascii-normalization of curly quotes 
-  (and whatever else to make the stanford tokenizer happy)
-  
+* Too-long sentences for parser: back off to punctuation splits?
+
+* cross-tree alignments (notes/crossing_nps.txt)
+
+* in Precision report: "gold null" ... bug??
+======
+
 -implement for testing purposes: "then for each evaluation mention, 
 we find the largest-span NP which has the previously determined mention
 head as its head.5 Often, this results in a different, typically larger,
@@ -25,6 +29,7 @@ at least 10 distinct seed head word pairs."
 
 -need not-totally-maximal head projections for gathing role-appos pairs
 (pairing child and parent is wrong, want to pair siblings)
+.. wait, this might be effectively equivalent, so wouldn't matter
 
 - conjunctions of NPs: need to let each NP be a mention. "He and Fred went to
   the store / He bought ice cream" currently fails because "He and Fred" is one

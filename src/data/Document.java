@@ -20,6 +20,7 @@ import edu.stanford.nlp.trees.TreeFactory;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.StringUtils;
 
 public class Document {
 	private ArrayList<Sentence> sentences;
@@ -240,7 +241,9 @@ public class Document {
 	}
 	public class MentionRevIterIter implements Iterator<Mention> {
 		int mi = -1;
+		int startingSentence = -1;
 		public MentionRevIterIter(Mention start) {
+			startingSentence = start.getSentence().ID();
 			for (int i=0; i < mentions.size(); i++) {
 				if (mentions.get(i) == start) {
 					this.mi = i;
@@ -252,15 +255,20 @@ public class Document {
 
 		@Override
 		public boolean hasNext() {
-			return mi > 0;
+			if (mi==0)
+				return false;
+			Mention mNext = mentions.get(mi-1);
+			if (startingSentence - mNext.getSentence().ID() > 999)
+				return false;
+			return true;
 		}
 
 		@Override
 		public Mention next() {
-			if (mi==-1) return null;
 			mi--;
-			if (mi==-1) return null;
-			return mentions.get(mi);
+			assert mi != -1;
+			Mention m = mentions.get(mi);
+			return m;
 
 		}
 		@Override
@@ -305,8 +313,9 @@ public class Document {
 	public void doTokenAlignments(String docText) {
 		U.pl("*** Stanford <-> Raw Text alignment ***\n");
 		for (Sentence s : sentences) {
+			U.pf("S%-2d\t%s\n", s.ID(), StringUtils.join(s.tokens()));
 //			U.pl("SENTENCE WORDS     " + s.words);
-			U.pl("" + s.surfSent);
+//			U.pl("" + s.surfSent);
 //			U.pl("" + s.surfSent.rawText);
 			AlignedSub cleanText = AnalysisUtilities.moreCleanup(s.surfSent.rawText); 
 			int[] wordAlignsInSent = AnalysisUtilities.alignTokens(cleanText.text, s.words);

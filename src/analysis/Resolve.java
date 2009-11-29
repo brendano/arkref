@@ -182,13 +182,14 @@ public class Resolve {
 		for (Mention cand : d.prevMentions(mention)) {
 			boolean match = Types.checkPronominalMatch(mention, cand);
 			
-			
-			if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
-				match = false;
-			} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-				match = false;
-			} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-				match = false;
+			if (cand.node() != null) {
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
+					match = false;
+				} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+					match = false;
+				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+					match = false;
+				}				
 			}
 			
 			if (match) {

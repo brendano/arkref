@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,7 @@ public class EntityGraph {
 	public Map<Mention, HashSet<Mention>> mention2corefs;
 	public Set<Entity> entities = null;
 	
-	public static class Entity {
+	public class Entity {
 		public String id;
 		public Set<Mention> mentions;
 		
@@ -44,6 +45,16 @@ public class EntityGraph {
 			});
 			return ms;
 		}
+		public String toString() {
+			Iterator<Mention> it = mentions.iterator();
+			Mention m = it.next();
+			String name = entName(m);
+			if (mentions.size()==1)
+				return "singleton_"+name;
+			return "entity_"+name;
+		}
+		
+
 	}
 	public EntityGraph(Document d) {
 		mention2corefs = new HashMap<Mention, HashSet<Mention>>();
@@ -105,7 +116,6 @@ public class EntityGraph {
 		Collections.sort(L);
 		return StringUtils.join(L, "_");
 	}
-	
 	
 	public List<Entity> sortedEntities() {
 		List<Entity> ents = new ArrayList();

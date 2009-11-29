@@ -1,7 +1,5 @@
 package ace;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -11,12 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 import analysis.Preprocess;
-import analysis.SyntacticPaths;
-
-import com.aliasi.util.Pair;
-
 import data.Document;
-import data.NodeHashMap;
 import data.Sentence;
 import data.Word;
 import edu.stanford.nlp.stats.IntCounter;
@@ -69,6 +62,8 @@ public class FindAceMentions {
 		AceDocument.mentionsHeadSort(aceMentions);
 		
 		alignToTree(myDoc, aceOffsetCorrection, aceMentions);
+		
+		aceDoc.freezeMyMentions();
 		
 	}
 	
@@ -144,8 +139,12 @@ public class FindAceMentions {
 					rightW = wi;
 				}
 			}
-			
-			assert leftW!=-1 && rightW!=-1;
+			if (weird) {
+				// sometimes not resolved then.
+				if (rightW==-1) rightW = sent.words.size()-1;
+				if (leftW==-1)  leftW  = 0;
+			}
+			assert leftW!=-1 && rightW!=-1 : "leftW,rightW = "+leftW+","+rightW;
 			assert rightW >= leftW : "leftW,rightW = "+leftW+","+rightW;
 			U.pl("leftW,rightW = "+leftW+","+rightW);
 			Tree[] aceLeaves = new Tree[rightW - leftW + 1];
