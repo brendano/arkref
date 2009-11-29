@@ -79,16 +79,16 @@ public class Document {
 	 * @return
 	 */
 	public Tree findNodeThatCoversSpan(int sentenceIndex, int spanStart, int spanEnd){
-		if(sentenceIndex >= sentences.size()){
+		if(sentenceIndex >= sentences.size()) {
 			return null;
 		}
 		Sentence sent = sentences.get(sentenceIndex);
 		return findNodeThatCoversSpan(sent, spanStart, spanEnd);
 	}
 	
-	public Tree findNodeThatCoversSpan(Sentence sent, int spanStart, int spanEnd){
+	public Tree findNodeThatCoversSpan(Sentence sent, int spanStart, int spanEnd) {
 		List<Tree> leaves = sent.rootNode().getLeaves();
-		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()){
+		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()) {
 			return null;
 		}
 

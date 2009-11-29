@@ -395,13 +395,13 @@ public class TestArkref extends TestCase {
 		
 		d = Document.loadFiles("data/conjunctionsTest");
 		t = d.findNodeThatCoversSpan(0, 0, 0);
-		assertTrue(t.yield().toString(), t.yield().toString().equals("He"));				
+		assertEquals("He", t.yield().toString());				
 		t = d.findNodeThatCoversSpan(0, 0, 2);
-		assertTrue(t.yield().toString(), t.yield().toString().equals("He and Fred"));
+		assertEquals("He and Fred", t.yield().toString());
 		t = d.findNodeThatCoversSpan(0, 0, 3);
-		assertTrue(t.yield().toString(), t.yield().toString().equals("He and Fred went to the store ."));
+		assertEquals("He and Fred went to the store .", t.yield().toString());
 		t = d.findNodeThatCoversSpan(0, 3, 5);
-		assertTrue(t.yield().toString(), t.yield().toString().equals("went to the store"));
+		assertEquals("went to the store", t.yield().toString());
 		
 		// Jerusalem 7-15 -LRB- AFP -RRB- - A high level Israeli army official has said today Saturday that Israel believes Iran is set to begin acquiring nuclear capability for military purposes from 2005 and will be in a position to equip missiles with nuclear warheads , capable of reaching Israel , within ten years .
 		// [0 Jerusalem] [1 7-15] [2 -LRB-] [3 AFP] [4 -RRB-] [5 -] [6 A] [7 high] [8 level] [9 Israeli] [10 army] [11 official] [12 has] [13 said] [14 today] [15 Saturday] [16 that] [17 Israel] [18 believes] [19 Iran] [20 is] [21 set] [22 to] [23 begin] [24 acquiring] [25 nuclear] [26 capability] [27 for] [28 military] [29 purposes] [30 from] [31 2005] [32 and] [33 will] [34 be] [35 in] [36 a] [37 position] [38 to] [39 equip] [40 missiles] [41 with] [42 nuclear] [43 warheads] [44 ,] [45 capable]
