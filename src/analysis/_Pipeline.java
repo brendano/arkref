@@ -11,7 +11,7 @@ public class _Pipeline {
 
 	public static void main(String[] args) throws IOException {
 		for (String path : args) {
-			U.pf("***  Input %s  ***", path);
+			U.pf("***  Input %s  ***\n", path);
 			if(!Preprocess.alreadyPreprocessed(path)){
 				Preprocess.go(path);
 			}

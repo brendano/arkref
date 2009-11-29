@@ -16,7 +16,18 @@ import org.apache.commons.lang.StringUtils;
  **/
 public class EntityGraph {
 	public Map<Mention, HashSet<Mention>> mention2corefs;
+	public Set<Entity> entities = null;
 	
+	public static class Entity {
+		public String id; 
+		public Set<Mention> mentions;
+		
+		public int hashCode() { return id.hashCode(); }
+		public boolean equals(Entity e2) { 
+			assert this.id!=null && e2.id!=null;
+			return this.id.equals( e2.id );
+		}
+	}
 	public EntityGraph(Document d) {
 		mention2corefs = new HashMap<Mention, HashSet<Mention>>();
 		for (Mention m : d.mentions()) { 
@@ -26,6 +37,7 @@ public class EntityGraph {
 	}
 	
 	public void addPair(Mention m1, Mention m2) {
+		assert entities==null : "we're frozen, please don't addPair() anymore";
 		// Strategy: always keep mention2corefs a complete record of all coreferents for that mention
 		// So all we do is merge
 		Set<Mention> corefs1 = (Set<Mention>) mention2corefs.get(m1).clone();
@@ -38,10 +50,25 @@ public class EntityGraph {
 		}
 	}
 	
+	/** Call this only once, and only once all addPair()ing is done. **/
+	public void freezeEntities() {
+		assert entities == null : "call freezeEntities() only once please";
+		for (Mention m : mention2corefs.keySet()) {
+			Entity e = makeEntity(m);
+			entities.add(e);
+		}
+	}
+	/** helper for freezeEntities() **/
+	private Entity makeEntity(Mention m) {
+		Entity e = new Entity();
+		e.id = entName(m);
+		e.mentions = mention2corefs.get(m);
+		return e;
+	}
+	
 	public Set<Mention> getLinkedMentions(Mention m){
 		return mention2corefs.get(m);
 	}
-	
 	
 	public boolean isSingleton(Mention m) {
 		return mention2corefs.get(m).size()==1;

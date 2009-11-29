@@ -2,16 +2,15 @@ package ace;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import com.aliasi.util.Pair;
 
 import parsestuff.U;
 import analysis.Preprocess;
 import analysis.SyntacticPaths;
+
+import com.aliasi.util.Pair;
+
 import data.Document;
 import data.NodeHashMap;
 import data.Sentence;
@@ -62,6 +61,7 @@ public class FindAceMentions {
 		Map<AceDocument.Mention, Word> aceMention2word = 
 			alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
 		
+		
 //		displayAceMentions(aceMentions, ace2word);
 
 
@@ -83,13 +83,14 @@ public class FindAceMentions {
 			assert w != null : "wtf every mention needs to map to something";
 			if (w.sentence != curS) {
 				curS = w.sentence;
-//				U.pf("S%-2s  %s\n", curS.ID(), curS.text());
+				U.pf("S%-2s  %s\n", curS.ID(), curS.text());
 			}
-//			U.pf("\nACE %-4s | %s\n", m.entity.mentions.size()==1 ? "" : m.entity.ID(), m);
+			U.pf("\nACE %-4s | %s\n", m.entity.mentions.size()==1 ? "" : m.entity.ID(), m);
 			if (w.node() == null) {
 //				U.pl("No parse node");
 			} else {
-//				U.pl("Parse node:  " + w.node());
+				U.pl("Parse node:  " + w.node());
+				U.pl("sentence root " + w.sentence.rootNode());
 				Tree maxHead = SyntacticPaths.getMaximalProjection(w.node(), w.sentence.rootNode());
 				if (maxHead.label().value().matches("^(NNP|NN)$")) {
 					// ugh, an issue that ACE heads can be multiwords and end up matching
@@ -102,7 +103,7 @@ public class FindAceMentions {
 					
 					// Problematic example.  [[]] is our one-word alignment, (()) is ACE head, full phrase is ACE extent.
 					// (([[Joseph]] Conrad Parkhurst)), who founded the motorcycle magazine Cycle World in 1962
-//					U.pl("Not far enough: " + maxHead);
+					U.pl("Not far enough: " + maxHead);
 					maxHead = maxHead.parent(w.sentence.rootNode());
 					maxHead = SyntacticPaths.getMaximalProjection(maxHead, w.sentence.rootNode());
 				}
@@ -122,7 +123,14 @@ public class FindAceMentions {
 		// Ensure there is a myMention for every ACE mention that aligned to a parse node.
 		int myMentionId = 0;
 //		Map<AceDocument.Mention,  data.Mention> aceMention2myMention = new HashMap();
+		
+		List<AceDocument.Mention> aceMentionsWithParseNode = new ArrayList();
 		for (AceDocument.Mention aceM : aceMention2node.keySet()) {
+			aceMentionsWithParseNode.add(aceM);
+		}
+		AceDocument.mentionsHeadSort(aceMentionsWithParseNode);
+
+		for (AceDocument.Mention aceM : aceMentionsWithParseNode) {
 			Pair<Sentence,Tree> sn = aceMention2node.get(aceM);
 			Sentence s = sn.a();
 			Tree node = sn.b();
@@ -133,9 +141,6 @@ public class FindAceMentions {
 
 			aceM.myMention = myMention;
 		}
-		
-		
-		
 		
 		// Show what we just found.
 		U.pl("\n***  ACE-driven mentions  ***");

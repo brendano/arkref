@@ -13,6 +13,7 @@ public class RefsToEntities {
 				eg.addPair(m1, d.refGraph().getFinalResolutions().get(m1));
 			}
 		}
+		eg.freezeEntities();
 		
 		d.setEntGraph(eg);
 		
