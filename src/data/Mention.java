@@ -27,7 +27,7 @@ public class Mention {
 		String g = safeToString(Types.gender(this));
 		String n = safeToString(Types.number(this));
 		String p = safeToString(Types.personhood(this));
-		return String.format("M%-2d | S%-2d | %3s %2s %4s | %-12s | %s", id, sentence.getID(), 
+		return String.format("M%-2d | S%-2d | %3s %2s %4s | %-12s | %s", id, sentence.ID(), 
 				g, n, p, neType(), node); 
 	}
 	public String safeToString(Object o) {

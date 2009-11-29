@@ -519,6 +519,10 @@ public class AnalysisUtilities {
 		lastParseScore = score;
 	}
 	
+	/** 
+	 * terse representation of a (sub-)tree: 
+	 * NP[the white dog]   -vs-   (NP (DT the) (JJ white) (NN dog)) 
+	 **/
 	public static String abbrevTree(Tree tree) {
 		ArrayList<String> toks = new ArrayList();
 		for (Tree L : tree.getLeaves()) {

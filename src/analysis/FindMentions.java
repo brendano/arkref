@@ -17,14 +17,13 @@ public class FindMentions {
 		String patS = "NP !>># NP"; //needs to be the maximum projection of a head word, or a conjunction
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		for (Sentence s : d.sentences()) {
-			TregexMatcher matcher = pat.matcher(s.getRootNode());
+			TregexMatcher matcher = pat.matcher(s.rootNode());
 			while (matcher.find()) {
 				Tree match = matcher.getMatch();
 				Mention mention = new Mention(++id, s, match);
 				System.out.println("MENTION "+mention);
 				d.mentions().add(mention);
-				d.set_node2mention(s, match, mention);
-//				d.node2mention.put(match, mention);
+				d.node2mention.put(s, match, mention);
 			}
 		}
 	}

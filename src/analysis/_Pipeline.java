@@ -3,6 +3,7 @@ package analysis;
 import java.io.IOException;
 
 import parsestuff.AnalysisUtilities;
+import parsestuff.U;
 
 import data.Document;
 
@@ -10,6 +11,7 @@ public class _Pipeline {
 
 	public static void main(String[] args) throws IOException {
 		for (String path : args) {
+			U.pf("***  Input %s  ***", path);
 			if(!Preprocess.alreadyPreprocessed(path)){
 				Preprocess.go(path);
 			}

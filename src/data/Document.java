@@ -23,21 +23,24 @@ import edu.stanford.nlp.util.IntPair;
 public class Document {
 	private ArrayList<Sentence> sentences;
 	private ArrayList<Mention> mentions;
-	private Map<String, Mention> node2mention;
+	public NodeHashMap<Mention> node2mention;
 	private RefGraph refGraph;
-	private Tree tree = null; //tree that includes all the trees for the sentences, in order, under a dummy node	
+	private Tree docTree = null; //tree that includes all the trees for the sentences, in order, under a dummy node	
 	private EntityGraph entGraph;
 
 
 	public Document() {
-		sentences = new ArrayList<Sentence>();
-		mentions = new ArrayList<Mention>();
-		node2mention = new HashMap<String,Mention>();
+		sentences = new ArrayList();
+		mentions = new ArrayList();
+		node2mention = new NodeHashMap();
 		refGraph = new RefGraph();
 	}
 
 	
+	
 	/**
+	 * NOT USED
+	 * 
 	 * if there is no mention for the given node, this will walk up the tree 
 	 * to try to find one, as in H&K EMNLP 09.   Such a method is necessary
 	 * because the test data coref labels may not match up with constituents exactly
@@ -47,7 +50,6 @@ public class Document {
 	 * @return
 	 */
 	public Mention findMentionDominatingNode(int sentenceIndex, Tree node) {
-		String key; 
 		Mention res = null;
 		Tree tmpNode = node;
 		
@@ -57,11 +59,10 @@ public class Document {
 		
 		Sentence s = sentences.get(sentenceIndex);
 		
-		do{
-			key = nodeKey(s, tmpNode);
-			res = node2mention.get(key);
-			tmpNode = tmpNode.parent(s.getRootNode());
-		}while(res == null && tmpNode != null);
+		do {
+			res = node2mention.get(s, tmpNode);
+			tmpNode = tmpNode.parent(s.rootNode());
+		} while(res == null && tmpNode != null);
 			
 		return res;
 	}
@@ -87,7 +88,7 @@ public class Document {
 		int smallestSpan = 999999;
 		int nodeSpanLength;
 
-		List<Tree> leaves = sent.getRootNode().getLeaves();
+		List<Tree> leaves = sent.rootNode().getLeaves();
 		if(spanStart < 0 || leaves.size() == 0 || spanEnd >= leaves.size()){
 			return null;
 		}
@@ -95,7 +96,7 @@ public class Document {
 		Tree startLeaf = leaves.get(spanStart);
 		Tree endLeaf = leaves.get(spanEnd);
 		
-		for(Tree t: sent.getRootNode().subTrees()){
+		for(Tree t: sent.rootNode().subTrees()){
 				if(!(t.dominates(startLeaf) && t.dominates(endLeaf))){
 					continue;
 				}
@@ -109,24 +110,10 @@ public class Document {
 	}
 	public Tree getLeaf(int sentenceIndex, int leafIndex) {
 		Sentence sent = sentences.get(sentenceIndex);
-		List<Tree> leaves = sent.getRootNode().getLeaves();
+		List<Tree> leaves = sent.rootNode().getLeaves();
 		return leaves.get(leafIndex);
 	}
 
-
-	public Mention node2mention(Sentence s, Tree node) {
-		String key = nodeKey(s,node);
-		return node2mention.get(key);
-	}
-
-	public String nodeKey(Sentence s, Tree node) {
-		return String.format("sent_%s_node_%s_%s", s.getID(), s.getRootNode().leftCharEdge(node), node.hashCode());
-	}
-
-	public void set_node2mention(Sentence s, Tree node, Mention m) {
-		String key = nodeKey(s,node);
-		node2mention.put(key, m);
-	}
 
 	public static Document loadFiles(String path) throws IOException {
 		Document d = new Document();
@@ -285,13 +272,13 @@ public class Document {
 	 * @return
 	 */
 	public Tree getTree() {
-		if(tree == null){
+		if(docTree == null){
 			TreeFactory factory = new LabeledScoredTreeFactory();
-			tree = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
-			Tree tmpTree1 = tree;
+			docTree = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
+			Tree tmpTree1 = docTree;
 			Tree tmpTree2;
 			for(int i=0; i<sentences.size(); i++){
-				tmpTree1.addChild(sentences.get(i).getRootNode());
+				tmpTree1.addChild(sentences.get(i).rootNode());
 				if(i<sentences.size()-1){ 
 					tmpTree2 = factory.newTreeNode("DOCROOT", new ArrayList<Tree>());
 					tmpTree1.addChild(tmpTree2);
@@ -300,7 +287,7 @@ public class Document {
 			}
 
 		}
-		return tree;
+		return docTree;
 	}
 	
 	/** 

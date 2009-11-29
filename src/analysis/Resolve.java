@@ -47,7 +47,7 @@ public class Resolve {
 	 * @return
 	 */
 	private static Mention findAntecedentInRoleAppositiveConstruction(Mention m, Document d) {
-		Tree root = m.getSentence().getRootNode();
+		Tree root = m.getSentence().rootNode();
 		Tree node = m.node();
 		Tree parent = node.parent(root);
 		
@@ -93,7 +93,7 @@ public class Resolve {
 	 * 
 	 */
 	private static Mention findAntecendentInPredicateNominativeConstruction(Mention m, Document d) {
-		Tree root = m.getSentence().getRootNode();
+		Tree root = m.getSentence().rootNode();
 		Tree node = m.node();
 		
 		TregexPattern pat = TregexPatternFactory.getPattern("S < NP=np1 <+(VP) (VP < (/^VB.*/ < be|is|was|were|are|being|been) < NP=np2)");
@@ -121,7 +121,7 @@ public class Resolve {
 	 * @return
 	 */
 	private static boolean inAppositiveConstruction(Mention m) {
-		Tree root = m.getSentence().getRootNode();
+		Tree root = m.getSentence().rootNode();
 		Tree node = m.node();
 		Tree parent = node.parent(root);
 		
@@ -147,7 +147,7 @@ public class Resolve {
 
 	
 	public static void resolveAppositive(Mention mention, Document d) {
-		Tree root = mention.getSentence().getRootNode();
+		Tree root = mention.getSentence().rootNode();
 		Tree node = mention.node();
 		Tree parent = node.parent(root);
 		

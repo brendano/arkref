@@ -149,10 +149,10 @@ public class SyntacticPaths {
 	 */
 	public static boolean inSubjectObjectRelationship(Mention m1, Mention m2) {
 		Tree t = m2.node();
-		Tree root = m2.getSentence().getRootNode();
+		Tree root = m2.getSentence().rootNode();
 
 		//return false if these mentions are not in the same sentence
-		if(root != m1.getSentence().getRootNode()){
+		if(root != m1.getSentence().rootNode()){
 			return false;
 		}
 		Tree ancestor = t.parent(root);
@@ -192,7 +192,7 @@ public class SyntacticPaths {
 	 */
 	public static boolean isSubjectAndMentionInAdjunctPhrase(Mention m1, Mention m2) {
 		Tree t = m1.node();
-		Tree root = m1.getSentence().getRootNode();
+		Tree root = m1.getSentence().rootNode();
 
 		Tree clause = t.parent(root);
 		if(!clause.label().value().equals("S")){

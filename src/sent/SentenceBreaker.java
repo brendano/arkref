@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 
@@ -11,9 +13,6 @@ import com.aliasi.sentences.SentenceModel;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.Strings;
-
-import edu.stanford.nlp.util.StringUtils;
-
 
 /**
  * Breaks a document into sentences in a very re-traceable manner, using our hacked-up
@@ -119,7 +118,7 @@ public class SentenceBreaker {
     		for (Sentence s : getSentences(text)) {
     			// rawText might have newlines, tabs
 //    			System.out.printf("%d\t%d\t%s\n", s.charStart, s.charEnd, s.cleanText);
-    			U.pf("SENT\t%s\n", StringUtils.join(s.tokens));
+    			U.pf("SENT\t%s\n", StringUtils.join(s.tokens, " "));
     		}
     	}
     }

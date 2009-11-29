@@ -129,10 +129,13 @@ public class AceDocument {
 		
 		public Entity entity;
 		
+		/** Convenience for later processing: the data.Mention this ACE mention corresponds to. **/
+		public data.Mention myMention = null;
+		
 		public int ID() { return Integer.parseInt(aceID.replaceFirst(".*-","")); }
 		 
 		public String toString() { 
-			return String.format("M%-3d | %s | %s", ID(),
+			return String.format("AM%-3d | %s | %s", ID(),
 				Strings.normalizeWhitespace(head.charseq.text), Strings.normalizeWhitespace(extent.charseq.text));
 		}
 	}

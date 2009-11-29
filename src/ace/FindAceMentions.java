@@ -1,15 +1,23 @@
 package ace;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import com.aliasi.util.Pair;
 
 import parsestuff.U;
 import analysis.Preprocess;
+import analysis.SyntacticPaths;
 import data.Document;
+import data.NodeHashMap;
 import data.Sentence;
 import data.Word;
 import edu.stanford.nlp.stats.IntCounter;
+import edu.stanford.nlp.trees.Tree;
 
 /** 
  * like analysis.FindMentions except use exclusively ACE's opinions of what the mentions are
@@ -17,7 +25,6 @@ import edu.stanford.nlp.stats.IntCounter;
  * @author brendano
  */
 public class FindAceMentions {
-	@SuppressWarnings("serial")
 	public static class AlignmentFailed extends Exception { }
 
 
@@ -42,23 +49,120 @@ public class FindAceMentions {
 		//  * What about sentences that didn't parse?
 		
 		
+		// Step (1)
 		myDoc.doTokenAlignments(aceDoc.text);
+		
 		U.pl("***  ACE alignments ***\n");
+		// Step (2)
 		int aceOffsetCorrection = calculateAceOffsetCorrection(myDoc, aceDoc);
 		
+		// Step (3)
 		List<AceDocument.Mention> aceMentions = aceDoc.document.getMentions();
 		AceDocument.mentionsHeadSort(aceMentions);
-		Map<AceDocument.Mention, Word> ace2word = 
+		Map<AceDocument.Mention, Word> aceMention2word = 
 			alignToTokens(myDoc, aceOffsetCorrection, aceMentions);
+		
+//		displayAceMentions(aceMentions, ace2word);
+
+
+		// Step (4)
+		// these are the relationships we are building between (1) parse nodes, (2) our mentions, (3) ACE mentions
+		//   node -> myM    1-1, no more than one mention per node
+		//   myM  -> AceM   1-many
+		
+		// Step (4.1)
+		// OK, first let's build a map of parse nodes to all possible ACE mentions at that node.
+		// Later we'll turn it into a map to a single mention per node,
+		// which is the structure the mainline pipeline expects.
+		NodeHashMap<ArrayList<AceDocument.Mention>> node2aceMentions = new NodeHashMap();
+		Map<AceDocument.Mention, Pair <Sentence,Tree>> aceMention2node = new HashMap();
 		
 		Sentence curS = null;
 		for (AceDocument.Mention m : aceMentions) {
-			if (ace2word.get(m).sentence != curS) {
-				curS = ace2word.get(m).sentence;
-				System.out.printf("S%-2s  %s\n", curS.getID(), curS.text());
+			Word w = aceMention2word.get(m);
+			assert w != null : "wtf every mention needs to map to something";
+			if (w.sentence != curS) {
+				curS = w.sentence;
+//				U.pf("S%-2s  %s\n", curS.ID(), curS.text());
 			}
-			String estr = m.entity.mentions.size()==1 ? "" : m.entity.ID();
-			U.pf("  %-4s | %s\n", estr, m);
+//			U.pf("\nACE %-4s | %s\n", m.entity.mentions.size()==1 ? "" : m.entity.ID(), m);
+			if (w.node() == null) {
+//				U.pl("No parse node");
+			} else {
+//				U.pl("Parse node:  " + w.node());
+				Tree maxHead = SyntacticPaths.getMaximalProjection(w.node(), w.sentence.rootNode());
+				if (maxHead.label().value().matches("^(NNP|NN)$")) {
+					// ugh, an issue that ACE heads can be multiwords and end up matching
+					// too far to the left so don't hit Collins/Stanford heads.
+					// Better way to solve is test for multiwords at alignment time and find the smallest subtree over the span
+					// (there is already a helper function for this)
+					// In the meantime, we use a heuristic detection (we kinda want NPs, not NNP or NNs),
+					// and then just go for the next enclosing head structure.
+					// But we can't hard require NPs because then JJ mentions resolve to enclosing NP which is wrong.
+					
+					// Problematic example.  [[]] is our one-word alignment, (()) is ACE head, full phrase is ACE extent.
+					// (([[Joseph]] Conrad Parkhurst)), who founded the motorcycle magazine Cycle World in 1962
+//					U.pl("Not far enough: " + maxHead);
+					maxHead = maxHead.parent(w.sentence.rootNode());
+					maxHead = SyntacticPaths.getMaximalProjection(maxHead, w.sentence.rootNode());
+				}
+//				U.pl("Preterminal: " + w.node().parent(w.sentence.rootNode()));
+//				U.pl("MaxHead:     " + maxHead);
+				
+				if ( ! node2aceMentions.containsKey(w.sentence, maxHead)) {
+					node2aceMentions.put(w.sentence, maxHead, new ArrayList());
+				}
+				node2aceMentions.get(w.sentence, maxHead).add(m);
+				aceMention2node.put(m, new Pair(w.sentence,maxHead));
+			}
+		}
+		
+		// Step (4.2)
+		// build up our native notion of Mention's -- much like FindMentions.go()
+		// Ensure there is a myMention for every ACE mention that aligned to a parse node.
+		int myMentionId = 0;
+//		Map<AceDocument.Mention,  data.Mention> aceMention2myMention = new HashMap();
+		for (AceDocument.Mention aceM : aceMention2node.keySet()) {
+			Pair<Sentence,Tree> sn = aceMention2node.get(aceM);
+			Sentence s = sn.a();
+			Tree node = sn.b();
+			
+			data.Mention myMention = new data.Mention(++myMentionId, s, node);
+			myDoc.mentions().add(myMention);
+			myDoc.node2mention.put(s, node, myMention);
+
+			aceM.myMention = myMention;
+		}
+		
+		
+		
+		
+		// Show what we just found.
+		U.pl("\n***  ACE-driven mentions  ***");
+		for (data.Mention myM : myDoc.mentions()) {
+			U.pl("myMention  " + myM);
+			for(AceDocument.Mention aceM : node2aceMentions.get(myM.getSentence(), myM.node())) {
+				U.pl("  " + aceM);
+			}
+		}
+		
+
+		
+	}
+	
+	
+	private static void displayAceMentions(
+			List<AceDocument.Mention> aceMentions,
+			Map<AceDocument.Mention, Word> ace2word) {
+		Sentence curS = null;
+		for (AceDocument.Mention m : aceMentions) {
+			Word w = ace2word.get(m);
+			assert w != null : "wtf every mention needs to map to something";
+			if (w.sentence != curS) {
+				curS = w.sentence;
+				U.pf("S%-2s  %s\n", curS.ID(), curS.text());
+			}
+			U.pf("  %-4s | %s\n", m.entity.mentions.size()==1 ? "" : m.entity.ID(), m);
 		}
 	}
 	
@@ -142,7 +246,8 @@ public class FindAceMentions {
 		
 		if (aceHead.length()==1 && tok.length()==1) {
 			return aceHead.equals(tok);
-		} else if (aceHead.length()==1 || tok.length()==1) {			
+		} else if (aceHead.length()==1 || tok.length()==1) {
+			// tiny tokens as substring matches is very false positive-y
 			return false;
 		} else {
 			return tok.contains(aceHead) || aceHead.contains(tok);	

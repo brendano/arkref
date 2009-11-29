@@ -28,7 +28,7 @@ import edu.stanford.nlp.trees.Tree;
 public class Sentence {
 	public List<Word> words;
 	private Map<String,Word> node2wordMap;
-	public Tree rootNode;
+	private Tree rootNode;
 	public boolean hasParse;
 	/** optional: more surface info **/
 	public SentenceBreaker.Sentence surfSent = null;
@@ -38,7 +38,7 @@ public class Sentence {
 	public Sentence(int id) { this.id = id; words=new ArrayList<Word>(); node2wordMap=new HashMap<String,Word>(); }
 
 	public void setStuff(Tree root, String neTagging, boolean parseSuccess) {
-		this.rootNode = root;
+		this.setRootNode(root);
 		String[] neTaggedWords = neTagging.split(" ");
 		List<Tree> leaves = root.getLeaves();
 		assert !parseSuccess || neTaggedWords.length == leaves.size();
@@ -46,11 +46,6 @@ public class Sentence {
 		for (int i=0; i < neTaggedWords.length; i++) {
 			Word word = new Word();
 			word.sentence = this;
-			
-//			String[] parts = neTaggedWords[i].replaceAll("\\\\/", "_SLASH_").split("/");
-//			assert parts.length == 2 : String.format("bad ne tag: [%s]", neTaggedWords[i]);
-//			word.setNeTag(parts[1]);
-//			word.token = parts[0].replaceAll("_SLASH_", "\\\\/");
 			
 			String[] parts = neTaggedWords[i].split("/");
 			word.setNeTag(parts[parts.length-1]);
@@ -73,7 +68,7 @@ public class Sentence {
 	}
 	
 	public String nodeKey(Tree node) {
-		return String.format("node_%s_%s", rootNode.leftCharEdge(node), node.hashCode());
+		return String.format("node_%s_%s", rootNode().leftCharEdge(node), node.hashCode());
 	}
 	
 	public void set_node2word(Tree node, Word w) {
@@ -92,18 +87,22 @@ public class Sentence {
 	public String text() {
 		// oops we don't have original anymore.  but maybe we don't want it.
 		ArrayList<String> toks = new ArrayList<String>();
-		for (Tree L : rootNode.getLeaves()) {
+		for (Tree L : rootNode().getLeaves()) {
 			toks.add(L.label().toString());
 		}
 		return StringUtils.join(toks, " ");
 	}
 
-	public Tree getRootNode() {
+	public Tree rootNode() {
 		return rootNode;
 	}
 
 
-	public int getID() {
+	public int ID() {
 		return id;
+	}
+
+	public void setRootNode(Tree rootNode) {
+		this.rootNode = rootNode;
 	}
 }

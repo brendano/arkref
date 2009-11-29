@@ -19,8 +19,8 @@ public class RefsToEntities {
 		System.out.println("\n*** Entity Report ***\n");
 		int s=-1;
 		for (Mention m : d.mentions()){
-			if (m.getSentence().getID() != s) {
-				s = m.getSentence().getID();
+			if (m.getSentence().ID() != s) {
+				s = m.getSentence().ID();
 				System.out.printf("S%-2s  %s\n",s, m.getSentence().text());
 			}
 			if (eg.isSingleton(m)) {
