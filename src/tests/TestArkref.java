@@ -10,7 +10,7 @@ import parsestuff.U;
 
 import analysis.FindMentions;
 import analysis.Types;
-import analysis._Pipeline;
+import analysis._SimplePipeline;
 
 import data.Document;
 import data.Mention;
@@ -77,7 +77,7 @@ public class TestArkref extends TestCase {
 		//James believed he could win. (s7)
 		
 		Document d = Document.loadFiles("data/reflexives");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 				
 		assertLink(1,2, d); //John, himself (s1)
 		assertNoLink(4,6, d); //Bob, himself (s2)
@@ -98,7 +98,7 @@ public class TestArkref extends TestCase {
 		//This boy also liked to play soccer.
 		
 		Document d = Document.loadFiles("data/sameHeadWordTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		
 		assertSurface(d,1, "The nice , smart boy");
 		assertSurface(d,2, "the park");
@@ -116,7 +116,7 @@ public class TestArkref extends TestCase {
 		//The shared Lunar Precursor Robotic Program was new.
 		
 		Document d = Document.loadFiles("data/roleAppositivesTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		
 		assertTrue(d.mentions().toString(), d.mentions().size()==9);
 		
@@ -139,12 +139,12 @@ public class TestArkref extends TestCase {
 	
 	public void testFirstPerson() throws IOException{
 		Document d = Document.loadFiles("data/roleAppositivesTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		assertSurface(d, 4, "I");
 		assertSingleton(d, 4);
 		
 		d = Document.loadFiles("data/firstPerson1");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		assertSurface(d,1,"I");
 		assertSurface(d,4,"I");
 		assertSurface(d,6,"my");
@@ -161,7 +161,7 @@ public class TestArkref extends TestCase {
 		// If we make it an option, should make tests to ensure the flip happens.
 
 		Document d;
-		d = Document.loadFiles("data/defaultMale1"); _Pipeline.go(d);
+		d = Document.loadFiles("data/defaultMale1"); _SimplePipeline.go(d);
 		assertSurface(d,1, "Sally");
 			assertEquals(Types.Gender.Female, Types.gender(mention(d,1)));
 		assertSurface(d,2, "the banker");
@@ -169,7 +169,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d,3, "He");
 		assertLink(d, 2,3);
 
-		d = Document.loadFiles("data/defaultMale2"); _Pipeline.go(d);
+		d = Document.loadFiles("data/defaultMale2"); _SimplePipeline.go(d);
 		assertSurface(d,1, "Bob");
 			assertEquals(Types.Gender.Male, Types.gender(mention(d,1)));
 		assertSurface(d,2, "the banker");
@@ -177,7 +177,7 @@ public class TestArkref extends TestCase {
 		assertSurface(d,3, "He");
 		assertLink(d, 1,3);
 
-		d = Document.loadFiles("data/defaultMale3"); _Pipeline.go(d);
+		d = Document.loadFiles("data/defaultMale3"); _SimplePipeline.go(d);
 		assertSurface(d,1, "The banker");
 			assertEquals(null, Types.gender(mention(d,1)));
 		assertSurface(d,2, "Bob");
@@ -192,7 +192,7 @@ public class TestArkref extends TestCase {
 		//Walmart says Gitano, its top-selling brand, is underselling.
 		
 		Document d = Document.loadFiles("data/IWithinI");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		
 		assertSurface(d, 1, "Walmart");
 		assertSurface(d, 2, "Gitano , its top-selling brand ,");
@@ -202,7 +202,7 @@ public class TestArkref extends TestCase {
 		assertLink(3,2, d);
 		
 		d = Document.loadFiles("data/nativeAmericans");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		
 
 		assertSurface(d, 7, "the Anishinaabe , the Dakota , and other Native American inhabitants");
@@ -219,7 +219,7 @@ public class TestArkref extends TestCase {
 	public void testPathLength() throws IOException{
 		//John knew that Bob was weird, but he still invited him to the party.
 		Document d = Document.loadFiles("data/pathLengthTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		assertSurface(d, 1, "John");
 		assertSurface(d, 2, "Bob");
@@ -233,7 +233,7 @@ public class TestArkref extends TestCase {
 	public void testLargerNodeComesFirstAsMention() throws IOException{
 		//Nintendo of America announced its new console.
 		Document d = Document.loadFiles("data/pathLengthTest2");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		assertSurface(d,1,"Nintendo of America");
 		assertSurface(d,2,"America");
@@ -247,7 +247,7 @@ public class TestArkref extends TestCase {
 	public void testPathLength2() throws IOException{
 		//Nintendo of America announced its new console.
 		Document d = Document.loadFiles("data/pathLengthTest2");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		Mention m1 = d.mentions().get(0); //Nintendo of America
 		Mention m2 = d.mentions().get(1); //America
@@ -271,7 +271,7 @@ public class TestArkref extends TestCase {
 		//He bought an item.
 
 		Document d = Document.loadFiles("data/test1");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 				
 		assertLink(5,4,d); //store and it
 		assertNoLink(3,2,d); //bob and store
@@ -280,7 +280,7 @@ public class TestArkref extends TestCase {
 		assertNoLink(1,2,d); //john and store
 		
 		d = Document.loadFiles("data/personNounTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		//The astronaut went to the space with Howard.
 		//The robot did, too.
@@ -299,7 +299,7 @@ public class TestArkref extends TestCase {
 		//Walmart says Gitano, its top-selling brand, is underselling.
 		
 		Document d = Document.loadFiles("data/IWithinI");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		assertSurface(d,1,"Walmart");
 		assertSurface(d,2,"Gitano , its top-selling brand ,");
@@ -320,7 +320,7 @@ public class TestArkref extends TestCase {
 		//Lincoln will be president.
 		
 		Document d = Document.loadFiles("data/predNomTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		Mention m1;
 		Mention m2;
@@ -345,7 +345,7 @@ public class TestArkref extends TestCase {
 		//They also went to the library.
 		
 		Document d = Document.loadFiles("data/conjunctionsTest");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 
 		Mention m1 = d.mentions().get(0); //He and Fred
 		Mention m2 = d.mentions().get(1); //the store
@@ -363,7 +363,7 @@ public class TestArkref extends TestCase {
 		//and other Native American inhabitants.
 		
 		Document d = Document.loadFiles("data/they1");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		assertSurface(d,1,"The earliest known settlers");
 		assertSurface(d,6,"They");
 
@@ -374,7 +374,7 @@ public class TestArkref extends TestCase {
 		//The herd of animals grazed on the land, and then they moved on.
 		
 		 d = Document.loadFiles("data/they2");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		assertLink(d,1,2);
 		assertLink(d,4,7);
 		assertNoLink(d,2,4);
@@ -423,7 +423,7 @@ public class TestArkref extends TestCase {
 		//Walmart says Gitano, its top-selling brand, is underselling.
 		
 		Document d = Document.loadFiles("data/IWithinI");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 		
 		Tree t; 
 		Mention m;
@@ -499,7 +499,7 @@ public class TestArkref extends TestCase {
 		//To Susan, she seemed nice. (s5)
 		
 		Document d = Document.loadFiles("data/adjunctPhrases");
-		_Pipeline.go(d);
+		_SimplePipeline.go(d);
 				
 		assertLink(1,3, d); //students, their
 		assertLink(1,4, d); //students, they

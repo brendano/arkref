@@ -5,6 +5,7 @@ import java.io.*;
 
 import com.aliasi.util.Math;
 
+import analysis.ARKref;
 import analysis.FindMentions;
 import analysis.Preprocess;
 
@@ -258,7 +259,7 @@ public class Document {
 			if (mi==0)
 				return false;
 			Mention mNext = mentions.get(mi-1);
-			if (startingSentence - mNext.getSentence().ID() > 999)
+			if (startingSentence - mNext.getSentence().ID() > ARKref.Opts.sentenceWindow)
 				return false;
 			return true;
 		}

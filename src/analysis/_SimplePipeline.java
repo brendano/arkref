@@ -7,16 +7,12 @@ import parsestuff.U;
 
 import data.Document;
 
-public class _Pipeline {
+public class _SimplePipeline {
 
 	public static void main(String[] args) throws IOException {
 		for (String path : args) {
 			U.pf("***  Input %s  ***\n", path);
-			if(!Preprocess.alreadyPreprocessed(path)){
-				Preprocess.go(path);
-			}
-			Document d = Document.loadFiles(path);
-			_Pipeline.go(d);
+			_SimplePipeline.go(Document.loadFiles(path));
 		}	
 	}
 	
