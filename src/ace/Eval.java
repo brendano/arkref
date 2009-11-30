@@ -22,7 +22,7 @@ public class Eval {
 		int gold_tp=0,fn=0;
 		
 		
-		U.pl("\n**  Analysis of gold clusters  (Recall)  **\n");
+		U.pl("\n**  Analysis of gold clusters  (for Recall)  **\n");
 		for (AceDocument.Entity aceE : aceDoc.document.entities) {
 			U.pl("");
 			U.pl(aceE);
@@ -62,7 +62,7 @@ public class Eval {
 		
 		int pred_tp=0, fp=0;
 		
-		U.pl("\n**  Analysis of false negatives  (Precision)  **\n");
+		U.pl("\n**  Analysis of predicted clusters  (for Precision)  **\n");
 		for (EntityGraph.Entity myE : eg.sortedEntities()) {
 			List<data.Mention> mentions = myE.sortedMentions();
 			int cluster_tp=0, cluster_fp=0;

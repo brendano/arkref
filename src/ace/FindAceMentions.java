@@ -90,7 +90,7 @@ public class FindAceMentions {
 			int aceExtentStart = aceM.extent.charseq.start - aceOffsetCorrection;
 			Sentence sent = myDoc.getSentenceContaining(aceExtentStart);
 			U.pl("\nSENTENCE "+sent.surfSent.cleanText);
-			U.pl("EXTENT <" + aceM.extent.charseq.text + ">");
+			U.pl("EXTENT < " + aceM.head.charseq.text + " | " + aceM.extent.charseq.text + ">");
 			
 			if ( ! sent.hasParse) {
 				U.pl("No parse, getting null subtree match");

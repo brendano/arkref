@@ -31,8 +31,6 @@ public class ARKref {
 		Properties properties = new Properties();
 		properties.load(new FileInputStream("config/arkref.properties"));
 	
-		int i=0;
-		while(i<args.length && args[i].startsWith("-")) { i += 2; }
 		OptionsParser op = new OptionsParser(Opts.class);
 		op.doParse(args);
 		
