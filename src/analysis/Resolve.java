@@ -28,6 +28,8 @@ public class Resolve {
 			}
 			if (Types.isPronominal(m)) {
 				resolvePronoun(m, d);
+			//} else if (isRelativePronoun(m)){
+			//	resolveRelativePronoun(m, d);
 			} else if (inAppositiveConstruction(m)) {
 				resolveAppositive(m, d);
 			} else if ((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null) {
@@ -40,7 +42,37 @@ public class Resolve {
 		}
 	}
 	
-	
+	/*
+	private static void resolveRelativePronoun(Mention mention, Document d) {
+		Tree root = mention.getSentence().rootNode();
+		Tree node = mention.node();
+		Tree parent = node.parent(root);
+		
+		parent = SyntacticPaths.getMaximalProjection(parent, root);
+		
+		for (Mention cand : d.prevMentions(mention)) {
+			if(cand.node() == parent){
+				d.refGraph().setRef(mention, cand);
+				break;
+			}
+		}
+		
+		Mention ref = d.refGraph().getFinalResolutions().get(mention);
+		if(ref != null){
+			System.out.printf("resolved relative pronouns M%-2d -> M%-2d    %20s    ->   %-20s\n", 
+					mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
+					 AnalysisUtilities.abbrevTree(ref.node()));
+		}
+	}
+
+
+	private static boolean isRelativePronoun(Mention m) {
+		if (m.node()==null) return false;
+		TregexMatcher matcher = TregexPatternFactory.getPattern("__ <<# WDT|IN|WRB|WP !> __").matcher(m.node());
+		return matcher.find();
+	}
+	 */
+
 	/**
 	 * 
 	 * Note: This is slightly different than what is described in H&K EMNLP 09.
@@ -230,16 +262,20 @@ public class Resolve {
 		
 		for (Mention cand : d.prevMentions(mention)) {
 			if (cand.node() != null) {
-				if (SyntacticPaths.aIsDominatedByB(mention, cand)) { // I-within-I constraint 
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)){// I-within-I constraint
 					match = false;
+					//System.out.println("rejected due to I within I");
 				} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
 					match = false;
+					//System.out.println("rejected due to subj-obj constraint");
 				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
 					match = false;
+					//System.out.println("rejected due to adjunct constraint");
 				} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
 					//TODO keep this or not?
 					match = true;
 				} else {
+					//System.out.println("rejected due to non-matching head word");
 					match = false;
 				}							
 			} else {
