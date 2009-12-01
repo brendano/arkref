@@ -24,5 +24,6 @@
 			<attribute name="javadoc_location" value="file:/Users/brendano/sw/lingpipe-3.8.2/docs/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/commons-lang-2.4-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

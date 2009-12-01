@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import parsestuff.AnalysisUtilities;
 import parsestuff.U;
 import analysis.Preprocess;
+import analysis.SyntacticPaths;
 import data.Document;
 import data.Sentence;
 import data.Word;
@@ -100,8 +101,8 @@ public class FindAceMentions {
 //			U.pf("EXTENT %d to %d\n", aceM.extent.charseq.start, aceM.extent.charseq.end);
 			
 			// Compute position of extent in this sentence
-			int start = aceM.extent.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
-			int end = aceM.extent.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
+			int start = aceM.head.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
+			int end = aceM.head.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
 			// sentence breaking errors can lead to the following
 			if (start<0 && end>=sent.surfSent.rawText.length())
 				throw new AlignmentFailed("both ACE extent bounds outside the sentence, weird");
@@ -113,7 +114,7 @@ public class FindAceMentions {
 			String pick = sent.surfSent.rawText.substring(start, end);
 //			U.pf("EXTENT PICK: [%s]\n", U.backslashEscape(pick));
 			pick = AnalysisUtilities.moreCleanup(pick).text;
-			assert weird || pick.equals( aceM.extent.charseq.text ) : "["+pick+"] -vs- <"+aceM.extent.charseq.text+">";
+			//assert weird || pick.equals( aceM.extent.charseq.text ) : "["+pick+"] -vs- <"+aceM.extent.charseq.text+">";
 			if (weird)  U.pl("WEIRD:  "+"["+pick+"] -vs- <"+aceM.extent.charseq.text+">");
 			
 //			U.pf("ADJUSTED EXTENT:  %d to %d\n", start,end);
@@ -151,8 +152,8 @@ public class FindAceMentions {
 			for (int wi=leftW; wi<=rightW; wi++)  {
 				aceLeaves[wi-leftW] = sent.words.get(wi).node();
 			}
-			U.pf("ACE extent leaves [size %2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
-			
+			U.pf("ACE head leaves [size %2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
+						
 			// Shoehorn into the parsetree
 //			if (leftW == rightW) {
 //				
@@ -162,8 +163,16 @@ public class FindAceMentions {
 //					// TODO dont do following stuff
 //				}
 //			}
+			
+			
 			Tree subtree = myDoc.findNodeThatCoversSpan(sent, leftW, rightW);
-			int subtreeSize = subtree.getLeaves().size();
+			Tree maxProjection = SyntacticPaths.getMaximalProjection(subtree, sent.rootNode());
+			
+			aceM.myMention = myDoc.newMention(sent, maxProjection);
+			U.pl("Extracted Mention:\t" + maxProjection);
+			
+			
+			/*int subtreeSize = subtree.getLeaves().size();
 			
 			if (subtree.label().value().equals("JJ")) {
 				U.pl("OMG adjectival mention " + subtree);
@@ -193,7 +202,7 @@ public class FindAceMentions {
 				
 //				U.pf("UHOH, ACE extent leaves [size %-2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
 //				U.pf("UHOH, lowest subtree    [size %-2d]:  %s\n", subtreeSize, subtree);
-			}
+			}*/
 		}
 	}
 	

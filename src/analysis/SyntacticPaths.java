@@ -35,6 +35,12 @@ public class SyntacticPaths {
 		int tmp;
 		for(int i=0; i<pathLengths.size(); i++){
 			tmp = pathLengths.get(i);
+			String tmpS = "";
+			if(candidates.get(i).node() != null){
+				tmpS = candidates.get(i).node().yield().toString();
+			}
+			System.out.println("distance:"+tmp+"\t"+tmpS);
+			
 			if(tmp < minLength){
 				minLength = tmp;
 				minIndex = i;
@@ -42,6 +48,7 @@ public class SyntacticPaths {
 		}
 
 		res = candidates.get(minIndex);
+		
 		return res;
 	}
 
@@ -114,16 +121,17 @@ public class SyntacticPaths {
 		Tree tmp = parent;
 		HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
 		Tree parentHead = parent.headTerminal(hf);
-
 		while(tmp != null){
-			tmp = res.parent(root);
-			if(tmp.headTerminal(hf) == parentHead){
+			if(tmp.headTerminal(hf) == parentHead && tmp.parent(root) != null){
 				res = tmp;
 			}else{
 				break;
 			}
+			tmp = res.parent(root);
+			//System.err.println("\tp:"+parent.toString()+"\tpHead:"+parentHead+"\ttmp:"+tmp);
 		}
-
+		//System.err.println("node:"+parent.toString()+"\tmaxProjection:"+res.toString());
+		
 		return res;
 	}
 

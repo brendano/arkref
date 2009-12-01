@@ -183,11 +183,14 @@ public class Resolve {
 			boolean match = Types.checkPronominalMatch(mention, cand);
 			
 			if (cand.node() != null) {
-				if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint 
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint
+					//System.out.println("fails A dominates B test");
 					match = false;
 				} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+					//System.out.println("fails reflexive test");
 					match = false;
 				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+					//System.out.println("fails adjunct test");
 					match = false;
 				}				
 			}
