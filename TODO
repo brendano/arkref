@@ -1,3 +1,7 @@
+* nicknames and such: Yale Univerity -> Yale, Fatah Movement -> Fatah
+
+* map relative pronoun mentions in ACE with some specialized rule (e.g., "(WDT who)")
+
 * Too-long sentences for parser: back off to punctuation splits?
 
 * cross-tree alignments (notes/crossing_nps.txt)
