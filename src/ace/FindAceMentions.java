@@ -101,8 +101,13 @@ public class FindAceMentions {
 //			U.pf("EXTENT %d to %d\n", aceM.extent.charseq.start, aceM.extent.charseq.end);
 			
 			// Compute position of extent in this sentence
-			int start = aceM.head.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
+			//int start = aceM.head.charseq.start - aceOffsetCorrection - sent.surfSent.charStart;
+			String [] tokens = AnalysisUtilities.getInstance().stanfordTokenize(aceM.head.charseq.text);
+
+			tokens[tokens.length-1].length();
 			int end = aceM.head.charseq.end - aceOffsetCorrection + 1 - sent.surfSent.charStart;
+			int start = end - tokens[tokens.length-1].length();
+			
 			// sentence breaking errors can lead to the following
 			if (start<0 && end>=sent.surfSent.rawText.length())
 				throw new AlignmentFailed("both ACE extent bounds outside the sentence, weird");
