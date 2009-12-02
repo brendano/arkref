@@ -21,6 +21,8 @@ public class ARKref {
 		public static boolean forcePre = false;
 		@Option(gloss="Write entity/mention xml output to .reso.xml")
 		public static boolean writeXml = false;
+		@Option(gloss="Write entity/mention xml output to .tagged")
+		public static boolean writeTagged = false;
 		@Option(gloss="Number of sentences in possible antecedent window")
 		public static int sentenceWindow = 999;
 		@Option(gloss="Input paths", required=true)
@@ -73,8 +75,12 @@ public class ARKref {
 				RefsToEntities.go(d);
 			}
 			
-			if (Opts.writeXml)
+			if (Opts.writeXml){
 				WriteXml.go(d.entGraph(), path);
+			}
+			if (Opts.writeTagged){
+				WriteXml.writeTaggedDocument(d, path);
+			}
 		}
 	}
 
