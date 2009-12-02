@@ -332,6 +332,13 @@ public class AnalysisUtilities {
 			if (parser.parse(sentence)) {
 				lastParse = parser.getBestParse();
 				lastParseScore = parser.getPCFGScore();
+				TreePrint tp = new TreePrint("penn","",new PennTreebankLanguagePack());
+				StringWriter sb = new StringWriter();
+				pw = new PrintWriter(sb);
+				tp.printTree(lastParse, pw);
+				pw.flush();
+				lastParse = readTreeFromString(sb.getBuffer().toString());
+						
 				return new ParseResult(true, lastParse, lastParseScore);
 			}
 		}catch(Exception e){

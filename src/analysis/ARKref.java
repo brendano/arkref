@@ -49,13 +49,14 @@ public class ARKref {
 
 			U.pl("\n***  Input "+path+"  ***\n");
 			
-			Document d = Document.loadFiles(path);
+			Document d;
 
 			if (Opts.ace) {
 				if (Opts.forcePre || !Preprocess.alreadyPreprocessed(path)) {
 					AcePreprocess.go(path);
 					Preprocess.go(path);
 				}
+				d = Document.loadFiles(path);
 				AceDocument aceDoc = AceDocument.load(path);
 				d.ensureSurfaceSentenceLoad(path);
 				FindAceMentions.go(d, aceDoc);
@@ -66,6 +67,7 @@ public class ARKref {
 				if (Opts.forcePre || !Preprocess.alreadyPreprocessed(path)) {
 					Preprocess.go(path);
 				}
+				d = Document.loadFiles(path);
 				FindMentions.go(d);
 				Resolve.go(d);
 				RefsToEntities.go(d);
