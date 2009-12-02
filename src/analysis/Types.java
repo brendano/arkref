@@ -160,6 +160,13 @@ public class Types {
 			return null;
 		}
 		
+		Gender firstNameGender = genderByFirstNames(m);
+		
+		return firstNameGender;
+	}
+
+
+	private static Gender genderByFirstNames(Mention m) {
 		//Go through all the NNP tokens in the noun phrase and see if any of them
 		//are person names.  If so, return the gender of that name.
 		//Note: this will fail for ambiguous month/person names like "April"
@@ -174,8 +181,10 @@ public class Types {
 				return Gender.Female;
 			}
 		}
+		
 		return null;
 	}
+	
 	
 	public static Personhood personhood(Mention m) {
 		if (isPronominal(m)) {
@@ -183,8 +192,12 @@ public class Types {
 			return personhood(p);
 		}
 		String t = m.neType();
-		if (t.equals("PERSON") || NounTypes.getInstance().getType(m.getHeadWord()).equals("person")) return Personhood.Person;
-		if (t.equals("O")) return null;
+		if (t.equals("PERSON") 
+				|| NounTypes.getInstance().getType(m.getHeadWord()).equals("person")
+				|| genderByFirstNames(m) != null)
+			return Personhood.Person;
+		if (t.equals("O")) 
+			return null;
 		return Personhood.NotPerson;
 	}
 	
