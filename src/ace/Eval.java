@@ -14,7 +14,6 @@ public class Eval {
 	 *  
 	 *  could take just the RefGraph actually for this
 	 *  
-	 *  H&K has a weird definition of pairwise F1 that i don't understand for precision
 	 */
 	public static void pairwise(AceDocument aceDoc, EntityGraph eg) {
 		U.pl("\n***  Pairwise Evaluation  ***\n");
@@ -101,10 +100,15 @@ public class Eval {
 			cluster_tp /= 2;
 			U.pf("%3d/%-3d  bad links\n", cluster_fp, cluster_fp+cluster_tp);
 			pred_tp += cluster_tp;
-			fp += cluster_fp;		}
+			fp += cluster_fp;
+		}
+		
+		assert pred_tp == gold_tp;
 		
 		U.pl("\n***  Numbers  ***\n");
-		U.pf("pred_tp=%-4d fp=%-4d  =>  Precision = %.3f\n", pred_tp, fp,  pred_tp*1.0/(pred_tp+fp));
-		U.pf("gold_tp=%-4d fn=%-4d  =>  Recall = %.3f\n", gold_tp, fn,  gold_tp*1.0/(gold_tp+fn));
+		U.pf("Pairwise Eval:  tp=%-4d fp=%-4d fn=%-4d\t%s\n",  pred_tp, fp, fn,  aceDoc.document.docid);
+		U.pf("Doc Prec = %.3f   Doc Rec = %.3f    \t%s\n", pred_tp*1.0/(pred_tp+fp), gold_tp*1.0/(gold_tp+fn), aceDoc.document.docid);
+//		U.pf("pred_tp=%-4d fp=%-4d  =>  Precision = %.3f\n", pred_tp, fp,  pred_tp*1.0/(pred_tp+fp));
+//		U.pf("gold_tp=%-4d fn=%-4d  =>  Recall = %.3f\n", gold_tp, fn,  gold_tp*1.0/(gold_tp+fn));
 	}
 }

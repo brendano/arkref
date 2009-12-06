@@ -93,6 +93,8 @@ public class AceDocument {
 	public static class Document {
 		@ElementList(inline=true, entry="entity")
 		List <Entity> entities;
+		@Attribute(name="DOCID")
+		String docid;
 		
 		
 		public ArrayList<Mention> getMentions() {

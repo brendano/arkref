@@ -11,6 +11,8 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.aliasi.util.Arrays;
+
 import parsestuff.U;
 
 import sent.SentenceBreaker;
@@ -41,7 +43,10 @@ public class Sentence {
 		this.setRootNode(root);
 		String[] neTaggedWords = neTagging.split(" ");
 		List<Tree> leaves = root.getLeaves();
-		assert !parseSuccess || neTaggedWords.length == leaves.size();
+		if ( !(!parseSuccess || neTaggedWords.length == leaves.size())) {
+			U.pf("WARNING parser and NER tokenizers disagree on length %d vs %d\nPARSER: %s\nNER:     %s\n", leaves.size(), neTaggedWords.length, leaves, StringUtils.join(neTaggedWords," "));
+		}		
+//		assert !parseSuccess || neTaggedWords.length == leaves.size();
 		
 		for (int i=0; i < neTaggedWords.length; i++) {
 			Word word = new Word();
