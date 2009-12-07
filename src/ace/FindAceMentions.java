@@ -90,8 +90,8 @@ public class FindAceMentions {
 		for (AceDocument.Mention aceM : aceMentions) {
 			int aceExtentStart = aceM.extent.charseq.start - aceOffsetCorrection;
 			Sentence sent = myDoc.getSentenceContaining(aceExtentStart);
-			U.pl("\nSENTENCE "+sent.surfSent.cleanText);
-			U.pl("EXTENT < " + aceM.head.charseq.text + " | " + aceM.extent.charseq.text + ">");
+//			U.pl("\nSENTENCE "+sent.surfSent.cleanText);
+//			U.pl("EXTENT < " + aceM.head.charseq.text + " | " + aceM.extent.charseq.text + ">");
 			
 			if ( ! sent.hasParse) {
 				U.pl("No parse, getting null subtree match");
@@ -125,7 +125,6 @@ public class FindAceMentions {
 //			U.pf("ADJUSTED EXTENT:  %d to %d\n", start,end);
 			
 			// Find the span around this extent
-//			Word leftW=null, rightW=null;
 			int leftW=-1, rightW=-1;
 			for (int wi=0; wi < sent.words.size(); wi++) {
 				Word w = sent.words.get(wi);
@@ -152,12 +151,12 @@ public class FindAceMentions {
 			}
 			assert leftW!=-1 && rightW!=-1 : "leftW,rightW = "+leftW+","+rightW;
 			assert rightW >= leftW : "leftW,rightW = "+leftW+","+rightW;
-			U.pl("leftW,rightW = "+leftW+","+rightW);
+
 			Tree[] aceLeaves = new Tree[rightW - leftW + 1];
 			for (int wi=leftW; wi<=rightW; wi++)  {
 				aceLeaves[wi-leftW] = sent.words.get(wi).node();
 			}
-			U.pf("ACE head leaves [size %2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
+//			U.pf("ACE head leaves [size %2d]:  %s\n", aceLeaves.length, StringUtils.join(aceLeaves," "));
 						
 			// Shoehorn into the parsetree
 //			if (leftW == rightW) {
@@ -174,7 +173,8 @@ public class FindAceMentions {
 			Tree maxProjection = SyntacticPaths.getMaximalProjection(subtree, sent.rootNode());
 			
 			aceM.myMention = myDoc.newMention(sent, maxProjection);
-			U.pl("Extracted Mention:\t" + maxProjection);
+			aceM.myMention.aceMention = aceM;
+//			U.pl("Extracted Mention:\t" + maxProjection);
 			
 			
 			/*int subtreeSize = subtree.getLeaves().size();
@@ -232,7 +232,7 @@ public class FindAceMentions {
 			headCounts.incrementCount(m.head.charseq.text);
 		}
 		assert !headCounts.keysAt(1).isEmpty() : "no singleton mention heads, alignment is hard.";
-		U.pl(headCounts);
+//		U.pl(headCounts);
 		Set<String> uniqueHeads = headCounts.keysAt(1);
 		for (AceDocument.Mention m : aceMentions) {
 			if ( ! uniqueHeads.contains(m.head.charseq.text)) continue;

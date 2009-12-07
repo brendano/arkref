@@ -19,9 +19,13 @@ public class Resolve {
 	public static void go(Document d) {
 		System.out.println("\n***  Resolve ***\n");
 		Mention antecedent;
-		
+		Sentence curS = null;
 		for (Mention m : d.mentions()) {
-			System.out.println("= Resolving\t" + m);
+			if (m.getSentence() != curS) {
+				curS = m.getSentence();
+				U.pf("\n== S%-2s  %s\n", curS.ID(), curS.text());
+			}
+			System.out.println("\n= Resolving\t" + m);
 			if (m.node()==null) {
 				U.pl("No parse node, skipping");
 				continue;
@@ -33,15 +37,70 @@ public class Resolve {
 			} else if (inAppositiveConstruction(m)) {
 				resolveAppositive(m, d);
 			} else if ((antecedent = findAntecedentInRoleAppositiveConstruction(m,d)) != null) {
-				d.refGraph().setRef(m, antecedent);		
+				d.refGraph().setRef(m, antecedent);
+				reportResolution("role-appos", m, antecedent);
 			} else if ((antecedent = findAntecendentInPredicateNominativeConstruction(m, d)) != null) {
-				d.refGraph().setRef(m, antecedent);		
+				d.refGraph().setRef(m, antecedent);
+				reportResolution("pred-nom", m, antecedent);
 			} else {
 				resolveOther(m, d);
+			}
+			
+			
+			if (d.refGraph().getFinalResolutions().get(m) == null) {
+				boolean hadAChance = isThereAGoldAntecedent(d, m);
+				reportResolution("null", m, null, hadAChance);
+				if (hadAChance && m.aceMention!=null && !Types.isPronominal(m)) {
+					U.pf("%s   gold antecedent candidates:\n", m.aceMention);
+					printGoldAntecedents(d,m);
+				}
 			}
 		}
 	}
 	
+	public static void reportResolution(String reason, Mention mention, Mention ref) {
+		reportResolution(reason,mention,ref, true);
+	}
+	public static void reportResolution(String reason, Mention mention, Mention ref, boolean hadAChance) {
+		String eval = null;
+		if (mention.aceMention!=null && ref==null) {
+			eval = mention.aceMention.isSingleton() ? "RIGHT " : (hadAChance ? "WRONG " : "NOCHANCE ");
+		} else if (mention.aceMention!=null && ref.aceMention!=null) {
+			eval = mention.aceMention.entity == ref.aceMention.entity ? "RIGHT " : (hadAChance ? "WRONG " : "NOCHANCE ");
+		} else {
+			eval = "";
+		}
+		if (ref==null) {
+			System.out.printf("%sresolved %-15s: M%-2d           %20s\n",
+					eval, reason, mention.ID(), AnalysisUtilities.abbrevTree(mention.node()));
+		} else {
+			System.out.printf("%sresolved %-15s: M%-2d -> M%-2d    %20s    ->   %-20s\n",
+					eval, reason, mention.ID(), ref.ID(),
+					AnalysisUtilities.abbrevTree(mention.node()),
+					AnalysisUtilities.abbrevTree(ref.node()));
+		}
+	}	
+	public static void printGoldAntecedents(Document d, Mention m) {
+		for (Mention ant : d.prevMentions(m)) {
+			if (ant.aceMention!=null && 
+					ant.aceMention.entity == m.aceMention.entity)
+				U.pf("%s,  ", ant.aceMention);
+		}
+		U.pf("\n");
+
+	}
+	public static boolean isThereAGoldAntecedent(Document d, Mention m) {
+		if (m.aceMention == null) return true; // weird
+		for (Mention ant : d.prevMentions(m)) {
+			if (ant.aceMention!=null && 
+					ant.aceMention.entity == m.aceMention.entity)
+				return true;
+		}
+		return false;
+	}
+	
+	
+
 	/*
 	private static void resolveRelativePronoun(Mention mention, Document d) {
 		Tree root = mention.getSentence().rootNode();
@@ -189,22 +248,14 @@ public class Resolve {
 		Tree parent = node.parent(root);
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			if(cand.node() == parent){
+			if(cand.node() == parent) {
 				d.refGraph().setRef(mention, cand);
+				reportResolution("appos", mention, cand);
 				break;
 			}
 		}
 		
-		
-		Mention ref = d.refGraph().getFinalResolutions().get(mention);
-		if(ref != null){
-			System.out.printf("resolved appositive M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-					mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
-					 AnalysisUtilities.abbrevTree(ref.node()));
-		}
 	}
-	
-	
 	
 	public static void resolvePronoun(Mention mention, Document d) {
 		System.out.println("trying to resolve as a pronoun");
@@ -215,7 +266,8 @@ public class Resolve {
 			boolean match = Types.checkPronominalMatch(mention, cand);
 			
 			if (cand.node() != null) {
-				if (SyntacticPaths.aIsDominatedByB(mention, cand)){ // I-within-I constraint
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)){
+					 // I-within-I constraint
 					//System.out.println("fails A dominates B test");
 					match = false;
 				} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
@@ -228,10 +280,10 @@ public class Resolve {
 			}
 			
 			if (match) {
-				System.out.println("yay    match: " + cand);
+//				System.out.println("yay    match: " + cand);
 				candidates.add(cand);
 			} else {
-				System.out.println("reject mismatch:  " + cand);
+//				System.out.println("reject mismatch:  " + cand);
 			}
 		}
 		if (candidates.size() == 0) {
@@ -246,9 +298,7 @@ public class Resolve {
 		}
 		Mention ref = d.refGraph().getFinalResolutions().get(mention);
 		if(ref != null){
-			System.out.printf("resolved pronoun M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
-				 AnalysisUtilities.abbrevTree(ref.node()));
+			reportResolution("pronoun", mention,ref);
 		}
 	}
 
@@ -282,10 +332,10 @@ public class Resolve {
 				match = false;
 			}
 			if (match) {
-				System.out.println("yay   match:\t" + cand);
+//				System.out.println("yay   match:\t" + cand);
 				candidates.add(cand);
 			} else {
-				System.out.println("reject mismatch:\t" + cand);
+//				System.out.println("reject mismatch:\t" + cand);
 			}
 		}
 		
@@ -296,15 +346,13 @@ public class Resolve {
 			System.out.println("Single legal resolution");
 			d.refGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
-			System.out.println("Finding pronoun antecedent by shortest syntactic path");
+			System.out.println("Finding antecedent by shortest syntactic path");
 			d.refGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
 		
 		Mention ref = d.refGraph().getFinalResolutions().get(mention);
-		if(ref != null){
-			System.out.printf("resolved after filtering M%-2d -> M%-2d    %20s    ->   %-20s\n", 
-				mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
-				 AnalysisUtilities.abbrevTree(ref.node()));
+		if (ref != null){
+			reportResolution("other", mention, ref);
 		}
 		
 		//semantics!

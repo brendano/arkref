@@ -1,5 +1,6 @@
 package data;
 
+import ace.AceDocument;
 import analysis.Types;
 import parsestuff.AnalysisUtilities;
 
@@ -9,6 +10,7 @@ public class Mention {
 	private Tree node;
 	private Sentence sentence;
 	private int id;
+	public AceDocument.Mention aceMention;  // for convenience
 	
 	public Mention(int id, Sentence sentence, Tree node) { this.id=id; this.sentence=sentence; this.node=node; }
 	

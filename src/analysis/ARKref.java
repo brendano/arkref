@@ -45,9 +45,10 @@ public class ARKref {
 		}
 		
 		U.pl("=Options=\n" + op.doGetOptionPairs());
-		
+		boolean dots = Opts.input.length > 1;
 		for (String path : Opts.input) {
 			path = Preprocess.shortPath(path);
+			if (dots) System.err.print("."); 
 
 			U.pl("\n***  Input "+path+"  ***\n");
 			
@@ -82,6 +83,7 @@ public class ARKref {
 				WriteXml.writeTaggedDocument(d, path);
 			}
 		}
+		if (dots) System.err.println("");
 	}
 
 }

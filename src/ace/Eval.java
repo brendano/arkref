@@ -23,15 +23,14 @@ public class Eval {
 		
 		U.pl("\n**  Analysis of gold clusters  (for Recall)  **\n");
 		for (AceDocument.Entity aceE : aceDoc.document.entities) {
-			U.pl("");
-			U.pl(aceE);
+			String stuff = "";
 			int cluster_tp=0, cluster_fn=0;
 			for (int i=0; i < aceE.mentions.size(); i++) {
 				AceDocument.Mention am1 = aceE.mentions.get(i);
 				data.Mention mm1 = am1.myMention;
-				U.pl(am1);
+//				U.pl(am1);
 				Set<data.Mention> corefs = eg.getLinkedMentions(mm1);
-				U.pf("  %-20s | %s\n", corefs.size()==1 ? "singleton" : "entity_"+eg.entName(mm1),   mm1);
+				stuff += U.sf("  %-30s | %-20s | %s\n", am1, corefs.size()==1 ? "singleton" : "entity_"+eg.entName(mm1),   mm1);
 //				if (eg.mention2corefs.get(mm1).size()==1)
 //					U.pl("Resolved as singleton");
 //				else
@@ -54,7 +53,13 @@ public class Eval {
 			}
 			cluster_fn /= 2;
 			cluster_tp /= 2;
-			U.pf("%3d/%-3d  missing links\n", cluster_fn, cluster_tp+cluster_fn);
+			
+			U.pf("%-10s", aceE);
+			if (cluster_tp+cluster_fn > 0)
+				U.pf("%3d / %-3d  missing links", cluster_fn, cluster_tp+cluster_fn);
+			U.pf("\n");
+			U.pl(stuff);
+			
 			gold_tp += cluster_tp;
 			fn += cluster_fn;
 		}
@@ -67,18 +72,14 @@ public class Eval {
 			int cluster_tp=0, cluster_fp=0;
 			
 			if (myE.mentions.size()==1)  continue;
-			U.pf("%s", myE);
-//			if (myE.mentions.size()==1)  {
-//				U.pf("  skipping\n");
-//				continue;
-//			}
-			U.pl("");
+			
+			String stuff="";
 			for (int i=0; i < mentions.size(); i++) {
 				data.Mention mm1 = mentions.get(i);
 				AceDocument.Mention am1 = aceDoc.getAceMention(mm1);
 				
 				AceDocument.Entity goldEnt = aceDoc.getAceMention(mm1)==null ? null : aceDoc.getAceMention(mm1).entity;
-				U.pf("  gold %-12s || %s\n",  goldEnt,   mm1);
+				stuff += U.sf("  gold %-12s || %s\n",  goldEnt,   mm1);
 
 				for (int j=0; j < mentions.size(); j++) {
 					if (i==j) continue;
@@ -98,7 +99,10 @@ public class Eval {
 			}
 			cluster_fp /= 2;
 			cluster_tp /= 2;
-			U.pf("%3d/%-3d  bad links\n", cluster_fp, cluster_fp+cluster_tp);
+
+			U.pf("%-30s  %3d / %-3d  bad links\n", myE, cluster_fp, cluster_fp+cluster_tp);
+			U.pl(stuff);
+			
 			pred_tp += cluster_tp;
 			fp += cluster_fp;
 		}

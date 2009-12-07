@@ -1,6 +1,14 @@
-* nicknames and such: Yale Univerity -> Yale, Fatah Movement -> Fatah
+* embedded mentions usually coreferent.  Examples from grep -C5 '^WRONG resolved null'
+example 1
+M5  <American President Bill Clinton | Bill Clinton>
+M4  <American President | President>
+example 2
+M18 <Governor George Bush | George Bush>
+M17 <Governor>
 
-* Too-long sentences for parser: back off to punctuation splits?
+
+
+* nicknames and such: Yale Univerity -> Yale, Fatah Movement -> Fatah
 
 * cross-tree alignments (notes/crossing_nps.txt)
 

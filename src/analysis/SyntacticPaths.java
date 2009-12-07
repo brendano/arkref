@@ -39,7 +39,7 @@ public class SyntacticPaths {
 			if(candidates.get(i).node() != null){
 				tmpS = candidates.get(i).node().yield().toString();
 			}
-			System.out.println("distance:"+tmp+"\t"+tmpS);
+//			System.out.println("distance:"+tmp+"\t"+tmpS);
 			
 			if(tmp < minLength){
 				minLength = tmp;

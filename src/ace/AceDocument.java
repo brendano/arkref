@@ -130,7 +130,7 @@ public class AceDocument {
 		@ElementList(inline=true)
 		List <Mention> mentions;
 		public String ID() { return aceID.replaceFirst(".*-E", "E"); }
-		public String toString() { return String.format("%-3s (size %2d)", ID(), mentions.size()); }
+		public String toString() { return String.format("%-3s", ID()); }
 	}
 	@Root(name="entity_mention",strict=false)
 	public static class Mention {
@@ -147,10 +147,20 @@ public class AceDocument {
 		public data.Mention myMention = null;
 		
 		public int ID() { return Integer.parseInt(aceID.replaceFirst(".*-","")); }
+		
+		public boolean isSingleton() {
+			assert entity.mentions.size() != 0;
+			return entity.mentions.size() == 1;
+		}
 		 
 		public String toString() { 
 			if (myMention != null) {
-				return String.format("M%-2d <%s>", myMention.ID(), Strings.normalizeWhitespace(extent.charseq.text));
+				String ex = Strings.normalizeWhitespace(extent.charseq.text);
+				String h = Strings.normalizeWhitespace(head.charseq.text);
+				if (ex.equals(h))
+					return String.format("M%-2d <%s>", myMention.ID(), ex);
+				else
+					return String.format("M%-2d <%s | %s>", myMention.ID(), ex, h);
 			} else {
 				return String.format("AM%-2d | %s", ID(),
 						Strings.normalizeWhitespace(extent.charseq.text));	

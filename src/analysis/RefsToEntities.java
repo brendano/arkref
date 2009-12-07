@@ -1,5 +1,6 @@
 package analysis;
 
+import parsestuff.U;
 import data.Document;
 import data.EntityGraph;
 import data.Mention;
@@ -24,10 +25,14 @@ public class RefsToEntities {
 				s = m.getSentence().ID();
 				System.out.printf("S%-2s  %s\n",s, m.getSentence().text());
 			}
+			U.pf("  ");
+			if (m.aceMention != null) {
+				U.pf("%-3s ", m.aceMention.isSingleton() ? "" : m.aceMention.entity);
+			}
 			if (eg.isSingleton(m)) {
-				System.out.printf("\t%-20s  %s\n", "singleton", m);
+				U.pf("%-20s  %s\n", "singleton", m);
 			} else {
-				System.out.printf("\t%-20s  %s\n", "entity_"+eg.entName(m), m);
+				U.pf("%-20s  %s\n", "entity_"+eg.entName(m), m);
 			}
 		}
 //		System.out.println("");
