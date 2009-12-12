@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import analysis.ARKref.Opts;
+
+import com.aliasi.util.Strings;
+
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import parsestuff.U;
@@ -61,6 +65,7 @@ public class Resolve {
 	public static void reportResolution(String reason, Mention mention, Mention ref) {
 		reportResolution(reason,mention,ref, true);
 	}
+	/** really anal-retentive output format to enable grep-based statistical analysis **/
 	public static void reportResolution(String reason, Mention mention, Mention ref, boolean hadAChance) {
 		String eval = null;
 		if (mention.aceMention!=null && ref==null) {
@@ -276,11 +281,16 @@ public class Resolve {
 				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
 					//System.out.println("fails adjunct test");
 					match = false;
-				}				
+				}
 			}
 			
 			if (match) {
-//				System.out.println("yay    match: " + cand);
+				String s="";
+				if (mention.aceMention!=null & cand.aceMention!=null) {
+					boolean gold_match = mention.aceMention.entity==cand.aceMention.entity;
+					s = gold_match ? "[gold RIGHT]" : "[gold WRONG]";
+				}
+//				U.pf("PRONOUN CANDIDATE %s: %20s -> %s\n", s, mention, cand);
 				candidates.add(cand);
 			} else {
 //				System.out.println("reject mismatch:  " + cand);
@@ -309,38 +319,56 @@ public class Resolve {
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		
+		boolean haveSemInfo = false;//Sem.haveNP(mention);
+		
 		for (Mention cand : d.prevMentions(mention)) {
 			Boolean match = null;
-			// this is how you do GOTO in java.  fun, eh?
-			MadeDecision: do {
+			// do while(false): it's GOTO in java.  fun, eh?
+			
+			DecideCandidate: do {
 				if (cand.node() == null) {
-					match = false; break MadeDecision;
+					match = false; break DecideCandidate;
 				}
 				if (Types.isPronominal(cand)) {
 					// we only do pronoun-nominal matching in the other direction
-					match = false; break MadeDecision;
+					match = false; break DecideCandidate;
 				}
 				if (SyntacticPaths.aIsDominatedByB(mention, cand)){// I-within-I constraint
 					//System.out.println("rejected due to I within I");
-					match = false; break MadeDecision;
+					match = false; break DecideCandidate;
 				} 
 				if (SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
 					//System.out.println("rejected due to subj-obj constraint");
-					match = false; break MadeDecision;
+					match = false; break DecideCandidate;
 				} 
 				if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
 					//System.out.println("rejected due to adjunct constraint");
-					match = false; break MadeDecision;
+					match = false; break DecideCandidate;
 				} 
 				if (SyntacticPaths.haveSameHeadWord(mention, cand)) { 
-					match = true; break MadeDecision;
+					match = true; break DecideCandidate;
 				}
-//				boolean haveSemInfo = Sem.haveNP(mention);
-//				if (haveSemInfo && Sem.haveNP(cand)) {
-//					U.pl("SEMANTICS");
-//					match = Sem.areCompatible(mention, cand);
-//					break MadeDecision;
-//				} 
+				if (Opts.oracleSemantics) {
+					match = mention.aceMention.entity==cand.aceMention.entity;
+					U.pf("SEMANTICS ORACLE %-5s\t%s\t%s\n",
+							match ? "MATCH" : "DIFF",
+							Strings.normalizeWhitespace(mention.aceMention.head.charseq.text),
+							Strings.normalizeWhitespace(cand.aceMention.head.charseq.text));
+					 break DecideCandidate;
+					
+				}
+				if (haveSemInfo && Sem.haveNP(cand)) {
+//					if (mention.aceMention.entity==cand.aceMention.entity) {
+//						U.pf("SEMANTICS PLEASE");
+//					} else {
+//						U.pf("SEMANTICS STOP");
+//					}
+//					U.pf("\t%s\t%s\n", 
+//							Strings.normalizeWhitespace(mention.aceMention.head.charseq.text),
+//							Strings.normalizeWhitespace(cand.aceMention.head.charseq.text));
+					match = Sem.areCompatible(mention, cand);
+					break DecideCandidate;
+				} 
 				
 //				U.pl("Defaulting to reject");
 				match = false;

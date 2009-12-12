@@ -25,6 +25,8 @@ public class ARKref {
 		public static boolean writeTagged = false;
 		@Option(gloss="Number of sentences in possible antecedent window")
 		public static int sentenceWindow = 999;
+		@Option
+		public static boolean oracleSemantics = false;
 		@Option(gloss="Input paths", required=true)
 		public static String[] input;
 	}

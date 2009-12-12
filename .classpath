@@ -25,5 +25,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry kind="lib" path="lib/commons-lang-2.4-sources.jar"/>
+	<classpathentry kind="lib" path="lib/jsc.jar"/>
+	<classpathentry kind="lib" path="lib/commons-math-2.0.jar" sourcepath="commons-math-2.0/commons-math-2.0-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

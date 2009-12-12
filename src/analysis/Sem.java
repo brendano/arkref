@@ -10,10 +10,7 @@ import data.CDB.FV;
 public class Sem {
 
 	public static boolean haveNP(Mention mention) {
-		// TODO headword?!
-		return CDB.I().haveNP(mention.getHeadWord());
-		// TODO Auto-generated method stub
-//		return false;
+		return CDB.I().haveNP(getNPString(mention));
 	}
 	
 	public static String getNPString(Mention mention) {
@@ -30,9 +27,33 @@ public class Sem {
 		
 		FV fv1 = CDB.I().getContextVector(np1);
 		FV fv2 = CDB.I().getContextVector(np2);
-		U.pf("REPORT  %10s --vs-- %-10s\n", np1,np2);
-		FV.pairReport(fv1, fv2);
-		return false;
+		
+		return FV.cos(fv1,fv2) > 0.30;
+		
+//		double score = 0;
+//		for (String key : FV.keyIntersect(fv1, fv2)) {
+//			double cc = CDB.I().contextCounts.get(key);
+//			U.pf("CONTEXT ");
+//			U.pf("match=%s ", mention.aceMention.entity==cand.aceMention.entity ? "TRUE" : "FALSE");
+//			U.pf("np1=%s np2=%s ", np1.replace(" ","_"), np2.replace(" ","_"));
+//			U.pf("context_count=%s ", cc);
+//			U.pf("context=%s ", key.replace(" ","_"));
+//			U.pf("np1count=%s np2count=%s ", CDB.I().npCounts.get(np1), CDB.I().npCounts.get(np2));
+//			U.pf("np1cc=%s np2cc=%s ", fv1.map.get(key), fv2.map.get(key) );
+//			U.pf("\n");
+//		}
+		
+//		U.pf("REPORT  %10s (%.1e)  -- vs --  %10s (%.1e)\n", 
+//				np1, 1.0*CDB.I().npCounts.get(np1),
+//				np2, 1.0*CDB.I().npCounts.get(np2));
+//		FV.pairReport(fv1, fv2);
+		
+//		U.pf("CONTEXT ");
+//		U.pf("match=%s ", mention.aceMention.entity==cand.aceMention.entity ? "TRUE" : "FALSE");
+//		U.pf("np1=%s np2=%s ", np1.replace(" ","_"), np2.replace(" ","_"));
+//		U.pf("rho=%.3f ", FV.spearman(fv1, fv2) );
+		
+//		return false;
 		
 //		Set<String> cs1 = CDB.I.getContexts(np1);
 //		Set<String> cs2 = CDB.I.getContexts(np2);

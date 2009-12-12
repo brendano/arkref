@@ -76,13 +76,13 @@ public class Types {
 	
 	public static boolean personhoodEquals(Personhood x, Personhood y) {
 		// see testEntityTypeMatching(), testThey()
-		if ((x==null || x==Personhood.NotPerson || x==Personhood.MaybePerson) 
-				&& (y==null || y==Personhood.NotPerson || y==Personhood.MaybePerson))
+		if(	(x==null || x==Personhood.NotPerson || x==Personhood.MaybePerson) && 
+			(y==null || y==Personhood.NotPerson || y==Personhood.MaybePerson))
 		{
 			return true;
 		}
-		if ((x==Personhood.Person || x==Personhood.MaybePerson) 
-				&& (y==Personhood.Person || y==Personhood.MaybePerson))
+		if(	(x==Personhood.Person || x==Personhood.MaybePerson) && 
+			(y==Personhood.Person || y==Personhood.MaybePerson))
 		{
 			return true;
 		}
@@ -97,16 +97,19 @@ public class Types {
 			// testFirstPerson
 			return false;
 		}
+		
+		// this hurts recall a good bit (!)
+		// if (isPronominal(cand) && perspective(pronoun) != perspective(cand))
+		//	return false;
+		
 		// using lax test on personhood because i don't know how to get it for most common nouns
 		// number is easiest to get
 		// gender is gray area
 		return
-			//relaxedEquals(personhood(pronoun), personhood(cand)) &&
 			personhoodEquals(personhood(pronoun), personhood(cand)) &&
 			sexistGenderEquals(gender(mention), gender(cand)) &&
-			/* DISABLED gender(mention) == gender(cand) && */
-			relaxedEquals(number(mention), number(cand)); // "they" should be able to match singular nouns for groups
-			//number(mention) == number(cand);
+			relaxedEquals(number(mention), number(cand)) && // "they" should be able to match singular nouns for groups
+			true;
 	}
 	
 	public static boolean isReflexive(Mention m) {
@@ -214,7 +217,7 @@ public class Types {
 		return null;
 	}
 	
-	/** what the heck is the real name for this? **/
+	/** what the heck is the real name for this? at least it is nice and reliably deterministic **/
 	public static Perspective perspective(String pronoun) {
 		if (pronoun.matches("^(i|me||my|mine|we|our|ours|ourselves|myself)$")) {
 			return Perspective.First;
@@ -224,6 +227,11 @@ public class Types {
 			return Perspective.Third;
 		}
 	}
+	public static Perspective perspective(Mention mention) {
+		assert isPronominal(mention);
+		return perspective(pronoun(mention));
+	}
+
 	
 	public static Number number(Mention m) {
 		if (m.node()==null) return null;
