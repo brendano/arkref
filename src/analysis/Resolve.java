@@ -309,6 +309,7 @@ public class Resolve {
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		boolean match = false;
+		boolean haveSemInfo = Sem.haveNP(mention);
 		
 		for (Mention cand : d.prevMentions(mention)) {
 			if (cand.node() != null) {
@@ -324,8 +325,10 @@ public class Resolve {
 				} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
 					//TODO keep this or not?
 					match = true;
+				} else if (haveSemInfo && Sem.haveNP(cand)) {
+					U.pl("SEMANTICS");
+					match = Sem.areCompatible(mention, cand);
 				} else {
-					//System.out.println("rejected due to non-matching head word");
 					match = false;
 				}							
 			} else {
