@@ -296,6 +296,9 @@ public class Resolve {
 //				System.out.println("reject mismatch:  " + cand);
 			}
 		}
+		// HACK HACK
+//		if (Types.perspective(mention)==Types.Perspective.Second)
+//			candidates.clear();
 		if (candidates.size() == 0) {
 			System.out.println("No legal candidates");
 			d.refGraph().setNullRef(mention);
