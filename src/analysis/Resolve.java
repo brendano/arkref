@@ -308,34 +308,46 @@ public class Resolve {
 		//TODO SEMANTICS!
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
-		boolean match = false;
-//		boolean haveSemInfo = Sem.haveNP(mention);
 		
 		for (Mention cand : d.prevMentions(mention)) {
-			if (cand.node() != null) {
-				if (SyntacticPaths.aIsDominatedByB(mention, cand)){// I-within-I constraint
-					match = false;
-					//System.out.println("rejected due to I within I");
-				} else if(SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-					match = false;
-					//System.out.println("rejected due to subj-obj constraint");
-				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-					match = false;
-					//System.out.println("rejected due to adjunct constraint");
-				} else if(SyntacticPaths.haveSameHeadWord(mention, cand)) { //matching head word 
-					//TODO keep this or not?
-					match = true;
+			Boolean match = null;
+			// this is how you do GOTO in java.  fun, eh?
+			MadeDecision: do {
+				if (cand.node() == null) {
+					match = false; break MadeDecision;
 				}
-//				else if (haveSemInfo && Sem.haveNP(cand)) {
+				if (Types.isPronominal(cand)) {
+					// we only do pronoun-nominal matching in the other direction
+					match = false; break MadeDecision;
+				}
+				if (SyntacticPaths.aIsDominatedByB(mention, cand)){// I-within-I constraint
+					//System.out.println("rejected due to I within I");
+					match = false; break MadeDecision;
+				} 
+				if (SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+					//System.out.println("rejected due to subj-obj constraint");
+					match = false; break MadeDecision;
+				} 
+				if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+					//System.out.println("rejected due to adjunct constraint");
+					match = false; break MadeDecision;
+				} 
+				if (SyntacticPaths.haveSameHeadWord(mention, cand)) { 
+					match = true; break MadeDecision;
+				}
+//				boolean haveSemInfo = Sem.haveNP(mention);
+//				if (haveSemInfo && Sem.haveNP(cand)) {
 //					U.pl("SEMANTICS");
 //					match = Sem.areCompatible(mention, cand);
+//					break MadeDecision;
 //				} 
-				else {
-					match = false;
-				}							
-			} else {
+				
+//				U.pl("Defaulting to reject");
 				match = false;
-			}
+				
+			} while(false);
+			assert match != null : "if/else logic screwed up!";
+			
 			if (match) {
 //				System.out.println("yay   match:\t" + cand);
 				candidates.add(cand);
