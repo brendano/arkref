@@ -1,12 +1,11 @@
 package data;
+
 import java.util.*;
 import java.util.regex.Pattern;
 import java.io.*;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
-
-import jsc.correlation.SpearmanCorrelation;
-import jsc.datastructures.PairedData;
+//import org.apache.commons.math.stat.correlation.SpearmansCorrelation;
+//import jsc.correlation.SpearmanCorrelation;
+//import jsc.datastructures.PairedData;
 
 import parsestuff.U;
 
@@ -196,6 +195,7 @@ public class CDB {
 			return _spearman(keys, fv1, fv2);
 		}
 		public static double _spearman(String[] keys, FV fv1, FV fv2) {
+			assert false : "disabled!";
 			double[] vals1 = new double[keys.length];
 			double[] vals2 = new double[keys.length];
 			for (int i=0; i < keys.length; i++) {
@@ -204,9 +204,9 @@ public class CDB {
 			}
 //			U.pl(StringUtils.join(box(vals1), " "));
 //			U.pl(StringUtils.join(box(vals2)," "));
-			SpearmansCorrelation sc = new SpearmansCorrelation();
-			return sc.correlation(vals1, vals2);
-
+//			SpearmansCorrelation sc = new SpearmansCorrelation();
+//			return sc.correlation(vals1, vals2);
+			return -999;
 //			PairedData pd = new PairedData(vals1,vals2);
 //			SpearmanCorrelation sc = new SpearmanCorrelation(pd);
 //			return sc.getR();

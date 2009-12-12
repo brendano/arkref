@@ -1,4 +1,5 @@
 * embedded mentions usually coreferent.  Examples from grep -C5 '^WRONG resolved null'
+  (shouldn't these be role appositives?)
 example 1
 M5  <American President Bill Clinton | Bill Clinton>
 M4  <American President | President>
