@@ -348,7 +348,7 @@ public class Resolve {
 					//System.out.println("rejected due to adjunct constraint");
 					match = false; break DecideCandidate;
 				} 
-				if (SyntacticPaths.haveSameHeadWord(mention, cand)) { 
+				if (SyntacticPaths.haveSameHeadWord(mention, cand) || substringMatch(mention, cand)) { 
 					match = true; break DecideCandidate;
 				}
 				if (Opts.oracleSemantics) {
@@ -404,6 +404,43 @@ public class Resolve {
 		}
 		
 		//semantics!
+	}
+
+	
+	private static boolean substringMatch(Mention mention, Mention cand) {
+		String mHead = mention.getHeadWord();
+		String cHead = cand.getHeadWord();
+		String mYield = mention.node().yield().toString();
+		String cYield = cand.node().yield().toString();
+		
+		/*if(mHead.length() >= 5 && cHead.length() >= 5){
+			if(mHead.subSequence(0, 5).equals(cHead.subSequence(0, 5))){
+				return true;
+			}
+		}*/
+		
+		//both must be proper nouns
+		if(mention.node().headPreTerminal(AnalysisUtilities.getInstance().getHeadFinder()).label().toString().indexOf("NNP") != 0
+			 && cand.node().headPreTerminal(AnalysisUtilities.getInstance().getHeadFinder()).label().toString().indexOf("NNP") != 0){
+				 return false;
+		}
+
+		/*if(mHead.indexOf(cHead)!=-1 || cHead.indexOf(mHead)!=-1){
+			return true;
+		}*/
+		
+		int matchLen = 4;
+		if(mHead.length() >= matchLen && cHead.length() >= matchLen){
+			if(mHead.subSequence(0, matchLen).equals(cHead.subSequence(0, matchLen))){// && LevenshteinDistance.getLevenshteinDistance(mHead, cHead) <= 5){
+				return true;
+			}
+		}
+		
+		/*if(LevenshteinDistance.getLevenshteinDistance(mHead, cHead) < 5){
+			return true;
+		}*/
+		
+		return false;
 	}
 
 
