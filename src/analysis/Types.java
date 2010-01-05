@@ -1,5 +1,6 @@
 package analysis;
 
+import arkref.analysis.Types.Gender;
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import data.FirstNames;
@@ -175,8 +176,15 @@ public class Types {
 		//Go through all the NNP tokens in the noun phrase and see if any of them
 		//are person names.  If so, return the gender of that name.
 		//Note: this will fail for ambiguous month/person names like "April"
+		
+		Tree head = m.node().headPreTerminal(AnalysisUtilities.getInstance().getHeadFinder());
+		Tree root = m.getSentence().rootNode();
+		
 		for(Tree leaf : m.node().getLeaves()){
-			if(!leaf.parent(m.node()).label().value().equals("NNP")){
+			//System.err.println(head+"\t"+leaf+"\t"+head.parent(root)+"\t"+leaf.parent(root));
+			if(!leaf.parent(m.node()).label().value().equals("NNP") 
+					|| leaf.parent(root).parent(root) != head.parent(root)) //must be a sibling of the head node, as in "(NP (NNP John) (POS 's))"
+			{
 				continue;
 			}
 			String genderS = FirstNames.getInstance().getGenderString(leaf.value());
