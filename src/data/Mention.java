@@ -1,10 +1,18 @@
 package data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ace.AceDocument;
 import analysis.Types;
 import parsestuff.AnalysisUtilities;
 
+import parsestuff.TregexPatternFactory;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.tregex.TregexPattern;
+import edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon;
+import edu.stanford.nlp.trees.tregex.tsurgeon.TsurgeonPattern;
+import edu.stanford.nlp.util.Pair;
 
 public class Mention {
 	private Tree node;
@@ -50,16 +58,50 @@ public class Mention {
 	}
 	
 	public String getHeadWord(){
-		if (node==null) {
+		Tree headTerminalNode = getHeadNode();
+		if (headTerminalNode==null) {
 			// TODO tricky: use the token span alignments and do guesswork if length>1.
 			// for now, bailing...
 			return "NO_HEAD_WORD";
 		}
-		return node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder()).yield().toString();
+		return headTerminalNode.yield().toString();
+		
+	}
+	
+	
+	public Tree getHeadNode(){
+		if (node==null) {
+			// TODO tricky: use the token span alignments and do guesswork if length>1.
+			// for now, bailing...
+			return null;
+		}
+		Tree res = node.headTerminal(AnalysisUtilities.getInstance().getHeadFinder());
+		String yield = res.yield().toString();
+		
+		if(yield.equals("'s")){
+			Tree copy = node.deeperCopy();
+			List<Pair<TregexPattern, TsurgeonPattern>> ops = new ArrayList<Pair<TregexPattern, TsurgeonPattern>>();
+			List<TsurgeonPattern> ps = new ArrayList<TsurgeonPattern>();
+			TregexPattern matchPattern = TregexPatternFactory.getPattern("POS=pos");
+			ps.add(Tsurgeon.parseOperation("prune pos"));
+			TsurgeonPattern p = Tsurgeon.collectOperations(ps);
+			ops.add(new Pair<TregexPattern,TsurgeonPattern>(matchPattern,p));
+			Tsurgeon.processPatternsOnTree(ops, copy);
+
+			res = copy.headTerminal(AnalysisUtilities.getInstance().getHeadFinder());
+		}
+		return res;
 	}
 	
 	public Sentence getSentence() {
 		return sentence;
+	}
+
+	public boolean hasSameHeadWord(Mention cand) {
+		String head = getHeadWord();
+		String candHead = cand.getHeadWord();
+		
+		return head.equalsIgnoreCase(candHead);
 	}
 	
 }

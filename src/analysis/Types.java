@@ -1,6 +1,6 @@
 package analysis;
 
-import arkref.analysis.Types.Gender;
+import analysis.Types.Gender;
 import parsestuff.AnalysisUtilities;
 import parsestuff.TregexPatternFactory;
 import data.FirstNames;

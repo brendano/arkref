@@ -348,7 +348,7 @@ public class Resolve {
 					//System.out.println("rejected due to adjunct constraint");
 					match = false; break DecideCandidate;
 				} 
-				if (SyntacticPaths.haveSameHeadWord(mention, cand) || substringMatch(mention, cand)) { 
+				if (mention.hasSameHeadWord(cand) || substringMatch(mention, cand)) { 
 					match = true; break DecideCandidate;
 				}
 				if (Opts.oracleSemantics) {
