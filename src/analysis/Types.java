@@ -262,10 +262,10 @@ public class Types {
 			Tree head = m.node().headPreTerminal(hf);
 			String tag = head.label().toString();
 			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
-			String headWord = head.getChild(0).label().value();
-			if (NounTypes.getInstance().getType(headWord).equals("organization")
-					|| NounTypes.getInstance().getType(headWord).equals("group")
-					|| m.neType().equals("ORGANIZATION")) return null;
+			//String headWord = head.getChild(0).label().value();
+			//if (NounTypes.getInstance().getType(headWord).equals("organization")
+			//		|| NounTypes.getInstance().getType(headWord).equals("group")
+			//		|| m.neType().equals("ORGANIZATION")) return null;
 			if (tag.matches("^NNP?S$")) return Number.Plural;
 			if (tag.matches("^NNP?$"))  return Number.Singular;
 			// TODO mass nouns?
