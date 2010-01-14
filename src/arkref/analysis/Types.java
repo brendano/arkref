@@ -1,5 +1,6 @@
 package arkref.analysis;
 
+import java.util.*;
 import arkref.analysis.Types.Gender;
 import arkref.data.FirstNames;
 import arkref.data.Mention;
@@ -10,10 +11,9 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.tregex.TregexMatcher;
 import edu.stanford.nlp.trees.tregex.TregexPattern;
 
+/** in all cases, null indicates unknown; that is, our system does not know. **/
 public class Types {
 
-	// in all cases, null indicates unknown; that is, our system does not know.
-	
 	public static enum Gender {
 		Male, Female;
 		public String toString() {
@@ -24,6 +24,9 @@ public class Types {
 			return null;
 		}
 	}
+	
+	/** TODO: clarify, what's the difference between MaybePer and null ? **/
+	
 	public static enum Personhood {
 		Person, NotPerson, MaybePerson;
 		public String toString() {
@@ -45,6 +48,9 @@ public class Types {
 			return null;
 		}
 	}
+	
+	/** First person, second person, third person. aka "grammatical number". **/
+	
 	public static enum Perspective {
 		First, Second, Third;
 		public String toString() {
@@ -56,6 +62,9 @@ public class Types {
 			}
 		}
 	}
+
+
+	
 	
 	public static <T> boolean relaxedEquals(T x, T y) {
 		if (x==null || y==null)
@@ -164,13 +173,13 @@ public class Types {
 			return null;
 		}
 		
-		Gender firstNameGender = genderByFirstNames(m);
+		Gender firstNameGender = genderByFirstNamesOrTitles(m);
 		
 		return firstNameGender;
 	}
 
 
-	private static Gender genderByFirstNames(Mention m) {
+	private static Gender genderByFirstNamesOrTitles(Mention m) {
 		if (m.node()==null) return null;  // TODO we can still figure something out, right
 		
 		//Go through all the NNP tokens in the noun phrase and see if any of them
@@ -188,15 +197,42 @@ public class Types {
 				continue;
 			}
 			String genderS = FirstNames.getInstance().getGenderString(leaf.value());
-			if(genderS.equals("Mal")){
+			if(genderS.equals("Mal") || leaf.value().equals("Mr.")){
 				return Gender.Male;
-			}else if(genderS.equals("Fem")){
+			}else if(genderS.equals("Fem") || leaf.value().equals("Mrs.") || leaf.value().equals("Ms.") || leaf.value().equals("Miss")){
 				return Gender.Female;
 			}
 		}
 		
 		return null;
 	}
+	
+	private static Personhood personhoodByTitle(Mention m) {
+		if (m.node()==null) return null;  // TODO we can still figure something out, right
+		
+		if(personTitles == null){
+			personTitles = new HashSet<String>();
+			String [] personTitlesArray  = {"Mr.","Mrs.","Dr.","Fr.","Drs."};
+			for(int i=0; i<personTitlesArray.length; i++) personTitles.add(personTitlesArray[i].toLowerCase());
+		}
+		
+		Tree head = m.node().headPreTerminal(AnalysisUtilities.getInstance().getHeadFinder());
+		Tree root = m.getSentence().rootNode();
+		
+		for(Tree leaf : m.node().getLeaves()){
+			//System.err.println(head+"\t"+leaf+"\t"+head.parent(root)+"\t"+leaf.parent(root));
+			if(!leaf.parent(m.node()).label().value().equals("NNP") 
+					|| leaf.parent(root).parent(root) != head.parent(root)) //must be a sibling of the head node, as in "(NP (NNP John) (POS 's))"
+			{
+				continue;
+			}
+			if(personTitles.contains(leaf.value().toLowerCase())){
+				return Personhood.Person;
+			}
+		}
+		return Personhood.MaybePerson;
+	}
+
 	
 	
 	public static Personhood personhood(Mention m) {
@@ -207,13 +243,16 @@ public class Types {
 		String t = m.neType();
 		if (t.equals("PERSON") 
 			 || NounTypes.getInstance().getType(m.getHeadWord()).equals("person")
-			 || genderByFirstNames(m) != null)
+			 || genderByFirstNamesOrTitles(m) != null
+			 || personhoodByTitle(m) == Personhood.Person)
 			return Personhood.Person;
 		if (t.equals("O")) 
 			return null;
 		return Personhood.NotPerson;
 	}
 	
+
+
 	public static Personhood personhood(String pronoun) {
 		if (pronoun.matches("^(me|he|him|his|she|her|hers|we|us|our|ours|i|my|mine|you|yours|himself|herself|ourselves|myself)$")) {
 			return Personhood.Person;
@@ -284,4 +323,6 @@ public class Types {
 		return mention.getHeadWord().matches("^(its|his|her|their|our|my)$");
 	}
 
+	private static Set<String> personTitles;
+	
 }
