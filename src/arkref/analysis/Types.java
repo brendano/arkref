@@ -261,11 +261,17 @@ public class Types {
 			HeadFinder hf = AnalysisUtilities.getInstance().getHeadFinder();
 			Tree head = m.node().headPreTerminal(hf);
 			String tag = head.label().toString();
-			// http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
+
+			// Disable the organization type check -- gives only slim gains on ACE eval
+			// and potentially complicates other analysis.
+			// Causes data/they2  unit test to fail: TestArkref.testThey()
 			//String headWord = head.getChild(0).label().value();
 			//if (NounTypes.getInstance().getType(headWord).equals("organization")
 			//		|| NounTypes.getInstance().getType(headWord).equals("group")
 			//		|| m.neType().equals("ORGANIZATION")) return null;
+
+			// plural vs singular tags: http://bulba.sdsu.edu/jeanette/thesis/PennTags.html
+
 			if (tag.matches("^NNP?S$")) return Number.Plural;
 			if (tag.matches("^NNP?$"))  return Number.Singular;
 			// TODO mass nouns?
