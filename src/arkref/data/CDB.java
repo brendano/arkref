@@ -10,6 +10,7 @@ import arkref.parsestuff.U;
 //import jsc.datastructures.PairedData;
 
 
+/** experimental, doesn't work well **/
 public class CDB {
 	public static String BASE = "/d/rtw/databig/categories";
 	public Map<String,Integer> npIndex, contextCounts, npCounts;

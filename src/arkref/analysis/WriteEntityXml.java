@@ -21,7 +21,10 @@ import arkref.parsestuff.U;
 
 import edu.stanford.nlp.trees.Tree;
 
-public class WriteXml {
+/** This is a kinda lame, hard-to-read XML format: 
+ * a list of entities, each containing their referent mentions.
+ */
+public class WriteEntityXml {
 	public static void go(EntityGraph eg, String filename) throws FileNotFoundException {
 		filename = filename + ".reso.xml";
 		File file = new File(filename);
@@ -57,7 +60,7 @@ public class WriteXml {
 		EntityGraph eg = d.entGraph();
 		filename = filename + ".tagged";
 		File file = new File(filename);
-		U.pl("Writng resolutions to " + filename);
+		System.out.println("Writng resolutions to " + filename);
 		PrintWriter pw = new PrintWriter(new FileOutputStream(file));
 
 		//pw.printf("<doc>\n");

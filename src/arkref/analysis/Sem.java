@@ -21,6 +21,7 @@ public class Sem {
 		return mention.getHeadWord(); // egads, usually too small.
 	}
 
+	/** this is really crappy **/
 	public static boolean areCompatible(Mention mention, Mention cand) {
 		
 		String np1 = getNPString(mention);

@@ -93,8 +93,6 @@ def call_dot(dotstr, filename="/tmp/tmp.png", format='png'):
 if sys.platform=='darwin':
   opener = "open"
   format = "pdf"
-  if os.path.exists("/Applications/Preview2.app"):
-    opener = "open -a /Applications/Preview2.app"
 else:
   opener = "firefox"
   format = "png"
@@ -136,5 +134,7 @@ if __name__=='__main__':
     show(parse, 'png')
   elif '-eps' in sys.argv:
     show(parse, 'eps')
+  elif '-pdf' in sys.argv:
+    show(parse, 'pdf')
   else:
     show(parse)

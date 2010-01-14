@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import arkref.parsestuff.U;
+
 /**
  * For identifying the genders of given names.
  * Uses US Census data from 
@@ -182,7 +184,7 @@ public class FirstNames {
 			buf = buf.trim();
 			genderS = FirstNames.getInstance().getGenderString(buf);
 			
-			System.out.println(genderS);
+			U.pl(genderS);
 		}
 
 	}

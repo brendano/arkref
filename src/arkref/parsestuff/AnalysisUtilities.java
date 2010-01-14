@@ -34,7 +34,7 @@ import edu.stanford.nlp.util.Pair;
 
 //import net.didion.jwnl.*;
 
-
+/** Various NL analysis utilities, including ones wrapping Stanford subsystems and other misc stuff **/
 public class AnalysisUtilities {
 	public static boolean DEBUG = true;
 	private AnalysisUtilities(){

@@ -18,12 +18,12 @@ public class RefsToEntities {
 		
 		d.setEntGraph(eg);
 		
-		System.out.println("\n*** Entity Report ***\n");
+		U.pl("\n*** Entity Report ***\n");
 		int s=-1;
 		for (Mention m : d.mentions()){
 			if (m.getSentence().ID() != s) {
 				s = m.getSentence().ID();
-				System.out.printf("S%-2s  %s\n",s, m.getSentence().text());
+				U.pf("S%-2s  %s\n",s, m.getSentence().text());
 			}
 			U.pf("  ");
 			if (m.aceMention != null) {

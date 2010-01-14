@@ -21,7 +21,7 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 
 public class Resolve {
 	public static void go(Document d) {
-		System.out.println("\n***  Resolve ***\n");
+		U.pl("\n***  Resolve ***\n");
 		Mention antecedent;
 		Sentence curS = null;
 		for (Mention m : d.mentions()) {
@@ -29,7 +29,7 @@ public class Resolve {
 				curS = m.getSentence();
 				U.pf("\n== S%-2s  %s\n", curS.ID(), curS.text());
 			}
-			System.out.println("\n= Resolving\t" + m);
+			U.pl("\n= Resolving\t" + m);
 			if (m.node()==null) {
 				U.pl("No parse node, skipping");
 				continue;
@@ -76,10 +76,10 @@ public class Resolve {
 			eval = "";
 		}
 		if (ref==null) {
-			System.out.printf("%sresolved %-15s: M%-2d           %20s\n",
+			U.pf("%sresolved %-15s: M%-2d           %20s\n",
 					eval, reason, mention.ID(), AnalysisUtilities.abbrevTree(mention.node()));
 		} else {
-			System.out.printf("%sresolved %-15s: M%-2d -> M%-2d    %20s    ->   %-20s\n",
+			U.pf("%sresolved %-15s: M%-2d -> M%-2d    %20s    ->   %-20s\n",
 					eval, reason, mention.ID(), ref.ID(),
 					AnalysisUtilities.abbrevTree(mention.node()),
 					AnalysisUtilities.abbrevTree(ref.node()));
@@ -123,7 +123,7 @@ public class Resolve {
 		
 		Mention ref = d.refGraph().getFinalResolutions().get(mention);
 		if(ref != null){
-			System.out.printf("resolved relative pronouns M%-2d -> M%-2d    %20s    ->   %-20s\n", 
+			U.pf("resolved relative pronouns M%-2d -> M%-2d    %20s    ->   %-20s\n", 
 					mention.ID(), ref.ID(), AnalysisUtilities.abbrevTree(mention.node()),
 					 AnalysisUtilities.abbrevTree(ref.node()));
 		}
@@ -263,7 +263,7 @@ public class Resolve {
 	}
 	
 	public static void resolvePronoun(Mention mention, Document d) {
-		System.out.println("trying to resolve as a pronoun");
+		U.pl("trying to resolve as a pronoun");
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
 		
@@ -273,13 +273,13 @@ public class Resolve {
 			if (cand.node() != null) {
 				if (SyntacticPaths.aIsDominatedByB(mention, cand)){
 					 // I-within-I constraint
-					//System.out.println("fails A dominates B test");
+					//U.pl("fails A dominates B test");
 					match = false;
 				} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-					//System.out.println("fails reflexive test");
+					//U.pl("fails reflexive test");
 					match = false;
 				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-					//System.out.println("fails adjunct test");
+					//U.pl("fails adjunct test");
 					match = false;
 				}
 			}
@@ -293,20 +293,20 @@ public class Resolve {
 //				U.pf("PRONOUN CANDIDATE %s: %20s -> %s\n", s, mention, cand);
 				candidates.add(cand);
 			} else {
-//				System.out.println("reject mismatch:  " + cand);
+//				U.pl("reject mismatch:  " + cand);
 			}
 		}
 		// HACK HACK
 //		if (Types.perspective(mention)==Types.Perspective.Second)
 //			candidates.clear();
 		if (candidates.size() == 0) {
-			System.out.println("No legal candidates");
+			U.pl("No legal candidates");
 			d.refGraph().setNullRef(mention);
 		} else if (candidates.size() == 1) {
-			System.out.println("Single legal resolution");
+			U.pl("Single legal resolution");
 			d.refGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
-			System.out.println("Finding pronoun antecedent by shortest syntactic path");
+			U.pl("Finding pronoun antecedent by shortest syntactic path");
 			d.refGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
 		Mention ref = d.refGraph().getFinalResolutions().get(mention);
@@ -337,15 +337,15 @@ public class Resolve {
 					match = false; break DecideCandidate;
 				}
 				if (SyntacticPaths.aIsDominatedByB(mention, cand)){// I-within-I constraint
-					//System.out.println("rejected due to I within I");
+					//U.pl("rejected due to I within I");
 					match = false; break DecideCandidate;
 				} 
 				if (SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-					//System.out.println("rejected due to subj-obj constraint");
+					//U.pl("rejected due to subj-obj constraint");
 					match = false; break DecideCandidate;
 				} 
 				if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-					//System.out.println("rejected due to adjunct constraint");
+					//U.pl("rejected due to adjunct constraint");
 					match = false; break DecideCandidate;
 				} 
 				if (mention.hasSameHeadWord(cand) || substringMatch(mention, cand)) { 
@@ -380,21 +380,21 @@ public class Resolve {
 			assert match != null : "if/else logic screwed up!";
 			
 			if (match) {
-//				System.out.println("yay   match:\t" + cand);
+//				U.pl("yay   match:\t" + cand);
 				candidates.add(cand);
 			} else {
-//				System.out.println("reject mismatch:\t" + cand);
+//				U.pl("reject mismatch:\t" + cand);
 			}
 		}
 		
 		if (candidates.size() == 0) {
-			System.out.println("No legal candidates");
+			U.pl("No legal candidates");
 			d.refGraph().setNullRef(mention);
 		} else if (candidates.size() == 1) {
-			System.out.println("Single legal resolution");
+			U.pl("Single legal resolution");
 			d.refGraph().setRef(mention, candidates.get(0));
 		} else if (candidates.size() > 1) {
-			System.out.println("Finding antecedent by shortest syntactic path");
+			U.pl("Finding antecedent by shortest syntactic path");
 			d.refGraph().setRef(mention, SyntacticPaths.findBestCandidateByShortestPath(mention, candidates, d)); 
 		}
 		

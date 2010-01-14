@@ -15,23 +15,34 @@ import arkref.parsestuff.U;
 public class ARKref {
 	
 	public static class Opts {
+		@Option(gloss="Input documents (file paths)", required=true)
+		public static String[] input;
+		@Option(gloss="Write mention-tagged XML sentence output to .tagged")
+		public static boolean writeTagged = false;
+		@Option(gloss="Debug output?")
+		public static boolean debug = false;
 		@Option(gloss="Use ACE eval pipeline")
 		public static boolean ace = false;
 		@Option(gloss="Force preprocessing")
 		public static boolean forcePre = false;
-		@Option(gloss="Write entity/mention xml output to .reso.xml")
-		public static boolean writeXml = false;
-		@Option(gloss="Write entity/mention xml output to .tagged")
-		public static boolean writeTagged = false;
+		@Option(gloss="Oracle semantics ... for analysis only")
+		public static boolean oracleSemantics = false;
 		@Option(gloss="Number of sentences in possible antecedent window")
 		public static int sentenceWindow = 999;
-		@Option
-		public static boolean oracleSemantics = false;
-		@Option(gloss="Input paths", required=true)
-		public static String[] input;
 	}
-
+	
+	private static boolean usingCommandline = false;
+	/** commandline usage should show debug output only with flag.
+	 *  otherwise -- e.g. unit tests -- always show. **/ 
+	public static boolean showDebug() {
+		return
+			!usingCommandline ||
+			(usingCommandline && Opts.debug);
+	}
+	
 	public static void main(String[] args) throws Exception {
+		usingCommandline = true;
+		
 		Properties properties = new Properties();
 		properties.load(new FileInputStream("config/arkref.properties"));
 	
@@ -39,14 +50,20 @@ public class ARKref {
 		op.doParse(args);
 		
 		if (Opts.input == null || Opts.input.length==0) {
-			U.pl("Please specify file or files to run on.  e.g.:  ./arkref.sh -input data/*.sent"+
-					"\nLeaving off extension is OK.  "+
-					"We assume other files are in same directory with different extensions; "+
-					"if they don't exist we will make them.");
+			System.err.println(
+			"Please specify file or files to run on.  e.g.:  ./arkref.sh -writeTagged -input data/*.sent"+
+			"\nLeaving off extension is OK.  "+
+			"We assume other files are in same directory with different extensions; "+
+			"if they don't exist we will make them.\nFor all options, see: ./arkref.sh -help");
 			System.exit(-1);
 		}
 		
-		U.pl("=Options=\n" + op.doGetOptionPairs());
+		if (!(Opts.debug || Opts.writeTagged)) {
+			System.err.println("Need to specify some sort of output, e.g. -writeTagged or -debug");
+			System.exit(-1);
+		}
+		
+		System.out.println("=Options=\n" + op.doGetOptionPairs());
 		boolean dots = Opts.input.length > 1;
 		for (String path : Opts.input) {
 			path = Preprocess.shortPath(path);
@@ -78,11 +95,11 @@ public class ARKref {
 				RefsToEntities.go(d);
 			}
 			
-			if (Opts.writeXml){
-				WriteXml.go(d.entGraph(), path);
-			}
+//			if (Opts.writeEntityMentionXml){
+//				WriteEntityMentionXml.go(d.entGraph(), path);
+//			}
 			if (Opts.writeTagged){
-				WriteXml.writeTaggedDocument(d, path);
+				WriteEntityXml.writeTaggedDocument(d, path);
 			}
 		}
 		if (dots) System.err.println("");

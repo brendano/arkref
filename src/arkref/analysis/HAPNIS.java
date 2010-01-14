@@ -16,6 +16,8 @@ import arkref.data.FirstNames;
  * parsing the internal structure of names. 
  * (http://www.cs.utah.edu/~hal/HAPNIS/)
  * 
+ * NB: this is not currently used in ARKref
+ * 
  * @author Michael Heilman
  *
  */

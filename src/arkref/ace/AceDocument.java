@@ -75,7 +75,7 @@ public class AceDocument {
 			Document d = parseFile(f);
 			for (Entity en : d.entities ) {
 				for (Mention m : en.mentions) {
-					System.out.println(m.aceID +" | "+m.ID()+" | "+m.head.charseq.text+" | "+m.extent.charseq.text);
+					U.pl(m.aceID +" | "+m.ID()+" | "+m.head.charseq.text+" | "+m.extent.charseq.text);
 				}
 			}
 		}
