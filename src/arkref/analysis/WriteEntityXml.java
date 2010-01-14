@@ -25,11 +25,8 @@ import edu.stanford.nlp.trees.Tree;
  * a list of entities, each containing their referent mentions.
  */
 public class WriteEntityXml {
-	public static void go(EntityGraph eg, String filename) throws FileNotFoundException {
-		filename = filename + ".reso.xml";
-		File file = new File(filename);
-		U.pl("Writng resolutions to " + filename);
-		PrintWriter pw = new PrintWriter(new FileOutputStream(file));
+	public static void go(EntityGraph eg, PrintWriter pw) throws FileNotFoundException {
+
 
 		pw.printf("<entities>\n");
 		List<Entity> ents = eg.sortedEntities();
@@ -56,12 +53,8 @@ public class WriteEntityXml {
 		
 	}
 	
-	public static void writeTaggedDocument(Document d, String filename) throws FileNotFoundException {
+	public static void writeTaggedDocument(Document d, PrintWriter pw) throws FileNotFoundException {
 		EntityGraph eg = d.entGraph();
-		filename = filename + ".tagged";
-		File file = new File(filename);
-		System.out.println("Writng resolutions to " + filename);
-		PrintWriter pw = new PrintWriter(new FileOutputStream(file));
 
 		//pw.printf("<doc>\n");
 		
