@@ -199,7 +199,7 @@ public class Types {
 			String genderS = FirstNames.getInstance().getGenderString(leaf.value());
 			if(genderS.equals("Mal") || leaf.value().equals("Mr.")){
 				return Gender.Male;
-			}else if(genderS.equals("Fem") || leaf.value().equals("Mrs.") || leaf.value().equals("Ms.") || leaf.value().equals("Miss")){
+			}else if(genderS.equals("Fem") || leaf.value().equals("Mrs.") || leaf.value().equals("Ms.")){
 				return Gender.Female;
 			}
 		}
@@ -212,7 +212,7 @@ public class Types {
 		
 		if(personTitles == null){
 			personTitles = new HashSet<String>();
-			String [] personTitlesArray  = {"Mr.","Mrs.","Dr.","Fr.","Drs."};
+			String [] personTitlesArray  = {"Mr.","Mrs.","Dr.","Fr.","Drs.","Ms."};
 			for(int i=0; i<personTitlesArray.length; i++) personTitles.add(personTitlesArray[i].toLowerCase());
 		}
 		
