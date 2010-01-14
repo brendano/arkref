@@ -24,8 +24,8 @@ public class ARKref {
 		public static boolean stdin = false;
 		@Option(gloss="Input documents (file paths)")
 		public static String[] input;
-		@Option(gloss="Write mention-tagged XML sentence output to .tagged")
-		public static boolean writeTagged = false;
+		//@Option(gloss="Write mention-tagged XML sentence output to .tagged")
+		//public static boolean writeTagged = false;
 		@Option(gloss="Debug output?")
 		public static boolean debug = false;
 		@Option(gloss="Use ACE eval pipeline")
@@ -58,17 +58,17 @@ public class ARKref {
 		
 		if (!Opts.stdin && (Opts.input == null || Opts.input.length==0)) {
 			System.err.println(
-			"Please specify file or files to run on.  e.g.:  ./arkref.sh -writeTagged -input data/*.sent"+
+			"Please specify file or files to run on.  e.g.:  ./arkref.sh -input data/*.sent"+
 			"\nLeaving off extension is OK.  "+
 			"We assume other files are in same directory with different extensions; "+
 			"if they don't exist we will make them.\nFor all options, see: ./arkref.sh -help");
 			System.exit(-1);
 		}
 		
-		if (!(Opts.debug || Opts.writeTagged)) {
-			System.err.println("Need to specify some sort of output, e.g. -writeTagged or -debug");
-			System.exit(-1);
-		}
+		//if (!(Opts.debug || Opts.writeTagged)) {
+		//	System.err.println("Need to specify some sort of output, e.g. -writeTagged or -debug");
+		//	System.exit(-1);
+		//}
 		
 		System.err.println("=Options=\n" + op.doGetOptionPairs());
 		
@@ -137,7 +137,7 @@ public class ARKref {
 //			if (Opts.writeEntityMentionXml){
 //				WriteEntityMentionXml.go(d.entGraph(), path);
 //			}
-			if (Opts.writeTagged){
+			if (!Opts.debug){
 				PrintWriter pw = null;
 				
 				if(Opts.stdin){
