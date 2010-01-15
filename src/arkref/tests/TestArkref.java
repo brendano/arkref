@@ -515,7 +515,7 @@ public class TestArkref extends TestCase {
 		assertNoLink(13,14,d); //Susan, she (s5)
 	}	
 
-	public void testDisallowPronounsMatchesInQuotes() throws IOException{
+	/*public void testDisallowPronounsMatchesInQuotes() throws IOException{
 		//John said, "You need to see him."
 		//Susan said, "She needs to see him."
 		//She also said, "She needs to see him."
@@ -537,7 +537,7 @@ public class TestArkref extends TestCase {
 		assertLink(4,7, d); //Susan, She
 		assertNoLink(7,8, d); //She, she
 		assertNoLink(1,9, d); //John, him (s3)
-	}
+	}*/
 	
 	
 }
