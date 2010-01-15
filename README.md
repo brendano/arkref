@@ -13,6 +13,13 @@ the syntactic rules into log-linear features, etc., it can be made useful for
 a variety of applications.
 
 
+Technical requirements
+----------------------
+
+Only Java is required, probably version 1.6. Various libraries (e.g. GraphViz,
+Hpricot) are necessary for the various development support scripts.
+
+
 How to run
 ----------
 

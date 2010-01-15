@@ -3,15 +3,14 @@ License notices
 
 The full ARKref distribution is effectively GPL'd.
 
-Code for ARKref itself is licensed under the MIT license.
+Original code in ARKref is licensed under the MIT license.
 
 However, the full system heavily relies on components that are distributed
 under stricter licenses -- in particular, the GPL -- so if you use ARKref
 as-is, with those components included, you have to use the stricter licenses.
 
 In particular, we believe this means the full system cannot be included in
-commercial software. It seems to be effectively GPL'd. It probably should only
-be used for research.
+commercial software. It probably should only be used for research.
 
 For ARKref without the components:
 
