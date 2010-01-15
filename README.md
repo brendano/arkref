@@ -108,8 +108,8 @@ a copy of it, evaluation can be run something like this:
 More information
 ----------------
 
-We are working on a real tech report for this, but in the meantime, a class
-project report is available with the code:
+We are working on a real tech report for this, but in the meantime, a 
+preliminary class project report is available with the code:
 `notes/class_paper/coref_final_for_rtw.pdf`. Please first read:
 
 * Aria Haghighi and Dan Klein. _Simple Coreference Resolution with Rich
