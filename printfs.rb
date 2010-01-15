@@ -1,3 +1,5 @@
+# for arkref.parsetuff.U
+
 def cond code
   %|if (ARKref.showDebug()) {  #{code}  }|
 end

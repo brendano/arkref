@@ -22,11 +22,11 @@ public class ARKref {
 	public static class Opts {
 		@Option(gloss="Take input from STDIN and produce output on STDOUT")
 		public static boolean stdin = false;
-		@Option(gloss="Input documents (file paths)")
+		@Option(gloss="Input document paths, with or without extentions. e.g. data/*.sent")
 		public static String[] input;
 		//@Option(gloss="Write mention-tagged XML sentence output to .tagged")
 		//public static boolean writeTagged = false;
-		@Option(gloss="Debug output?")
+		@Option(gloss="Debug output")
 		public static boolean debug = false;
 		@Option(gloss="Use ACE eval pipeline")
 		public static boolean ace = false;
@@ -55,13 +55,15 @@ public class ARKref {
 	
 		OptionsParser op = new OptionsParser(Opts.class);
 		op.doParse(args);
+		if (Opts.ace)  Opts.debug = true;
 		
 		if (!Opts.stdin && (Opts.input == null || Opts.input.length==0)) {
 			System.err.println(
-			"Please specify file or files to run on.  e.g.:  ./arkref.sh -input data/*.sent"+
-			"\nLeaving off extension is OK.  "+
-			"We assume other files are in same directory with different extensions; "+
-			"if they don't exist we will make them.\nFor all options, see: ./arkref.sh -help");
+			"Please specify -input or -stdin for input.\n"+
+//			"\nLeaving off extension is OK.  "+
+//			"We assume other files are in same directory with different extensions; "+
+//			"if they don't exist we will make them." +
+			"For all options, see: ./arkref.sh -help");
 			System.exit(-1);
 		}
 		
@@ -70,7 +72,7 @@ public class ARKref {
 		//	System.exit(-1);
 		//}
 		
-		System.err.println("=Options=\n" + op.doGetOptionPairs());
+		U.pl("=Options=\n" + op.doGetOptionPairs());
 		
 		//take input on stdin, store parses, split sentences, and NER tags
 		//in temporary files.
@@ -100,7 +102,7 @@ public class ARKref {
 			Opts.input = new String[1];
 			Opts.input[0] = tmpFile.getAbsolutePath();
 		}else{
-			System.err.println("INPUT:"+Opts.input[0]);
+//			System.err.println("INPUT:"+Opts.input[0]);
 		}
 		
 		boolean dots = Opts.input.length > 1;

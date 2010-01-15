@@ -5,6 +5,9 @@
 # It will make a graphviz graphic and open it on your computer
 # to look at.
 
+# has only been tested on linux and mac
+# and requires GraphViz to be installed - the 'dot' command.
+
 from __future__ import with_statement
 import sys,os,time,pprint
 
@@ -91,12 +94,15 @@ def call_dot(dotstr, filename="/tmp/tmp.png", format='png'):
 
 
 if sys.platform=='darwin':
-  opener = "open"
   format = "pdf"
 else:
-  opener = "firefox"
   format = "png"
 
+def open_file(filename):
+  import webbrowser
+  f = "file://" + os.path.abspath(filename)
+  webbrowser.open(f)
+  # os.system(opener + " " + filename)
 
 def show(sexpr, format=format):
   tree = parse_sexpr(sexpr)
@@ -104,7 +110,7 @@ def show(sexpr, format=format):
   dotstr = dot_tuples(tuples)
   filename = "/tmp/tmp.%s.%s" % (time.time(),format)
   call_dot(dotstr, filename, format=format)
-  os.system(opener + " " + filename)
+  open_file(filename)
 
 def do_multi(parses):
   base = "/tmp/tmp.%s_NUM.pdf" % (time.time(),)
@@ -117,13 +123,15 @@ def do_multi(parses):
   output = base.replace("NUM","merged")
   inputs = base.replace("NUM","*")
   os.system("gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=%s %s" % (output,inputs))
-  os.system(opener + " " + output)
+  open_file(output)
+  # os.system(opener + " " + output)
   
 if __name__=='__main__':
   import sys
   input = sys.stdin.read().strip()
   lines = input.split("\n")
   #pprint.pprint(lines)
+  lines = [l for l in lines if l and not l.isspace()]
   if len(lines)>1 and all(is_balanced(line) or (not (set('()') & set(line))) for line in lines):
     do_multi(lines)
     sys.exit(0)
