@@ -62,7 +62,7 @@ The debug output is designed to make it as easy as possible to understand why
 the algorithm is making its decisions. This is possible since the approach is
 strongly procedural and rule-oriented. See it with:
 
-    $ ./arkref.sh -debug demo/lee_example.txt
+    $ ./arkref.sh -debug -input demo/lee_example.txt
 
 Various development utility scripts are included. (We do not attempt to
 maintain them to be runnable out-of-the-box, so you may have to install
