@@ -1,16 +1,18 @@
 License notices
 ===============
 
-The full ARKref distribution is effectively GPL'd.
+The full ARKref distribution is GPL'd.
 
-Original code in ARKref is licensed under the MIT license.
+Our original code in ARKref is licensed under the MIT license.
 
 However, the full system heavily relies on components that are distributed
-under stricter licenses -- in particular, the GPL -- so if you use ARKref
-as-is, with those components included, you have to use the stricter licenses.
+under stricter licenses -- in particular, the GPL, and the Alias-i license
+that forces the overall distribution to be freely licensed -- so if you use
+ARKref as-is, with those components included, you have to use the stricter
+licenses.
 
 In particular, we believe this means the full system cannot be included in
-commercial software. It probably should only be used for research.
+commercial software. It should only be used for research.
 
 For ARKref without the components:
 
@@ -42,6 +44,8 @@ Various included components:
 =========================================================
 Stanford Parser, NER, and Tregex are under the GPLv2.
 http://nlp.stanford.edu/software/lex-parser.shtml
+http://nlp.stanford.edu/software/CRF-NER.shtml
+http://nlp.stanford.edu/software/tregex.shtml
 
 =========================================================
 LingPipe is under the Alias-i Royalty Free License, Version 1.
