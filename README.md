@@ -86,6 +86,8 @@ errors by looking at the (raw, pre-surgery) trees as PDF or PNG images:
 
 <center><iframe src="http://docs.google.com/viewer?url=http%3A%2F%2Fwww.ark.cs.cmu.edu%2FARKref%2Flee_example.parse.pdf&embedded=true" width="500" height="350" style="border: none;"></iframe></center>
 
+[[PDF]](http://www.ark.cs.cmu.edu/ARKref/lee_example.parse.pdf)
+
 Evaluation: there is code that loads ACE Phase 2 datasets and evaluates on
 them. Unfortunately, this data cannot be freely redistributed. (Please contact
 us if you need assistance.) Evaluation can be run something like this:
