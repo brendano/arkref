@@ -13,11 +13,11 @@ TARGET=arkref.jar
 
 set -eux
 
-rm -rf build
-mkdir -p build
+rm -rf bin
+mkdir -p bin
 
-javac -cp $(print $(dirname $0)/lib/**/*.jar | tr ' ' :) -d build src/**/*.java
+javac -cp $(print $(dirname $0)/lib/**/*.jar | tr ' ' :) -d bin src/**/*.java
 
-(cd build && jar cf $TARGET arkref)
+(cd bin && jar cf $TARGET arkref)
 
-#cp build/$TARGET arkref.jar
+#cp bin/$TARGET arkref.jar
