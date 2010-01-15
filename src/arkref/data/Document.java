@@ -33,12 +33,28 @@ public class Document {
 
 
 	public Document() {
-		sentences = new ArrayList();
-		mentions = new ArrayList();
-		node2mention = new NodeHashMap();
+		sentences = new ArrayList<Sentence>();
+		mentions = new ArrayList<Mention>();
+		node2mention = new NodeHashMap<Mention>();
 		refGraph = new RefGraph();
 	}
 
+	
+	public Document(List<Tree> trees, List<String> entityStrings) {
+		sentences = new ArrayList<Sentence>();
+		mentions = new ArrayList<Mention>();
+		node2mention = new NodeHashMap<Mention>();
+		refGraph = new RefGraph();
+		
+		for(int i=0; i<trees.size(); i++){
+			Sentence sent = new Sentence(i);
+			Tree t = trees.get(i);
+			String entityString = entityStrings.get(i);
+			boolean parseSuccess = !t.getChild(0).label().toString().equals(".");
+			sent.setStuff(t, entityString, parseSuccess);
+			sentences.add(sent);
+		}
+	}
 	
 	
 	/**
@@ -182,7 +198,7 @@ public class Document {
 	}
 
 
-	private static void addNPsAbovePossessivePronouns(Tree tree) {
+	public static void addNPsAbovePossessivePronouns(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
 		String patS = "NP=parentnp < /^PRP\\$/=pro"; //needs to be the maximum projection of a head word
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
@@ -201,7 +217,7 @@ public class Document {
 	}
 
 
-	private static void addInternalNPStructureForRoleAppositives(Tree tree) {
+	public static void addInternalNPStructureForRoleAppositives(Tree tree) {
 		TreeFactory factory = new LabeledScoredTreeFactory(); //TODO might want to keep this around to save time
 		String patS = "NP=parentnp < (NN|NNS=role . NNP|NNPS)";
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
