@@ -19,7 +19,7 @@ How to run
 To get started, the following command runs ARKref on a demo document included
 with the code. We start with just one file, the document text:
 
-    $ ls -1 demo/
+    $ ls demo/
     lee_example.txt
     
     $ cat demo/lee_example.txt
@@ -32,7 +32,7 @@ Run ARKref like so, creating intermediate files and output:
     $ ./arkref.sh -input demo/lee_example.txt
     ...
 
-    $ ls -1 demo/
+    $ ls demo/
     lee_example.ner
     lee_example.osent
     lee_example.parse
@@ -64,9 +64,8 @@ strongly procedural and rule-oriented. See it with:
 
     $ ./arkref.sh -debug -input demo/lee_example.txt
 
-Various development utility scripts are included. (We do not attempt to
-maintain them to be runnable out-of-the-box, so you may have to install
-prerequisites: see their comments.)  For example, streamlined tagging view:
+Various development utility scripts are included. (They may require libraries
+to be installed; see their comments.) For example, streamlined tagging view:
 
     $ cat demo/lee_example.tagged | ./tagviz.rb 
 
@@ -78,7 +77,7 @@ prerequisites: see their comments.)  For example, streamlined tagging view:
 
     However , *it*_1 ca n't hold up .
 
-This makes obvious the precision error on the "4" cluster through a
+This makes obvious the false positive "4" cluster, resulting from a
 predicate-nominative construction. It's often useful to check for parsing
 errors by looking at the (raw, pre-surgery) trees as PDF or PNG images:
 
@@ -89,31 +88,31 @@ errors by looking at the (raw, pre-surgery) trees as PDF or PNG images:
 [[PDF]](http://www.ark.cs.cmu.edu/ARKref/lee_example.parse.pdf)
 
 Evaluation: there is code that loads ACE Phase 2 datasets and evaluates on
-them. Unfortunately, this data cannot be freely redistributed. (Please contact
-us if you need assistance.) Evaluation can be run something like this:
+them. Unfortunately, this data cannot be freely redistributed. If you can get
+a copy of it, evaluation can be run something like this:
 
     $ ./arkref.sh -ace -input ace_rothdev/*.txt | tee log | ./score-micro-average.sh
     ....................................................................
-    PRECISION:  0.639167
-    RECALL:     0.509876
-    F1:         0.567247
+    PRECISION:  0.643389
+    RECALL:     0.515018
+    F1:         0.572091
 
 
 More information
 ----------------
 
-We are working on a real tech report describing this system, but in the
-meantime, a class project report is available with the code:
-`notes/class_paper/coref_final_for_rtw.pdf`. But please first read:
+We are working on a real tech report for this, but in the meantime, a class
+project report is available with the code:
+`notes/class_paper/coref_final_for_rtw.pdf`. Please first read:
 
 * Aria Haghighi and Dan Klein. _Simple Coreference Resolution with Rich
-  Syntactic and Semantic Features_. EMNLP 2009. At
-  http://www.aclweb.org/anthology/D/D09/D09-1120.pdf.
+  Syntactic and Semantic Features_. EMNLP 2009.
+  http://www.aclweb.org/anthology/D/D09/D09-1120.pdf
 
 Out of the box, ARKref is roughly equivalent to H&K's `+SYN-CONSTR` system. On
 the dev data set, its F-score is about the same, though the precision/recall
 tradeoff is different. Note that there is no lexical semantic compatibility
-subsystem (what H&K call `+SEM-COMPAT`).
+subsystem (`+SEM-COMPAT`).
 
 This approach depends on having a named entity recognizer and a syntactic
 constituency parser. ARKref is written to use Stanford NER and the Stanford
