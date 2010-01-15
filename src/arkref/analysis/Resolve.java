@@ -266,23 +266,24 @@ public class Resolve {
 		U.pl("trying to resolve as a pronoun");
 		
 		ArrayList<Mention> candidates = new ArrayList<Mention>();
-		
+	
 		for (Mention cand : d.prevMentions(mention)) {
 			boolean match = Types.checkPronominalMatch(mention, cand);
 			
-			if (cand.node() != null) {
-				if (SyntacticPaths.aIsDominatedByB(mention, cand)){
-					 // I-within-I constraint
-					//U.pl("fails A dominates B test");
-					match = false;
-				} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
-					//U.pl("fails reflexive test");
-					match = false;
-				} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
-					//U.pl("fails adjunct test");
-					match = false;
-				}
+			if (cand.node() == null) {
+				match = false;
+			}else if (SyntacticPaths.aIsDominatedByB(mention, cand)){
+				 // I-within-I constraint
+				//U.pl("fails A dominates B test");
+				match = false;
+			} else if (!Types.isReflexive(mention) && SyntacticPaths.inSubjectObjectRelationship(cand, mention)){
+				//U.pl("fails reflexive test");
+				match = false;
+			} else if (SyntacticPaths.isSubjectAndMentionInAdjunctPhrase(mention, cand)){
+				//U.pl("fails adjunct test");
+				match = false;
 			}
+		
 			
 			if (match) {
 				String s="";
@@ -291,7 +292,9 @@ public class Resolve {
 					s = gold_match ? "[gold RIGHT]" : "[gold WRONG]";
 				}
 //				U.pf("PRONOUN CANDIDATE %s: %20s -> %s\n", s, mention, cand);
-				candidates.add(cand);
+				if(cand.node() != null){
+					candidates.add(cand);
+				}
 			} else {
 //				U.pl("reject mismatch:  " + cand);
 			}

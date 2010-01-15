@@ -103,7 +103,7 @@ public class Types {
 	public static boolean checkPronominalMatch(Mention mention, Mention cand) {
 		assert isPronominal(mention);
 		String pronoun = pronoun(mention);
-		if (!isPronominal(cand) && perspective(pronoun) == Perspective.First) {
+		if (!isPronominal(cand) && perspective(pronoun) != Perspective.Third) {
 			// testFirstPerson
 			return false;
 		}

@@ -40,7 +40,7 @@ public class StanfordParserServer  {
 		String sentenceDelimiter = null;
 		int argIndex = 0;
 		if (args.length < 1) {
-			System.err.println("usage: java edu.stanford.nlp.parser.lexparser." + "LexicalizedParser parserFileOrUrl filename*");
+			System.err.println("usage: java edu.stanford.nlp.parser.lexparser." + "LexicalizedParser parserFileOrUrl\nOptions: -port, -maxLength, -markHeadNodes");
 			System.exit(1);
 		}
 

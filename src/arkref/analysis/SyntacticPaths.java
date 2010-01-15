@@ -210,4 +210,39 @@ public class SyntacticPaths {
 	}
 
 
+	public static boolean isInQuotation(Mention m){
+		//find all quote nodes, and see if any of them c-command the mention node
+		
+		TregexPattern pat = TregexPatternFactory.getPattern("``");
+		TregexMatcher matcher = pat.matcher(m.getSentence().rootNode());
+		while(matcher.find()) {
+			Tree quote = matcher.getMatch();
+			if(cCommands(quote, m.node(), m.getSentence().rootNode())){
+				return true;
+			}
+		}	
+		
+		return false;
+	}
+	
+	/**
+	 * There is a bug in the stanford Tree.cCommands method, I think
+	 * @return
+	 */
+	public static boolean cCommands(Tree n1, Tree n2, Tree root){
+		Tree n1Parent = n1.parent(root);
+		
+		for(Tree sibling: n1Parent.getChildrenAsList()){
+			if(sibling == n1){
+				continue;
+			}
+			
+			if(sibling.dominates(n2)){
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
 }

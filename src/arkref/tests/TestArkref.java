@@ -7,6 +7,7 @@ import org.apache.commons.lang.ArrayUtils;
 
 
 import arkref.analysis.FindMentions;
+import arkref.analysis.SyntacticPaths;
 import arkref.analysis.Types;
 import arkref.analysis._SimplePipeline;
 import arkref.data.Document;
@@ -514,6 +515,30 @@ public class TestArkref extends TestCase {
 		assertNoLink(13,14,d); //Susan, she (s5)
 	}	
 
+	public void testDisallowPronounsMatchesInQuotes() throws IOException{
+		//John said, "You need to see him."
+		//Susan said, "She needs to see him."
+		//She also said, "She needs to see him."
+		
+		Document d = Document.loadFiles("data/quotations");
+		_SimplePipeline.go(d);
+			
+		assertSurface(d,4,"Susan");
+		assertFalse(SyntacticPaths.isInQuotation(d.mentions().get(4-1))); //susan
+		
+		assertSurface(d,7,"She");
+		assertFalse(SyntacticPaths.isInQuotation(d.mentions().get(7-1))); //she (s3)
+		
+		
+		assertNoLink(1,2, d); //John, you
+		assertNoLink(1,3, d); //John, him
+		assertNoLink(4,5, d); //Susan, she
+		assertNoLink(1,6, d); //John, he (s2)
+		assertLink(4,7, d); //Susan, She
+		assertNoLink(7,8, d); //She, she
+		assertNoLink(1,9, d); //John, him (s3)
+	}
+	
 	
 }
 
