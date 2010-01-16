@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.ArrayUtils;
 
 
+import arkref.analysis.ARKref;
 import arkref.analysis.FindMentions;
 import arkref.analysis.SyntacticPaths;
 import arkref.analysis.Types;
@@ -26,6 +27,7 @@ public class TestArkref extends TestCase {
 	 * (Called before every test case method.) 
 	 */ 
 	protected void setUp() { 
+		ARKref.Opts.debug = true;
 	} 
 
 	/**

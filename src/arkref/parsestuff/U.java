@@ -36,8 +36,8 @@ public class U {
 		return s;
 	}
 
-	public static <T> void pl(T s) {  if (ARKref.Opts.debug) {  System.out.println(s);  }  }
-	public static void pf(String pat) {  if (ARKref.Opts.debug) {  System.out.printf(pat);  }  }
+	public static <T> void pl(T s) {  if (ARKref.showDebug()) {  System.out.println(s);  }  }
+	public static void pf(String pat) {  if (ARKref.showDebug()) {  System.out.printf(pat);  }  }
 
 	public static <A> void pf(String pat, A a0) {  if (ARKref.showDebug()) {  System.out.printf(pat, a0);  }  }
 	public static <A> String sf(String pat, A a0) {  return String.format(pat, a0);  }

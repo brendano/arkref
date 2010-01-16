@@ -38,18 +38,12 @@ public class ARKref {
 		public static int sentenceWindow = 999;
 	}
 	
-	private static boolean usingCommandline = false;
-	/** commandline usage should show debug output only with flag.
-	 *  otherwise -- e.g. unit tests -- always show. **/ 
+
 	public static boolean showDebug() {
-		return
-			!usingCommandline ||
-			(usingCommandline && Opts.debug);
+		return Opts.debug;
 	}
 	
-	public static void main(String[] args) throws Exception {
-		usingCommandline = true;
-		
+	public static void main(String[] args) throws Exception {		
 		Properties properties = new Properties();
 		properties.load(new FileInputStream("config/arkref.properties"));
 	
