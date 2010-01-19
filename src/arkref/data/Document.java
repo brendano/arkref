@@ -23,7 +23,8 @@ import edu.stanford.nlp.trees.tregex.TregexPattern;
 import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.StringUtils;
 
-public class Document {
+public class Document implements Serializable{
+	private static final long serialVersionUID = 55739275200700333L;
 	private ArrayList<Sentence> sentences;
 	private ArrayList<Mention> mentions;
 	public NodeHashMap<Mention> node2mention;

@@ -1,5 +1,6 @@
 package arkref.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 import edu.stanford.nlp.trees.Tree;
@@ -18,7 +19,8 @@ import edu.stanford.nlp.trees.Tree;
  * @param <ValueT>
  *
  */
-public class NodeHashMap<ValueT> {
+public class NodeHashMap<ValueT> implements Serializable {
+	private static final long serialVersionUID = -381382347554050836L;
 	private HashMap<String, ValueT> map;
 	public NodeHashMap() {
 		map = new HashMap();

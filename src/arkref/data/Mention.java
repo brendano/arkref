@@ -1,5 +1,6 @@
 package arkref.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,7 +15,8 @@ import edu.stanford.nlp.trees.tregex.tsurgeon.Tsurgeon;
 import edu.stanford.nlp.trees.tregex.tsurgeon.TsurgeonPattern;
 import edu.stanford.nlp.util.Pair;
 
-public class Mention {
+public class Mention implements Serializable{
+	private static final long serialVersionUID = 3218834840031746390L;
 	private Tree node;
 	private Sentence sentence;
 	private int id;

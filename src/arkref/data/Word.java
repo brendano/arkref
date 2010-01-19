@@ -1,12 +1,15 @@
 package arkref.data;
 
+import java.io.Serializable;
+
 import edu.stanford.nlp.trees.Tree;
 
 /** Our notion of a word.  Integrates information from multiple sources; currently, NER, parse, and surface location.
  * Note that this is different than the stanford notion of a word (edu.stanford.nlp.ling.Word)
  * @author brendano
  */
-public class Word {
+public class Word implements Serializable {
+	private static final long serialVersionUID = -5102799822220290219L;
 	/** node could be null on parse failure **/
 	private Tree node;
 	private String neTag;

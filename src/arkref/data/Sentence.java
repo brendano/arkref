@@ -3,6 +3,7 @@
  */
 package arkref.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,8 @@ import edu.stanford.nlp.trees.Tree;
  * @author brendano
  *
  */
-public class Sentence {
+public class Sentence implements Serializable {
+	private static final long serialVersionUID = -921962840824846212L;
 	public List<Word> words;
 	private Map<String,Word> node2wordMap;
 	private Tree rootNode;

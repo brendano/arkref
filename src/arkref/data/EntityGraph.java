@@ -1,5 +1,6 @@
 package arkref.data;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -19,11 +20,13 @@ import arkref.parsestuff.U;
  * progressively add pairwise equivalences to this data structure.  
  * internally, it builds the transitive closure. 
  **/
-public class EntityGraph {
+public class EntityGraph implements Serializable {
+	private static final long serialVersionUID = -3407431672317709104L;
 	public Map<Mention, HashSet<Mention>> mention2corefs;
 	public Set<Entity> entities = null;
 	
-	public class Entity {
+	public class Entity implements Serializable{
+		private static final long serialVersionUID = -6664324222677207904L;
 		public String id;
 		public Set<Mention> mentions;
 		

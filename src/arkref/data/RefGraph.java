@@ -1,11 +1,13 @@
 package arkref.data;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
 /** build this up through the pipeline stages **/
-public class RefGraph {
-//	public Map<Mention, ArrayList<Mention>> refCandidates;
+public class RefGraph implements Serializable {
+	private static final long serialVersionUID = 2746461702540825024L;
+	//	public Map<Mention, ArrayList<Mention>> refCandidates;
 	private Map<Mention, Mention> finalResolutions;
 	
 	public RefGraph(){ finalResolutions=new HashMap<Mention, Mention>(); }
