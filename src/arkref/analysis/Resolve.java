@@ -174,7 +174,7 @@ public class Resolve {
 				//find the mention for the parent
 				for(Mention cand:d.mentions()){
 					if(cand.node() == maxProj){
-						if(cand.neType().matches("^PER.*$")){
+						if(Types.personhood(cand) == Types.Personhood.Person){
 							return cand;
 						}
 						break;
