@@ -49,7 +49,7 @@ public class Sentence implements Serializable {
 		//String[] neTaggedWords = neTagging.split(" ");
 		
 		//simple whitespace splitting doesn't always work 
-		//because PTB tokenizes e.g., 16 2/3 as a single token.
+		//because of the way PTB tokenizes e.g., 16 2/3 as a single token.
 		//PTB sucks.
 		List<String> neTaggedWords = new ArrayList<String>();
 		Pattern p = Pattern.compile("(\\S+/\\S+)\\s");
