@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -44,18 +46,30 @@ public class Sentence implements Serializable {
 
 	public void setStuff(Tree root, String neTagging, boolean parseSuccess) {
 		this.setRootNode(root);
-		String[] neTaggedWords = neTagging.split(" ");
+		//String[] neTaggedWords = neTagging.split(" ");
+		
+		//simple whitespace splitting doesn't always work 
+		//because PTB tokenizes e.g., 16 2/3 as a single token.
+		//PTB sucks.
+		List<String> neTaggedWords = new ArrayList<String>();
+		Pattern p = Pattern.compile("(\\S+/\\S+)\\s");
+		Matcher m = p.matcher(neTagging+" ");
+		while(m.find()){
+			neTaggedWords.add(m.group(1));
+		}
+		
+		
 		List<Tree> leaves = root.getLeaves();
-		if ( !(!parseSuccess || neTaggedWords.length == leaves.size())) {
-			U.pf("WARNING parser and NER tokenizers disagree on length %d vs %d\nPARSER: %s\nNER:     %s\n", leaves.size(), neTaggedWords.length, leaves, StringUtils.join(neTaggedWords," "));
+		if ( !(!parseSuccess || neTaggedWords.size() == leaves.size())) {
+			U.pf("WARNING parser and NER tokenizers disagree on length %d vs %d\nPARSER: %s\nNER:     %s\n", leaves.size(), neTaggedWords.size(), leaves, StringUtils.join(neTaggedWords," "));
 		}		
 //		assert !parseSuccess || neTaggedWords.length == leaves.size();
 		
-		for (int i=0; i < neTaggedWords.length; i++) {
+		for (int i=0; i < neTaggedWords.size(); i++) {
 			Word word = new Word();
 			word.sentence = this;
 			
-			String[] parts = neTaggedWords[i].split("/");
+			String[] parts = neTaggedWords.get(i).split("/");
 			word.setNeTag(parts[parts.length-1]);
 			String nerToken = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");
 			
