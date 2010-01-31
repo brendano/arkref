@@ -4,6 +4,7 @@
 # Give this an s-expression, treebank-style parse tree on STDIN
 # It will make a graphviz graphic and open it on your computer
 # to look at.
+# Brendan O'Connor (anyall.org)
 
 # has only been tested on linux and mac
 # and requires GraphViz to be installed - the 'dot' command.
@@ -13,28 +14,55 @@ import sys,os,time,pprint,re
 
 nounish = '#700070'
 verbish = '#207020'
-#prepish = '#505010'
 prepish = '#C35617'
-fade = '#404040'
+modifiers = '#902010'
+coordish = '#404090'
+fade = '#b0b0b0'
 
 dep_colors = {
-  'SUB': '#303090',
-  'OBJ': '#903030',
+## tricky. LTH uses SUB for "subordinate clause" but penn2malt uses it for "subject".
+  #'SUB': '#202090',
+  'SBJ': '#202090',
+  #'OBJ': '#903030',
+  #'OBJ': '#CC009C',
+  'OBJ': ' #9F336C',
   'PMOD': prepish,
+  'COORD': coordish,
+  'CONJ': coordish,
+  #'SBAR': prepish,
   'NMOD': nounish,
   'VMOD': verbish,
   'VC': verbish,
+  'AMOD': modifiers,
+  #'ADV': modifiers,
+  'P': fade,
 }
+
+# parts out of the stanford dep hierarchy
+d=dep_colors
+for c in 'aux auxpass cop'.split(): d[c] = verbish
+for c in 'subj nsubj nsubjpass csubj'.split(): d[c] = d['SBJ']
+for c in 'obj dobj iobj '.split(): d[c] = d['OBJ']
+#for c in 'arg comp agent   attr ccomp xcomp compl mark rel acomp'.split(): d[c]=d['OBJ']
+  #if pos.startswith('prep'): return prepish
+#for c in 'mod advcl purpcl tmod rcmod amod infmod partmod num number  appos nn abbrev advmod neg poss possessive prt det prep'.split(): d[c]=d['AMOD']
+d['nn'] = nounish
+#d['amod'] = modifiers
+del d
+
 
 def pos_color(pos):
   if pos.startswith('VB') or pos=='MD': return verbish
   if pos.startswith('NN') or pos.startswith('PRP') or pos.startswith('NNP'): return nounish
   if pos in ('IN','TO'): return prepish
-  if pos.startswith('JJ') or pos.endswith('DT'): return fade
+  #if pos.startswith('JJ') or pos.endswith('DT'): return fade
+  if pos.startswith('RB') or pos.startswith('JJ'): return modifiers
 
-  if pos=='NP': return nounish
-  if pos=='VP': return verbish
-  if pos=='PP': return prepish
+  if pos.startswith('NP'): return nounish
+  if pos.startswith('VP'): return verbish
+  if pos.startswith('PP'): return prepish
+  if pos in ('ADVP','ADJP'): return modifiers
+  if pos=='CC': return coordish
 
   return 'black'
 
@@ -53,7 +81,7 @@ def pos_color(pos):
 #41906 PRD
 #9181 DEP
 
-#dep_bold = set(['SUB','OBJ'])
+#dep_bold = set(['SBJ','OBJ'])
 dep_bold = set([])
 
 
@@ -87,7 +115,12 @@ def parse_sexpr(s):
       curtok += c
     if depth<0: raise BadSexpr("Too many closing parens")
   if depth>0: raise BadSexpr("Didn't close all parens, depth %d" % depth)
-  return tree[0]
+  # penn treebank convention
+  if isinstance(tree[0][0],list):
+    assert tree[0][0][0]=='S'
+    return tree[0][0]
+  else:
+    return tree[0]
 
 class BadSexpr(Exception):pass
 
@@ -127,7 +160,7 @@ def graph_tuples(node, parent_pos=None):
       opts['arrowhead']='none'
     opts['color'] = pos_color(name) if isinstance(child,str) else \
         pos_color(name) if pos_color(child[0]) == pos_color(name) else \
-        fade
+        'black'
     tuples.append(("EDGE", my_id, child_id, opts))
     tuples += graph_tuples(child, name)
   return tuples
@@ -146,7 +179,7 @@ def dot_from_tuples(tuples):
   return dot
 
 def call_dot(dotstr, filename="/tmp/tmp.png", format='png'):
-  with open("/tmp/tmp.dot",'w') as f:
+  with open("/tmp/tmp.%s.dot" % os.getpid(), 'w') as f:
     print>>f, dotstr
   if format=='pdf':
     os.system("dot -Teps < /tmp/tmp.dot | ps2pdf -dEPSCrop -dEPSFitPage - > " + filename)
@@ -166,7 +199,7 @@ def show_tree(sexpr, format):
   dotstr = dot_from_tuples(tuples)
   filename = "/tmp/tmp.%s.%s" % (time.time(),format)
   call_dot(dotstr, filename, format=format)
-  open_file(filename)
+  return filename
 
 def conll_to_tuples(conll):
   ret = []
@@ -180,7 +213,7 @@ def conll_to_tuples(conll):
     if id != '0':
       col = pos_color(pos)
       ret.append(("NODE", id, "%s /%s" % (word,pos), {'shape':'none', 'fontcolor':col}))
-    opts = {'label':rel.lower(),'dir':'back'}
+    opts = {'label':rel.lower(),'dir':'forward'}  #forward back both none
     if rel in dep_colors:
       opts.update({'fontcolor':dep_colors[rel], 'color':dep_colors[rel]})
     if rel in dep_bold: opts['fontname'] = 'Times-Bold'
@@ -193,7 +226,7 @@ def show_conll(conll, format):
   dotstr = dot_from_tuples(tuples)
   filename = "/tmp/tmp.%s.%s" % (time.time(),format)
   call_dot(dotstr, filename, format=format)
-  open_file(filename)
+  return filename
 
 
 def do_multi_tree(parses, to_tuples):  ##= lambda s: dot_from_tuples(graph_tuples(s))):
@@ -204,33 +237,31 @@ def do_multi_tree(parses, to_tuples):  ##= lambda s: dot_from_tuples(graph_tuple
   output = base.replace("NUM","merged")
   inputs = base.replace("NUM","*")
   os.system("gs -q -dNOPAUSE -dBATCH -sDEVICE=pdfwrite -sOutputFile=%s %s" % (output,inputs))
-  open_file(output)
+  return output
   
 def smart_process(input, format):
   input = input.strip()
   lines = input.split("\n")
   lines = [l for l in lines if l.strip()]
   # multiple sexprs
-  if len(lines) > 1 and is_balanced(lines[0]) and is_balanced(lines[1]):
+  if format=='pdf' and len(lines) > 1 and is_balanced(lines[0]) and is_balanced(lines[1]):
     try:
-      do_multi_tree(lines, lambda s: graph_tuples(parse_sexpr(s)))
-      return
+      return do_multi_tree(lines, lambda s: graph_tuples(parse_sexpr(s)))
     except BadSexpr:
       pass
   # single (potentially multiline) sexpr
   if not all( len(x.split()) in (0,10) for x in lines[:3]) and \
      '(' in input and ')' in input:
     try:
-      show_tree(input, format)
-      return
+      return show_tree(input, format)
     except BadSexpr:
       pass
   parts = re.split(r'\n[ \t\r]*\n', input)
   # multiple dep parses
-  if len(parts) > 1:
-    do_multi_tree(parts, conll_to_tuples)
-    return
-  show_conll(input, format)
+  if format=='pdf' and len(parts) > 1:
+    return do_multi_tree(parts, conll_to_tuples)
+  # single dep parse
+  return show_conll(input, format)
 
 if __name__=='__main__':
   import sys
@@ -240,5 +271,6 @@ if __name__=='__main__':
             'pdf' if '-pdf' in sys.argv else \
             'pdf' if sys.platform=='darwin' else \
             'png'
-  smart_process(input, format)
+  output_filename = smart_process(input, format)
+  open_file(output_filename)
 
