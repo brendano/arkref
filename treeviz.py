@@ -115,12 +115,11 @@ def parse_sexpr(s):
       curtok += c
     if depth<0: raise BadSexpr("Too many closing parens")
   if depth>0: raise BadSexpr("Didn't close all parens, depth %d" % depth)
-  # penn treebank convention
-  if isinstance(tree[0][0],list):
-    assert tree[0][0][0]=='S'
-    return tree[0][0]
-  else:
-    return tree[0]
+  root = tree[0]
+  # weird
+  if isinstance(root[0], list):
+    root = ["ROOT"] + root
+  return root
 
 class BadSexpr(Exception):pass
 
@@ -179,12 +178,13 @@ def dot_from_tuples(tuples):
   return dot
 
 def call_dot(dotstr, filename="/tmp/tmp.png", format='png'):
-  with open("/tmp/tmp.%s.dot" % os.getpid(), 'w') as f:
+  dot = "/tmp/tmp.%s.dot" % os.getpid()
+  with open(dot, 'w') as f:
     print>>f, dotstr
-  if format=='pdf':
-    os.system("dot -Teps < /tmp/tmp.dot | ps2pdf -dEPSCrop -dEPSFitPage - > " + filename)
+  if False and format=='pdf':
+    os.system("dot -Teps < " +dot+ " | ps2pdf -dEPSCrop -dEPSFitPage - > " + filename)
   else:
-    os.system("dot -T" +format+ " < /tmp/tmp.dot > " + filename)
+    os.system("dot -T" +format+ " < " +dot+ " > " + filename)
 
 
 def open_file(filename):
