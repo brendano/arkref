@@ -12,19 +12,13 @@ public class NounTypes {
 	private NounTypes(){
 		wordTypeMap = new HashMap<String, String>();
 		
-		Properties properties = new Properties();
-		try{
-			properties.load(new FileInputStream("config/arkref.properties"));
-		}catch(Exception e){
-			e.printStackTrace();
-			System.exit(0);
-		}
+
 		
-		String personListPath= properties.getProperty("person-hyponyms", "config/person-hyponyms.txt");
-		String orgListPath= properties.getProperty("organization-hyponyms", "config/social-group-hyponyms.txt");
-		String locListPath= properties.getProperty("location-hyponyms", "config/location-structure-facility-and-geological-formation-hyponyms.txt");
-		String timeListPath = properties.getProperty("time-hyponyms", "config/time-point-unit-and-period-hyponyms.txt");
-		String groupListPath = properties.getProperty("group-hyponyms", "config/single-word-group-hyponyms.txt");
+		String personListPath= ARKref.getProperties().getProperty("person-hyponyms", "config/person-hyponyms.txt");
+		String orgListPath= ARKref.getProperties().getProperty("organization-hyponyms", "config/social-group-hyponyms.txt");
+		String locListPath= ARKref.getProperties().getProperty("location-hyponyms", "config/location-structure-facility-and-geological-formation-hyponyms.txt");
+		String timeListPath = ARKref.getProperties().getProperty("time-hyponyms", "config/time-point-unit-and-period-hyponyms.txt");
+		String groupListPath = ARKref.getProperties().getProperty("group-hyponyms", "config/single-word-group-hyponyms.txt");
 		
 		
 		loadTypes("person", personListPath);

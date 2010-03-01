@@ -36,6 +36,8 @@ public class ARKref {
 		public static boolean oracleSemantics = false;
 		@Option(gloss="Number of sentences in possible antecedent window")
 		public static int sentenceWindow = 999;
+		@Option(gloss="Properties file path")
+		public static String propertiesFile = "config/arkref.properties";
 	}
 	
 
@@ -44,12 +46,13 @@ public class ARKref {
 	}
 	
 	public static void main(String[] args) throws Exception {		
-		Properties properties = new Properties();
-		properties.load(new FileInputStream("config/arkref.properties"));
+
 	
 		OptionsParser op = new OptionsParser(Opts.class);
 		op.doParse(args);
 		if (Opts.ace)  Opts.debug = true;
+		
+		if(Opts.propertiesFile != null) ARKref.loadProperties(Opts.propertiesFile);
 		
 		if (!Opts.stdin && (Opts.input == null || Opts.input.length==0)) {
 			System.err.println(
@@ -149,5 +152,26 @@ public class ARKref {
 		}
 		if (dots) System.err.println("");
 	}
+
+	public static Properties getProperties() {
+		if(properties == null){
+			loadProperties("config/arkref.properties");
+		}
+		
+		return properties;
+	}
+	
+	private static void loadProperties(String propertiesFile) {
+		properties = new Properties();
+		try{
+			properties.load(new FileInputStream(propertiesFile));
+		}catch(Exception e){
+			e.printStackTrace();
+			System.exit(0);
+		}
+		
+	}
+
+	private static Properties properties = null;
 
 }
