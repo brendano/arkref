@@ -155,7 +155,7 @@ public class ARKref {
 
 	public static Properties getProperties() {
 		if(properties == null){
-			loadProperties("config/arkref.properties");
+			loadProperties(ARKref.Opts.propertiesFile);
 		}
 		
 		return properties;
