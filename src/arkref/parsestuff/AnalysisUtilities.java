@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
+import arkref.analysis.ARKref;
 import arkref.sent.SentenceBreaker;
 
 import com.aliasi.util.Strings;
@@ -42,13 +43,6 @@ public class AnalysisUtilities {
 		ner = null;
 		dp = new DocumentPreprocessor(false);
 		
-		properties = new Properties();
-		try{
-			properties.load(new FileInputStream("config/arkref.properties"));
-		}catch(Exception e){
-			e.printStackTrace();
-			System.exit(0);
-		}
 		
 //		try{
 //			JWNL.initialize(new FileInputStream(properties.getProperty("jwnlPropertiesFile", "config/file_properties.xml")));
@@ -275,7 +269,7 @@ public class AnalysisUtilities {
 		String result = "";
 		
 		//see if a parser socket server is available
-        int port = new Integer(properties.getProperty("parserServerPort","5556"));
+        int port = new Integer(ARKref.getProperties().getProperty("parserServerPort","5556"));
         String host = "127.0.0.1";
         Socket client;
         PrintWriter pw;
@@ -319,9 +313,9 @@ public class AnalysisUtilities {
 		if (parser == null) {
 			try {
 				Options op = new Options();
-				String serializedInputFileOrUrl = properties.getProperty("parserGrammarFile", "lib/englishPCFG.ser.gz");
+				String serializedInputFileOrUrl = ARKref.getProperties().getProperty("parserGrammarFile", "lib/englishPCFG.ser.gz");
 				parser = new LexicalizedParser(serializedInputFileOrUrl, op);
-				int maxLength = new Integer(properties.getProperty("parserMaxLength", "40")).intValue();
+				int maxLength = new Integer(ARKref.getProperties().getProperty("parserMaxLength", "40")).intValue();
 				parser.setMaxLength(maxLength);
 				parser.setOptionFlags("-outputFormat", "oneline");
 			} catch (Exception e) {
@@ -392,7 +386,7 @@ public class AnalysisUtilities {
 		String result = "";
 		
 		//see if a NER socket server is available
-        int port = new Integer(properties.getProperty("nerServerPort","5555"));
+        int port = new Integer(ARKref.getProperties().getProperty("nerServerPort","5555"));
         String host = "127.0.0.1";
         Socket client;
         PrintWriter pw;
@@ -425,7 +419,7 @@ public class AnalysisUtilities {
 		if(result.length() == 0){
 			if(ner == null){
 				try {
-					ner = CRFClassifier.getClassifierNoExceptions(properties.getProperty("nerModelFile", "lib/ner-eng-ie.crf-muc7.ser.gz"));
+					ner = CRFClassifier.getClassifierNoExceptions(ARKref.getProperties().getProperty("nerModelFile", "lib/ner-eng-ie.crf-muc7.ser.gz"));
 				} catch (Exception e){
 					e.printStackTrace();
 				}
@@ -561,7 +555,6 @@ public class AnalysisUtilities {
 	private AbstractSequenceClassifier ner; // stanford CRF classifier for NER
 	private LexicalizedParser parser;
 	private static AnalysisUtilities instance;
-	private Properties properties;
 //	private VerbConjugator conjugator;
 	private CollinsHeadFinder headfinder;
 	private LabeledScoredTreeFactory tree_factory;

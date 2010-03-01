@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
+import arkref.analysis.ARKref;
 import arkref.parsestuff.U;
 
 /**
@@ -48,15 +49,8 @@ public class FirstNames {
 	private FirstNames(){
 		genderMap = new HashMap<String, NameGender>();
 		
-		
-		Properties properties = new Properties();
-		try{
-			properties.load(new FileInputStream("config/arkref.properties"));
-		}catch(Exception e){
-			e.printStackTrace();
-		}
-		String maleNamesPath = properties.getProperty("maleFirstNamesFile", "config/dist.male.first");
-		String femaleNamesPath = properties.getProperty("femaleFirstNamesFile", "config/dist.female.first");
+		String maleNamesPath = ARKref.getProperties().getProperty("maleFirstNamesFile", "config/dist.male.first");
+		String femaleNamesPath = ARKref.getProperties().getProperty("femaleFirstNamesFile", "config/dist.female.first");
 		
 		
 		//load U.S. census data 
