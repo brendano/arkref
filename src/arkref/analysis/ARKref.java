@@ -161,7 +161,7 @@ public class ARKref {
 		return properties;
 	}
 	
-	public static void loadProperties(String propertiesFile) {
+	private static void loadProperties(String propertiesFile) {
 		properties = new Properties();
 		try{
 			properties.load(new FileInputStream(propertiesFile));
