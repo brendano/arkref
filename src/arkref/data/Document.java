@@ -348,7 +348,7 @@ public class Document implements Serializable{
 					s.words.get(i).charStart = s.surfSent.alignments[ wordAlignsInSent[i] ];
 				}
 			}
-			if (s.words.get(0).charStart==-1) {
+			if (s.words != null && s.words.size()>0 && s.words.get(0).charStart==-1) {
 				s.words.get(0).charStart = s.surfSent.alignments[0];
 			}
 			for (int i=1; i < s.words.size(); i++) {
