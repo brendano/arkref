@@ -30,7 +30,7 @@ public class Preprocess {
 	public static boolean alreadyPreprocessed(String path) {
 		String shortpath = shortPath(path);
 		return 
-			new File(shortpath+".ner").exists() &&
+			new File(shortpath+".sst").exists() &&
 			new File(shortpath+".parse").exists();
 	}
 
@@ -52,19 +52,20 @@ public class Preprocess {
 		}
 		pwOSent.close();
 	}
+	
 	public static void go(String path, boolean useTempFiles) throws IOException {
 //		assert path.endsWith(".txt") || path.endsWith(".sent") : "bad filename extension";
 		
 		File parseOutputFile = new File(path+".parse");
-		File nerOutputFile = new File(path+".ner");
+		File sstOutputFile = new File(path+".sst");
 		
-		if (useTempFiles && !parseOutputFile.exists() && !nerOutputFile.exists()) {
+		if (useTempFiles && !parseOutputFile.exists() && !sstOutputFile.exists()) {
 			parseOutputFile.deleteOnExit();
-			nerOutputFile.deleteOnExit();
+			sstOutputFile.deleteOnExit();
 		}
 		
 		PrintWriter pwParse = new PrintWriter(new FileOutputStream(parseOutputFile));
-		PrintWriter pwNER = new PrintWriter(new FileOutputStream(nerOutputFile));
+		PrintWriter pwSST = new PrintWriter(new FileOutputStream(sstOutputFile));
 		
 		String textpath;
 		if (new File( (textpath=  path+".sent")).exists()) {
@@ -87,13 +88,18 @@ public class Preprocess {
 		} else { assert false; }
 		
 		for(String sentence : sentenceTexts) {
-			String ner = AnalysisUtilities.getInstance().annotateSentenceNER(sentence);
 			AnalysisUtilities.ParseResult res = AnalysisUtilities.getInstance().parseSentence(sentence);
+			List<String> supersenses = AnalysisUtilities.getInstance().annotateSentenceWithSupersenses(res.parse);
 			U.pf("%s\t%s\t%s\n", res.success ? "PARSE" : "ERROR", res.score, res.parse);
 			pwParse.printf("%s\t%s\t%s\n", res.success ? "PARSE" : "ERROR", res.score, res.parse);
-			pwNER.println(ner);
+			for(int i=0; i < supersenses.size(); i++){
+				String ss = supersenses.get(i);
+				if(i>0) pwSST.print(" ");
+				pwSST.print(res.parse.getLeaves().get(i) + "/" + ss.substring(ss.indexOf("-")+1));
+			}
+			pwSST.println();
 		}
-		pwNER.close();
+		pwSST.close();
 		pwParse.close();
 	}
 }

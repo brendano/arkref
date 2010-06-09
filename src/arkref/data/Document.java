@@ -138,11 +138,11 @@ public class Document implements Serializable{
 		String shortpath = Preprocess.shortPath(path);
 
 		String parseFilename = shortpath + ".parse";
-		String neFilename = path = shortpath + ".ner";
+		String neFilename = path = shortpath + ".sst";
 		BufferedReader parseR = new BufferedReader(new FileReader(parseFilename));
-		BufferedReader nerR = new BufferedReader(new FileReader(neFilename));
+		BufferedReader sstR = new BufferedReader(new FileReader(neFilename));
 		
-		String parseLine, ner;
+		String parseLine, sst;
 		int curSentId = 0;
 		while ( (parseLine = parseR.readLine()) != null) {
 			Sentence sent = new Sentence(++curSentId);
@@ -161,8 +161,8 @@ public class Document implements Serializable{
 			Document.addNPsAbovePossessivePronouns(tree);
 			Document.addInternalNPStructureForRoleAppositives(tree);
 
-			ner = nerR.readLine();
-			sent.setStuff(tree, ner, sent.hasParse);
+			sst = sstR.readLine();
+			sent.setStuff(tree, sst, sent.hasParse);
 			d.sentences.add(sent);
 		}
 		return d;

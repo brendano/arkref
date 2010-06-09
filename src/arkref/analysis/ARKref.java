@@ -71,7 +71,7 @@ public class ARKref {
 		
 		U.pl("=Options=\n" + op.doGetOptionPairs());
 		
-		//take input on stdin, store parses, split sentences, and NER tags
+		//take input on stdin, store parses, split sentences, and SS tags
 		//in temporary files.
 		if(Opts.stdin){ 
 			
@@ -83,8 +83,8 @@ public class ARKref {
 			String tmpPrefix = tmpPath.substring(0, tmpPath.lastIndexOf(".")); 
 			File tmpParseFile = new File(tmpPrefix + ".parse");
 			tmpParseFile.deleteOnExit();
-			File tmpNERFile = new File(tmpPrefix + ".ner");
-			tmpNERFile.deleteOnExit();
+			File tmpSSTFile = new File(tmpPrefix + ".sst");
+			tmpSSTFile.deleteOnExit();
 			File tmpSentFile = new File(tmpPrefix + ".osent");
 			tmpSentFile.deleteOnExit();
 						

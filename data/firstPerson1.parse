@@ -1,2 +1,2 @@
-(ROOT (S=H (NP (PRP=H I)) (VP=H (VBP=H am) (NP (NP=H (DT the) (NN=H prince)) (PP (IN=H of) (NP (NNS=H thieves))))) (. .)))
-(ROOT (S=H (NP (PRP=H I)) (VP=H (VP=H (VBP=H have) (NP (PRP$ my) (NN=H cake))) (CC and) (VP (VBP=H am) (VP (VBG=H eating) (NP (PRP=H it)) (ADVP (RB=H too))))) (. .)))
+PARSE	-71.54743957519531	(ROOT (S (NP (PRP I)) (VP (VBP am) (NP (NP (DT the) (NN prince)) (PP (IN of) (NP (NNS thieves))))) (. .)))
+PARSE	-103.07965087890625	(ROOT (S (NP (PRP I)) (VP (VP (VBP have) (NP (PRP$ my) (NN cake))) (CC and) (VP (VBP am) (VP (VBG eating) (NP (PRP it)) (ADVP (RB too))))) (. .)))

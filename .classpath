@@ -14,15 +14,11 @@
 			<attribute name="javadoc_location" value="file:/Users/brendano/sw/stanfordnlp/stanford-parser-2008-10-26/javadoc/"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="lib/stanford-ner-2008-05-07.jar" sourcepath="/Users/brendano/sw/stanfordnlp/stanford-ner-2008-05-07/src">
-		<attributes>
-			<attribute name="javadoc_location" value="file:/Users/brendano/sw/stanfordnlp/stanford-ner-2008-05-07/javadoc/"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="lib" path="lib/lingpipe-3.8.2.jar" sourcepath="/lingpipe-3.8.2">
 		<attributes>
 			<attribute name="javadoc_location" value="file:/Users/brendano/sw/lingpipe-3.8.2/docs/api/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib/supersense-tagger.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

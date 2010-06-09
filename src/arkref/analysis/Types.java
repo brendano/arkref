@@ -169,7 +169,7 @@ public class Types {
 		//if its something other than PERSON or other (e.g., LOCATION)
 		//then return null because its obviously not male or female.
 		String neType = m.neType();
-		if(!neType.equals("PERSON") && !neType.equals("O")){
+		if(!neType.equalsIgnoreCase("PERSON") && !neType.equalsIgnoreCase("noun.person") && !neType.equals("O")){
 			return null;
 		}
 		
@@ -241,8 +241,8 @@ public class Types {
 			return personhood(p);
 		}
 		String t = m.neType();
-		if (t.equals("PERSON") 
-			 || NounTypes.getInstance().getType(m.getHeadWord()).equals("person")
+		if (t.equalsIgnoreCase("PERSON") || t.equalsIgnoreCase("noun.person")
+			// || NounTypes.getInstance().getType(m.getHeadWord()).equals("person")
 			 || genderByFirstNamesOrTitles(m) != null
 			 || personhoodByTitle(m) == Personhood.Person)
 			return Personhood.Person;

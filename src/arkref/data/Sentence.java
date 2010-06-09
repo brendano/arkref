@@ -61,7 +61,7 @@ public class Sentence implements Serializable {
 		
 		List<Tree> leaves = root.getLeaves();
 		if ( !(!parseSuccess || neTaggedWords.size() == leaves.size())) {
-			U.pf("WARNING parser and NER tokenizers disagree on length %d vs %d\nPARSER: %s\nNER:     %s\n", leaves.size(), neTaggedWords.size(), leaves, StringUtils.join(neTaggedWords," "));
+			U.pf("WARNING parser and SST tokenizers disagree on length %d vs %d\nPARSER: %s\nSST:     %s\n", leaves.size(), neTaggedWords.size(), leaves, StringUtils.join(neTaggedWords," "));
 		}		
 //		assert !parseSuccess || neTaggedWords.length == leaves.size();
 		
@@ -71,14 +71,14 @@ public class Sentence implements Serializable {
 			
 			String[] parts = neTaggedWords.get(i).split("/");
 			word.setNeTag(parts[parts.length-1]);
-			String nerToken = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");
+			String sstToken = StringUtils.join(ArrayUtils.subarray(parts, 0, parts.length-1), "/");
 			
 			if (parseSuccess) {
 				word.setNode(leaves.get(i));
-				assert nerToken.equals( word.node().value() ) : String.format("NER and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value());
+				assert sstToken.equals( word.node().value() ) : String.format("SST and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value());
 				set_node2word(word.node(), word);
 			}
-			word.token = nerToken.replace("\\/", "/");
+			word.token = sstToken.replace("\\/", "/");
 			words.add(word);
 
 		}
@@ -103,7 +103,7 @@ public class Sentence implements Serializable {
 		assert leaf.isLeaf();
 		Word w = node2word(leaf);
 		//			if (w == null) return null;
-		return w.neTag();
+		return w.ssTag();
 	}
 
 	public String text() {

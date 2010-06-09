@@ -1,1 +1,1 @@
-(ROOT (S=H (NP (NNP=H Walmart)) (VP=H (VBZ=H says) (SBAR (S=H (NP (NP=H (NNP=H Gitano)) (, ,) (NP (PRP$ its) (JJ top-selling) (NN=H brand)) (, ,)) (VP=H (VBZ=H is) (VP (VBG=H underselling)))))) (. .)))
+PARSE	-81.58653259277344	(ROOT (S (NP (NNP Walmart)) (VP (VBZ says) (SBAR (S (NP (NP (NNP Gitano)) (, ,) (NP (PRP$ its) (JJ top-selling) (NN brand)) (, ,)) (VP (VBZ is) (VP (VBG underselling)))))) (. .)))

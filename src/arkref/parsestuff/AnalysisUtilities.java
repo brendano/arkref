@@ -6,6 +6,7 @@ import java.net.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -19,8 +20,8 @@ import com.aliasi.util.Strings;
 //import net.didion.jwnl.data.POS;
 //import net.didion.jwnl.dictionary.Dictionary;
 
-import edu.stanford.nlp.ie.AbstractSequenceClassifier;
-import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.cmu.ark.DiscriminativeTagger;
+import edu.cmu.ark.LabeledSentence;
 import edu.stanford.nlp.ling.HasWord;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.ling.Word;
@@ -40,7 +41,7 @@ public class AnalysisUtilities {
 	public static boolean DEBUG = true;
 	private AnalysisUtilities(){
 		parser = null;
-		ner = null;
+		sst = null;
 		dp = new DocumentPreprocessor(false);
 		
 		
@@ -381,12 +382,20 @@ public class AnalysisUtilities {
 //		return res;
 //	}
 	
+	
+	
 
-	public String annotateSentenceNER(String sentence) {
-		String result = "";
+	public List<String> annotateSentenceWithSupersenses(Tree sentence) {
+		List<String> result = new ArrayList<String>();
+		
+		int numleaves = sentence.getLeaves().size();
+		if(numleaves <= 1){
+			return result;
+		}
+		LabeledSentence labeled = generateSupersenseTaggingInput(sentence);
 		
 		//see if a NER socket server is available
-        int port = new Integer(ARKref.getProperties().getProperty("nerServerPort","5555"));
+        int port = new Integer(ARKref.getProperties().getProperty("supersenseServerPort","5557"));
         String host = "127.0.0.1";
         Socket client;
         PrintWriter pw;
@@ -397,42 +406,68 @@ public class AnalysisUtilities {
 
 			pw = new PrintWriter(client.getOutputStream());
 			br = new BufferedReader(new InputStreamReader(client.getInputStream()));
-			pw.println(sentence);
+			String inputStr = "";
+			for(int i=0;i<labeled.length(); i++){
+				String token = labeled.getTokens().get(i);
+				String stem = labeled.getStems().get(i);
+				String pos = labeled.getPOS().get(i);
+				inputStr += token+"\t"+stem+"\t"+pos+"\n";
+			}
+			pw.println(inputStr);
 			pw.flush(); //flush to complete the transmission
 
 			while((line = br.readLine())!= null){
-				if(result.length()>0){
-					result += "\n";
-				}
-				result += line;
+				String [] parts = line.split("\\t");
+				result.add(parts[2]);
 			}
 			br.close();
 			pw.close();
 			client.close();
 			
 		} catch (Exception ex) {
-			if(DEBUG) System.err.println("Could not connect to NER server.");
+			if(ARKref.Opts.debug) System.err.println("Could not connect to SST server.");
 			//ex.printStackTrace();
 		}
 		
 		//if socket server not available, then use a local NER object
-		if(result.length() == 0){
-			if(ner == null){
-				try {
-					ner = CRFClassifier.getClassifierNoExceptions(ARKref.getProperties().getProperty("nerModelFile", "lib/ner-eng-ie.crf-muc7.ser.gz"));
-				} catch (Exception e){
-					e.printStackTrace();
+		if(result.size() == 0){
+			try {
+				if(sst == null){
+					sst = DiscriminativeTagger.loadModel(ARKref.getProperties().getProperty("supersenseModelFile", "config/supersenseModel.ser.gz"));
 				}
+				sst.findBestLabelSequenceViterbi(labeled, sst.getWeights());
+				for(String pred: labeled.getPredictions()){
+					result.add(pred);
+				}
+			} catch (Exception e){
+				e.printStackTrace();
 			}
-			result = ner.testString(sentence);
 		}
 		
-		result = result.trim();
-		if(DEBUG) System.err.println("annotateSentenceNER: "+result);
+		//add a bunch of blanks if necessary
+		while(result.size() < numleaves) result.add("0");
+		
+		if(ARKref.Opts.debug) System.err.println("annotateSentenceSST: "+result);
 		return result;
 	}
 	
 	
+	private LabeledSentence generateSupersenseTaggingInput(Tree sentence){
+		LabeledSentence res = new LabeledSentence();
+		List<Tree> leaves = sentence.getLeaves();
+		
+		for(int i=0;i<leaves.size();i++){
+			String word = leaves.get(i).label().toString();
+			Tree preterm = leaves.get(i).parent(sentence);
+			String pos = preterm.label().toString();
+			String stem = AnalysisUtilities.getInstance().getLemma(word, pos);
+			res.addToken(word, stem, pos, "0");
+		}
+		
+		return res;
+	}
+
+
 	/**
 	 * Remove traces and non-terminal decorations (e.g., "-SUBJ" in "NP-SUBJ") from a Penn Treebank-style tree.
 	 * 
@@ -551,8 +586,58 @@ public class AnalysisUtilities {
 		return tree.label().toString() + "[" + StringUtils.join(toks, " ") + "]";
 	}
 	
+
+
 	
-	private AbstractSequenceClassifier ner; // stanford CRF classifier for NER
+	private void loadWordnetMorphologyCache() {
+		morphMap = new HashMap<String, Map<String, String>>();
+		
+		try{
+			BufferedReader br;
+			String buf;
+			String[] parts;
+			String morphFile = ARKref.getProperties().getProperty("morphFile","config/MORPH_CACHE.gz");
+			br = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(morphFile))));
+			while((buf = br.readLine())!= null){
+				parts = buf.split("\\t");
+				addMorph(parts[1], parts[0], parts[2]);
+				addMorph(parts[1], "UNKNOWN", parts[2]);
+			}
+			br.close();
+			addMorph("men", "NNS", "man");
+		}catch(IOException e){
+			e.printStackTrace();
+		}
+	}
+	
+	private void addMorph(String word, String pos, String stem){
+		Map<String, String> posMap = morphMap.get(pos);
+		if(posMap == null){
+			posMap = new HashMap<String, String>();
+			morphMap.put(pos.intern(), posMap);
+		}
+		
+		posMap.put(word.intern(), stem.intern());
+	}
+	
+	
+	public String getLemma(String word, String pos){
+		if(morphMap == null){
+			loadWordnetMorphologyCache();
+		}
+		String res = word;
+		Map<String, String> posMap = morphMap.get(pos);
+		if(posMap != null){
+			res = posMap.get(word.toLowerCase());
+			if(res == null){
+				res = word.toLowerCase();
+			}
+		}
+		return res;
+	}
+
+	private Map<String, Map<String, String>> morphMap; //pos, word -> stem
+	private DiscriminativeTagger sst;
 	private LexicalizedParser parser;
 	private static AnalysisUtilities instance;
 //	private VerbConjugator conjugator;

@@ -1,4 +1,4 @@
-(ROOT (S=H (NP (NNP=H Lincoln)) (VP=H (VBD=H was) (NP (NN=H president))) (. .)))
-(ROOT (S=H (NP (NNP=H Lincoln)) (VP=H (VBD=H had) (VP (VBN=H been) (NP (NN=H president)))) (. .)))
-(ROOT (S=H (NP (NNP=H Lincoln)) (VP=H (VBD=H was) (S (VP=H (VBG=H being) (NP (NN=H president))))) (. .)))
-(ROOT (S=H (NP (NNP=H Lincoln)) (VP=H (MD=H will) (VP (VB=H be) (NP (NN=H president)))) (. .)))
+PARSE	-39.174808502197266	(ROOT (S (NP (NNP Lincoln)) (VP (VBD was) (NP (NN president))) (. .)))
+PARSE	-48.51704788208008	(ROOT (S (NP (NNP Lincoln)) (VP (VBD had) (VP (VBN been) (NP (NN president)))) (. .)))
+PARSE	-49.472957611083984	(ROOT (S (NP (NNP Lincoln)) (VP (VBD was) (VP (VBG being) (NP (NN president)))) (. .)))
+PARSE	-41.42518997192383	(ROOT (S (NP (NNP Lincoln)) (VP (MD will) (VP (VB be) (NP (NN president)))) (. .)))
