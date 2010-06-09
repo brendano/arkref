@@ -12,6 +12,8 @@ import arkref.data.FirstNames;
 
 
 /**
+ * (deprecated and unused)
+ * 
  * Implementation of Hal Daume's HAPNIS perl script for 
  * parsing the internal structure of names. 
  * (http://www.cs.utah.edu/~hal/HAPNIS/)

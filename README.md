@@ -53,8 +53,8 @@ The file `.tagged` file is the final output, in a mention/entity-tagged pseudo-x
     <mention mentionid="2" entityid="1_2_9">It</mention> sounds like <mention mentionid="3" entityid="3">a great plot</mention> , <mention mentionid="4" entityid="4_5">the actors</mention> are <mention mentionid="5" entityid="4_5">first grade</mention> , and <mention mentionid="6" entityid="6">the supporting cast</mention> is good as well , and <mention mentionid="7" entityid="7">Stallone</mention> is attempting to deliver <mention mentionid="8" entityid="8">a good performance</mention> .
     However , <mention mentionid="9" entityid="1_2_9">it</mention> ca n't hold up .
 
-During development, since it takes a while to load the parser and NER, it can
-be convenient to run them as background servers. If they're running, ARKref will
+During development, since it takes a while to load the parser and supersense tagger,
+it can be convenient to run them as background servers. If they're running, ARKref will
 automatically use them. Start them in a new terminal window with:
 
     $ ./servers.sh
@@ -100,9 +100,9 @@ a copy of it, evaluation can be run something like this:
 
     $ ./arkref.sh -ace -input ace_rothdev/*.txt | tee log | ./score-micro-average.sh
     ....................................................................
-    PRECISION:  0.643389
-    RECALL:     0.515018
-    F1:         0.572091
+	PRECISION:  0.657617
+	RECALL:     0.552433
+	F1:         0.600454
 
 
 More information
@@ -116,13 +116,20 @@ preliminary class project report is available with the code:
   Syntactic and Semantic Features_. EMNLP 2009.
   http://www.aclweb.org/anthology/D/D09/D09-1120.pdf
 
-Out of the box, ARKref is roughly equivalent to H&K's `+SYN-CONSTR` system. On
+Out of the box, ARKref is roughly equivalent to H&K's system. On
 the dev data set, its F-score is about the same, though the precision/recall
-tradeoff is different. Note that there is no lexical semantic compatibility
-subsystem (`+SEM-COMPAT`).
+tradeoff is different.
 
-This approach depends on having a named entity recognizer and a syntactic
-constituency parser. ARKref is written to use Stanford NER and the Stanford
+This approach depends on having a supersense tagger and a syntactic
+constituency parser. ARKref is written to use a reimplementation of the system
+described by Ciaramita and Altun (EMNLP 2006) and the Stanford
 Parser, which are included in this download. ARKref also makes heavy use of
 the Stanford Tregex library for implementation of syntactic rules. Please see
 the file LICENSE.txt for information on implications for redistribution.
+
+
+References:
+M. Ciaramita and Y. Altun. 2006. _Broad-coverage sense disambiguation and
+information extraction with a supersense sequence tagger_. In Proc. EMNLP.
+
+
