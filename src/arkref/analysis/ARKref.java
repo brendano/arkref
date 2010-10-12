@@ -52,7 +52,11 @@ public class ARKref {
 		op.doParse(args);
 		if (Opts.ace)  Opts.debug = true;
 		
-		if(Opts.propertiesFile != null) ARKref.loadProperties(Opts.propertiesFile);
+
+		if(Opts.propertiesFile != null){
+			ARKref.setPropertiesPath(Opts.propertiesFile);
+			ARKref.loadProperties(Opts.propertiesFile);
+		}
 		
 		if (!Opts.stdin && (Opts.input == null || Opts.input.length==0)) {
 			System.err.println(
@@ -172,6 +176,15 @@ public class ARKref {
 		
 	}
 
+	public static String getPropertiesPath() {
+		return propertiesPath;
+	}
+
+	public static void setPropertiesPath(String propertiesPath) {
+		ARKref.propertiesPath = propertiesPath;
+	}
+	
+	private static String propertiesPath = "config/arkref.properties";
 	private static Properties properties = null;
 
 }

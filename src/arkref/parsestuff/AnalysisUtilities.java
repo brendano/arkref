@@ -306,12 +306,13 @@ public class AnalysisUtilities {
 			boolean success = !Strings.normalizeWhitespace(result).equals("(ROOT (. .))");
 			return new ParseResult(success, lastParse, lastParseScore);
 		} catch (Exception ex) {
-			if(DEBUG) System.err.println("Could not connect to parser server.");
+			
 			//ex.printStackTrace();
 		}
         
 		//if socket server not available, then use a local parser object
 		if (parser == null) {
+			if(DEBUG) System.err.println("Could not connect to parser server.  Loading parser...");
 			try {
 				Options op = new Options();
 				String serializedInputFileOrUrl = ARKref.getProperties().getProperty("parserGrammarFile", "lib/englishPCFG.ser.gz");
@@ -433,6 +434,7 @@ public class AnalysisUtilities {
 		if(result.size() == 0){
 			try {
 				if(sst == null){
+					DiscriminativeTagger.loadProperties(ARKref.getPropertiesPath());
 					sst = DiscriminativeTagger.loadModel(ARKref.getProperties().getProperty("supersenseModelFile", "config/supersenseModel.ser.gz"));
 				}
 				sst.findBestLabelSequenceViterbi(labeled, sst.getWeights());

@@ -37,7 +37,9 @@ public class Eval {
 //				else
 //					U.pl("Resolved to  =>  " + eg.entName(mm1));
 				for (int j=0; j < aceE.mentions.size(); j++) {
-					if (i==j) continue;
+					if (i==j){
+						continue;
+					}
 					AceDocument.Mention am2 = aceE.mentions.get(j);
 					arkref.data.Mention mm2 = am2.myMention;					
 					boolean match;
