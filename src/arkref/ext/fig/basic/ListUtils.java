@@ -559,7 +559,7 @@ public class ListUtils {
       newv[i] = v[v.length-i-1];
     return newv;
   }
-
+/*
   public static int[] toArray(List<Integer> list) {
     int[] array = new int[list.size()];
     for(int i = 0; i < array.length; i++)
@@ -584,7 +584,7 @@ public class ListUtils {
       data[i] = list.get(i);
     return data;
   }
-
+*/
   public static double[] concat(double[] v1, double[] v2) {
     double[] v = new double[v1.length+v2.length];
     for(int i = 0; i < v1.length; i++) v[i] = v1[i];

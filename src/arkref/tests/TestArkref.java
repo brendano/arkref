@@ -68,6 +68,13 @@ public class TestArkref extends TestCase {
 	}
 	
 		
+	public void testSpecialSymbols() throws IOException{
+		Document d = Document.loadFiles("data/specialsymbols");
+		_SimplePipeline.go(d);
+				
+		assertTrue(d.mentions().toString(), d.mentions().size() == 2);
+	}
+	
 	
 	public void testReflexives() throws IOException{
 

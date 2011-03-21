@@ -30,6 +30,8 @@ public class FindMentions {
 		TregexPattern pat = TregexPatternFactory.getPattern(patS);
 		TregexMatcher matcher = pat.matcher(root);
 		while (matcher.find()) {
+			Tree t =  matcher.getMatch();
+			if(t.numChildren() == 0) continue; //added to handle when NP is a word (i.e., terminal/leaf node)
 			res.add(matcher.getMatch());
 		}
 		return res;
