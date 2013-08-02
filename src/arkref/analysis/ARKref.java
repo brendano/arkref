@@ -127,6 +127,7 @@ public class ARKref {
 				Resolve.go(d);
 				RefsToEntities.go(d);
 				Eval.pairwise(aceDoc, d.entGraph());
+				Eval.bcubed(aceDoc, d.entGraph());
 			} else {
 				if (Opts.forcePre || !Preprocess.alreadyPreprocessed(path)) {
 					Preprocess.go(path);

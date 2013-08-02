@@ -75,7 +75,10 @@ public class Sentence implements Serializable {
 			
 			if (parseSuccess) {
 				word.setNode(leaves.get(i));
-				assert sstToken.equals( word.node().value() ) : String.format("SST and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value());
+//				assert sstToken.equals( word.node().value() ) : String.format("SST and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value());
+				if (! sstToken.equals( word.node().value() )) {
+					System.out.println(String.format("SST and parser tokens disagree: [%s] vs [%s]", word.token, word.node().value()));
+				}
 				set_node2word(word.node(), word);
 			}
 			word.token = sstToken.replace("\\/", "/");

@@ -1,14 +1,55 @@
 package arkref.ace;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import arkref.data.EntityGraph;
+import arkref.data.Mention;
 import arkref.parsestuff.U;
 
 
 public class Eval {
 
+	public static void bcubed(AceDocument aceDoc, EntityGraph eg) {
+		U.pl("\n***  B-cubed Evaluation ***\n");
+		double recsum = 0, precsum = 0;
+		assert eg.mention2corefs.size() == aceDoc.document.getMentions().size();
+		
+		Map<Mention, Set<Mention>>mention2goldcorefs = new HashMap<Mention,Set<Mention>>();
+		for (Mention m : eg.mention2corefs.keySet()) {
+			mention2goldcorefs.put(m, new HashSet<Mention>());
+			if (m.aceMention == null) {
+				continue;
+			}
+			for (AceDocument.Mention goldM : m.aceMention.entity.mentions) {
+				mention2goldcorefs.get(m).add(goldM.myMention);
+			}
+		}
+		
+		int nMentions = 0;
+		for (Mention m : eg.mention2corefs.keySet()) {
+			nMentions++;
+			int predSize = eg.mention2corefs.get(m).size();
+//			if (!mention2goldcorefs.containsKey(m)) {
+//				U.pl("B3 SKIPPING MENTION " + m);
+//				continue;
+//			}
+			int goldSize = mention2goldcorefs.get(m).size();
+			
+			Set<Mention> intersection = new HashSet<>(eg.mention2corefs.get(m));
+			intersection.retainAll(mention2goldcorefs.get(m));
+			int bothSize = intersection.size();
+//			U.pf("gold=%d pred=%d both=%d\n", goldSize, predSize, bothSize);
+			if (goldSize>0) recsum += 1.0*bothSize/goldSize;
+			if (predSize>0) precsum += 1.0*bothSize/predSize;
+		}
+		assert nMentions > 0;
+		U.pf("B3 prec=%s rec=%s\n", precsum/nMentions, recsum/nMentions);
+	}
+	
 	/**
 	 *  we iterate through ACE's notions of entities and their mention members
 	 *  and test to see if our system agreed in its pairwise decisions.
@@ -114,8 +155,12 @@ public class Eval {
 		
 		U.pl("\n***  Numbers  ***\n");
 		U.pf("Pairwise Eval:  tp=%-4d fp=%-4d fn=%-4d\t%s\n",  pred_tp, fp, fn,  aceDoc.document.docid);
-		U.pf("Doc Prec = %.3f   Doc Rec = %.3f    \t%s\n", pred_tp*1.0/(pred_tp+fp), gold_tp*1.0/(gold_tp+fn), aceDoc.document.docid);
+		U.pf("Doc Prec = %.3f   Doc Rec = %.3f    \t%s\n", safeDivide(pred_tp, pred_tp+fp), safeDivide(gold_tp, (gold_tp+fn)), aceDoc.document.docid);
 //		U.pf("pred_tp=%-4d fp=%-4d  =>  Precision = %.3f\n", pred_tp, fp,  pred_tp*1.0/(pred_tp+fp));
 //		U.pf("gold_tp=%-4d fn=%-4d  =>  Recall = %.3f\n", gold_tp, fn,  gold_tp*1.0/(gold_tp+fn));
+	}
+	static double safeDivide(double x, double y) {
+		if (y==0) return 0;
+		return x/y;
 	}
 }
